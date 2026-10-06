@@ -36,21 +36,3 @@
   from = "/api/product-image"
   to = "/.netlify/functions/product-image"
   status = 200
-
-# Temporary holding page. Remove this block when the site is ready to launch.
-[[redirects]]
-  from = "/holding.html"
-  to = "/holding.html"
-  status = 200
-
-[[redirects]]
-  from = "/"
-  to = "/holding.html"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/*.html"
-  to = "/holding.html"
-  status = 200
-  force = true

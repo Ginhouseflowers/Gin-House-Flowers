@@ -8,7 +8,6 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const { createCheckoutSession } = require("../shared/stripe-checkout");
-const { keysMatch, previewCookie } = require("../shared/preview-access");
 const { sendContactEnquiryEmail } = require("../shared/contact-email");
 const {
   stockGet,
@@ -70,38 +69,10 @@ function sendJson(res, status, data) {
   res.end(JSON.stringify(data));
 }
 
-function resolvePreview(req) {
-  const params = new URL(req.url, "http://localhost").searchParams;
-  if (params.get("preview") === "0") return { active: false, set: "clear" };
-  if (params.get("preview") === "1") return { active: true, set: "set" };
-  const cookie = req.headers.cookie || "";
-  return {
-    active: /(?:^|; )ghf_preview=1(?:;|$)/.test(cookie),
-    set: null,
-  };
-}
-
 function serveStatic(req, res) {
-  const preview = resolvePreview(req);
-  const extraHeaders = {};
-  if (preview.set === "set") {
-    extraHeaders["Set-Cookie"] = "ghf_preview=1; Path=/; Max-Age=604800; SameSite=Lax";
-  } else if (preview.set === "clear") {
-    extraHeaders["Set-Cookie"] = "ghf_preview=; Path=/; Max-Age=0; SameSite=Lax";
-  }
-
   let urlPath = req.url.split("?")[0];
   if (urlPath === "/") urlPath = "/index.html";
-
-  const holdingOn = process.env.HOLDING_PAGE !== "0" && !preview.active;
-  const showHolding =
-    holdingOn &&
-    urlPath !== "/holding.html" &&
-    (urlPath === "/index.html" || urlPath.endsWith(".html"));
-
-  const filePath = showHolding
-    ? path.join(ROOT, "holding.html")
-    : path.join(ROOT, decodeURIComponent(urlPath));
+  const filePath = path.join(ROOT, decodeURIComponent(urlPath));
 
   const blocked =
     urlPath === "/.env" ||
@@ -125,13 +96,7 @@ function serveStatic(req, res) {
       return;
     }
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(
-      200,
-      Object.assign(
-        { "Content-Type": MIME[ext] || "application/octet-stream" },
-        extraHeaders
-      )
-    );
+    res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
     res.end(data);
   });
 }
@@ -246,22 +211,6 @@ const server = http.createServer(async function (req, res) {
           "Thank you — your enquiry has been sent. We will get back to you soon.",
       });
     });
-    return;
-  }
-
-  if ((req.method === "GET" || req.method === "HEAD") && urlPath === "/api/preview") {
-    const requestUrl = new URL(req.url, "http://localhost");
-    if (!keysMatch(requestUrl.searchParams.get("key"))) {
-      res.writeHead(401, { "Content-Type": "text/plain; charset=utf-8" });
-      res.end("This preview link is not valid.");
-      return;
-    }
-    const leave = requestUrl.searchParams.get("off") === "1";
-    res.writeHead(302, {
-      "Set-Cookie": previewCookie(false, leave),
-      Location: leave ? "/holding.html" : "/",
-    });
-    res.end();
     return;
   }
 
