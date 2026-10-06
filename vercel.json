@@ -6,7 +6,92 @@
       "permanent": false
     },
     {
-      "source": "/:file((?!holding$).*).html",
+      "source": "/index.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/shop.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/online-shop.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/cards.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/gifts.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/chocolate.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/weddings.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/funerals.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/corporate-events.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/flower-school.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/contact.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/terms.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/privacy.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/basket.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/range.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/view-all.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/shop-checkout-success.html",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/shop-checkout-cancelled.html",
       "destination": "/holding.html",
       "permanent": false
     }
