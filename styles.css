@@ -681,9 +681,14 @@ a.site-notice-text:hover {
 }
 
 @media (max-width: 940px) {
+  .header-search {
+    margin-left: auto;
+  }
+
   .nav-toggle {
     display: inline-flex;
-    margin-left: auto;
+    order: 2;
+    margin-left: 0;
   }
 
   .site-nav {
@@ -711,9 +716,10 @@ a.site-notice-text:hover {
 
   .site-nav ul {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
     justify-content: flex-start;
     gap: 1.5rem;
+    text-align: right;
   }
 
   .nav-shop-menu {
@@ -721,6 +727,7 @@ a.site-notice-text:hover {
     display: block;
     min-width: 0;
     padding-top: 0.75rem;
+    text-align: right;
   }
 
   .nav-shop-menu-inner {
