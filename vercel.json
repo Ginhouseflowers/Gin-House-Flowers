@@ -1,1 +1,9 @@
-{}
+{
+  "redirects": [
+    {
+      "source": "/chocolate.html",
+      "destination": "/range.html?brand=cambridge-confectionery&from=chocolate",
+      "permanent": true
+    }
+  ]
+}

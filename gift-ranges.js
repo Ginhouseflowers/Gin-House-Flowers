@@ -16,7 +16,7 @@
       id: "chocolate",
       title: "Chocolate",
       lede:
-        "Chocolate from the brands on our Histon shelves. Choose a range, then call the shop and we will put a piece aside for collection or local delivery.",
+        "Handmade chocolate from The Cambridge Confectionery Company, for collection from Histon or local delivery.",
     },
     brands: [
       {
@@ -60,15 +60,7 @@
         name: "Paper Salad",
         note: "Cards",
         blurb: "Bold, hand-painted cards with bright colour and texture.",
-        groups: ["cards", "chocolate"],
-        byGroup: {
-          chocolate: {
-            note: "Chocolate",
-            blurb: "Paper Salad chocolate, stocked beside the cards.",
-            image: "images/ranges/paper-salad-chocolate.jpg",
-            imageAlt: "Paper Salad Happy Birthday milk chocolate bar",
-          },
-        },
+        groups: ["cards"],
         image: "images/ranges/paper-salad.png",
         imageAlt: "Paper Salad card reading sending you the biggest hugs and all the love",
       },
@@ -107,15 +99,6 @@
         groups: ["chocolate"],
         image: "images/ranges/cambridge-confectionery.png",
         imageAlt: "Cambridge Confectionery Company rocky road chocolate bars",
-      },
-      {
-        id: "gnaw-chocolate",
-        name: "Gnaw Chocolate",
-        note: "Chocolate",
-        blurb: "Flavour-led chocolate bars and hot chocolate spoons, made in Norwich.",
-        groups: ["chocolate"],
-        image: "images/ranges/gnaw-chocolate.jpg",
-        imageAlt: "Gnaw salted caramel milk chocolate bar",
       },
       {
         id: "st-eval",

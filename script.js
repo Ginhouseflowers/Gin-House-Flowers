@@ -16,7 +16,7 @@
     '<div class="header-basket-panel" id="header-basket-panel" hidden>' +
     '<p class="header-basket-empty">Your basket is empty.</p>' +
     '<ul class="header-basket-list"></ul>' +
-    '<p class="header-basket-suggest" hidden>Make it extra special with a <a href="cards.html">card</a>, a <a href="gifts.html">gift</a> or some <a href="chocolate.html">chocolate</a>.</p>' +
+    '<p class="header-basket-suggest" hidden>Make it extra special with a <a href="cards.html">card</a>, a <a href="gifts.html">gift</a> or some <a href="range.html?brand=cambridge-confectionery&from=chocolate">chocolate</a>.</p>' +
     '<p class="header-basket-total" hidden></p>' +
     '<a class="btn btn-primary" href="basket.html">View basket</a>' +
     "</div>";
@@ -275,7 +275,7 @@
     '<a href="online-shop.html" data-shop-choice="flowers">Flowers</a>' +
     '<a href="cards.html" data-shop-choice="cards">Cards</a>' +
     '<a href="gifts.html" data-shop-choice="gifts">Gifts</a>' +
-    '<a href="chocolate.html" data-shop-choice="chocolate">Chocolate</a>' +
+    '<a href="range.html?brand=cambridge-confectionery&from=chocolate" data-shop-choice="chocolate">Chocolate</a>' +
     "</div>";
   item.appendChild(menu);
 
@@ -396,8 +396,8 @@
       {
         name: "Chocolate",
         meta: "Shop online",
-        href: "chocolate.html",
-        text: "chocolate confectionery gnaw paper salad cambridge",
+        href: "range.html?brand=cambridge-confectionery&from=chocolate",
+        text: "chocolate confectionery cambridge",
       },
     ];
     function pushCatalogue(list) {

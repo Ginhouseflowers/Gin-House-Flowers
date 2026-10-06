@@ -323,7 +323,7 @@
     '<option value="online-shop.html">Flowers</option>' +
     '<option value="cards.html">Cards</option>' +
     '<option value="gifts.html">Gifts</option>' +
-    '<option value="chocolate.html">Chocolate</option>' +
+    '<option value="range.html?brand=cambridge-confectionery&from=chocolate">Chocolate</option>' +
     '<option value="contact.html">Contact</option>' +
     "</select>" +
     "</label>" +

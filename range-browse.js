@@ -23,6 +23,7 @@
   }
 
   function groupHref(id) {
+    if (id === "chocolate") return "range.html?brand=cambridge-confectionery&from=chocolate";
     if (ranges[id]) return id + ".html";
     return "cards.html";
   }
@@ -848,7 +849,7 @@
       '<p class="eyebrow">Shop online</p>' +
       "<h1>Cards and gifts</h1>" +
       '<p class="lede">Choose a range from the cards or gifts we stock in Histon.</p>' +
-      '<p class="browse-back"><a href="cards.html">Cards</a> · <a href="gifts.html">Gifts</a> · <a href="chocolate.html">Chocolate</a></p>';
+      '<p class="browse-back"><a href="cards.html">Cards</a> · <a href="gifts.html">Gifts</a> · <a href="range.html?brand=cambridge-confectionery&from=chocolate">Chocolate</a></p>';
     return;
   }
 
@@ -857,6 +858,7 @@
     return card.brand === brand.name && card.group === from;
   });
   var backHref = groupHref(from);
+  var showGroupLink = brandsIn(from).length > 1;
   var samePrice =
     brandCatalogue.length > 0 &&
     brandCatalogue.every(function (card) {
@@ -877,11 +879,13 @@
     '<p class="lede">' +
     escapeHtml(lede) +
     "</p>" +
-    '<p class="browse-back"><a href="' +
-    backHref +
-    '">All ' +
-    escapeHtml(group.title.toLowerCase()) +
-    "</a></p>" +
+    (showGroupLink
+      ? '<p class="browse-back"><a href="' +
+        backHref +
+        '">All ' +
+        escapeHtml(group.title.toLowerCase()) +
+        "</a></p>"
+      : "") +
     (brandCatalogue.length
       ? ""
       : (copy.image
