@@ -269,7 +269,8 @@ a.site-notice-text:hover {
 }
 
 .nav-shop-item:hover .nav-shop-caret,
-.nav-shop-item:focus-within .nav-shop-caret {
+.nav-shop-item:focus-within .nav-shop-caret,
+.nav-shop-item.is-open .nav-shop-caret {
   transform: rotate(180deg);
 }
 
@@ -284,7 +285,8 @@ a.site-notice-text:hover {
 }
 
 .nav-shop-item:hover .nav-shop-menu,
-.nav-shop-item:focus-within .nav-shop-menu {
+.nav-shop-item:focus-within .nav-shop-menu,
+.nav-shop-item.is-open .nav-shop-menu {
   display: block;
 }
 

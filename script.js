@@ -300,13 +300,21 @@
   }
 
   function setExpanded(open) {
+    item.classList.toggle("is-open", open);
     shopLink.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
-  item.addEventListener("pointerenter", function () {
+  shopLink.addEventListener("click", function (event) {
+    event.preventDefault();
+    setExpanded(!item.classList.contains("is-open"));
+  });
+
+  item.addEventListener("pointerenter", function (event) {
+    if (event.pointerType === "touch") return;
     setExpanded(true);
   });
-  item.addEventListener("pointerleave", function () {
+  item.addEventListener("pointerleave", function (event) {
+    if (event.pointerType === "touch") return;
     setExpanded(false);
   });
   item.addEventListener("focusin", function () {
@@ -315,6 +323,15 @@
   item.addEventListener("focusout", function (event) {
     if (!item.contains(event.relatedTarget)) setExpanded(false);
   });
+
+  document.addEventListener("click", function (event) {
+    if (!item.contains(event.target)) setExpanded(false);
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") setExpanded(false);
+  });
+
   setExpanded(false);
 })();
 
@@ -581,6 +598,7 @@
 
   nav.querySelectorAll("a").forEach(function (link) {
     link.addEventListener("click", function () {
+      if (link.classList.contains("nav-shop")) return;
       setOpen(false);
     });
   });
