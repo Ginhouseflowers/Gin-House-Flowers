@@ -151,10 +151,13 @@ a.site-notice-text:hover {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line);
+  background: var(--forest);
+  border-bottom: 1px solid rgba(243, 234, 208, 0.16);
   overflow-x: clip;
+}
+
+.site-header.nav-open {
+  overflow: visible;
 }
 
 .header-inner {
@@ -202,7 +205,7 @@ a.site-notice-text:hover {
 
 .site-nav a {
   text-decoration: none;
-  color: var(--ink-muted);
+  color: #f3ead0;
   font-family: var(--font-label);
   font-size: 0.6875rem;
   font-weight: 400;
@@ -220,35 +223,36 @@ a.site-notice-text:hover {
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-  color: var(--teal);
+  color: var(--gold);
 }
 
 .nav-shop {
   padding: 0.55rem 0.85rem;
-  background: var(--forest);
-  border: 1px solid var(--forest);
+  background: var(--gold);
+  border: 1px solid var(--gold);
   border-radius: var(--radius);
-  color: var(--gold) !important;
+  color: var(--forest) !important;
 }
 
 .nav-shop:hover,
 .nav-shop:focus-visible {
-  background: var(--forest-deep);
-  border-color: var(--forest-deep);
-  color: var(--gold) !important;
+  background: #f1d98a;
+  border-color: #f1d98a;
+  color: var(--forest) !important;
 }
 
 .nav-cta {
   padding: 0.55rem 1.1rem;
-  border: 1px solid var(--teal);
+  border: 1px solid #f3ead0;
   border-radius: var(--radius);
-  color: var(--teal) !important;
+  color: #f3ead0 !important;
 }
 
 .nav-cta:hover,
 .nav-cta:focus-visible {
-  background: var(--forest);
-  color: var(--gold) !important;
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--forest) !important;
 }
 
 .nav-shop-item {
@@ -310,8 +314,8 @@ a.site-notice-text:hover {
   display: none;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid var(--line);
-  background: var(--bg-elevated);
+  border: 1px solid rgba(243, 234, 208, 0.35);
+  background: transparent;
   border-radius: var(--radius);
   cursor: pointer;
   padding: 0;
@@ -325,7 +329,7 @@ a.site-notice-text:hover {
   display: block;
   width: 1.25rem;
   height: 1px;
-  background: var(--ink);
+  background: #f3ead0;
   position: relative;
   transition: transform 0.25s var(--ease), opacity 0.2s;
 }
@@ -376,7 +380,7 @@ a.site-notice-text:hover {
   border: 1px solid transparent;
   border-radius: 50%;
   background: transparent;
-  color: var(--forest);
+  color: #f3ead0;
   cursor: pointer;
 }
 
@@ -389,7 +393,7 @@ a.site-notice-text:hover {
 .header-basket-toggle:hover,
 .header-basket-toggle:focus-visible,
 .header-basket-toggle[aria-expanded="true"] {
-  background: var(--forest);
+  background: rgba(243, 234, 208, 0.14);
   color: var(--gold);
 }
 
@@ -574,7 +578,7 @@ a.site-notice-text:hover {
   border: 1px solid transparent;
   border-radius: 50%;
   background: transparent;
-  color: var(--forest);
+  color: #f3ead0;
   cursor: pointer;
 }
 
@@ -587,7 +591,7 @@ a.site-notice-text:hover {
 .header-search-toggle:hover,
 .header-search-toggle:focus-visible,
 .header-search-toggle[aria-expanded="true"] {
-  background: var(--forest);
+  background: rgba(243, 234, 208, 0.14);
   color: var(--gold);
 }
 
@@ -679,11 +683,12 @@ a.site-notice-text:hover {
     right: 0;
     left: 0;
     height: calc(100dvh - var(--header-h));
-    background: var(--bg);
+    background: var(--forest);
     padding: 2rem 1.5rem;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid rgba(243, 234, 208, 0.16);
     transform: translateX(100%);
     visibility: hidden;
+    pointer-events: none;
     overflow: auto;
     transition: transform 0.35s var(--ease), visibility 0.35s;
   }
@@ -691,6 +696,7 @@ a.site-notice-text:hover {
   .site-nav.is-open {
     transform: translateX(0);
     visibility: visible;
+    pointer-events: auto;
   }
 
   .site-nav ul {
@@ -713,8 +719,13 @@ a.site-notice-text:hover {
     box-shadow: none;
   }
 
-  .nav-shop-menu a {
+  .nav-shop-menu a,
+  .nav-shop-menu a:hover,
+  .nav-shop-menu a:focus-visible,
+  .nav-shop-menu a[aria-current="page"] {
     padding: 0.4rem 0;
+    color: #f3ead0 !important;
+    background: transparent;
   }
 
   .nav-shop-item:hover .nav-shop-caret,
@@ -5286,8 +5297,8 @@ a.service-card:focus-visible h3 {
 }
 
 .site-header.is-scrolled {
-  background: color-mix(in srgb, var(--bg) 96%, transparent);
-  box-shadow: 0 12px 32px -20px rgba(8, 56, 40, 0.4);
+  background: var(--forest-deep);
+  box-shadow: 0 12px 32px -18px rgba(0, 0, 0, 0.55);
 }
 
 .logo-img {
@@ -5324,7 +5335,7 @@ a.service-card:focus-visible h3 {
   .site-nav a:not(.nav-shop):not(.nav-cta):focus-visible,
   .site-nav a:not(.nav-shop):not(.nav-cta)[aria-current="page"] {
     background-size: 100% 1px;
-    color: var(--forest);
+    color: var(--gold);
   }
 }
 

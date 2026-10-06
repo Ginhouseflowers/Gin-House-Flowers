@@ -573,7 +573,9 @@
     document.body.style.overflow = open ? "hidden" : "";
   }
 
-  toggle.addEventListener("click", function () {
+  toggle.addEventListener("click", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
     setOpen(!nav.classList.contains("is-open"));
   });
 
@@ -583,11 +585,12 @@
     });
   });
 
-  window.addEventListener("resize", function () {
-    if (window.matchMedia("(min-width: 941px)").matches) {
-      setOpen(false);
-    }
-  });
+  var desktopNav = window.matchMedia("(min-width: 941px)");
+  function closeOnDesktop(event) {
+    if (event.matches) setOpen(false);
+  }
+  if (desktopNav.addEventListener) desktopNav.addEventListener("change", closeOnDesktop);
+  else if (desktopNav.addListener) desktopNav.addListener(closeOnDesktop);
 })();
 
 (function () {
