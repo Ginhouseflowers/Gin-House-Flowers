@@ -8,6 +8,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const { createCheckoutSession } = require("../shared/stripe-checkout");
+const { keysMatch, previewCookie } = require("../shared/preview-access");
 const { sendContactEnquiryEmail } = require("../shared/contact-email");
 const {
   stockGet,
@@ -245,6 +246,22 @@ const server = http.createServer(async function (req, res) {
           "Thank you — your enquiry has been sent. We will get back to you soon.",
       });
     });
+    return;
+  }
+
+  if ((req.method === "GET" || req.method === "HEAD") && urlPath === "/api/preview") {
+    const requestUrl = new URL(req.url, "http://localhost");
+    if (!keysMatch(requestUrl.searchParams.get("key"))) {
+      res.writeHead(401, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("This preview link is not valid.");
+      return;
+    }
+    const leave = requestUrl.searchParams.get("off") === "1";
+    res.writeHead(302, {
+      "Set-Cookie": previewCookie(false, leave),
+      Location: leave ? "/holding.html" : "/",
+    });
+    res.end();
     return;
   }
 
