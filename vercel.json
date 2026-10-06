@@ -5,5 +5,11 @@
       "destination": "/range.html?brand=cambridge-confectionery&from=chocolate",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/catalogue.js",
+      "destination": "/api/catalogue"
+    }
   ]
 }
