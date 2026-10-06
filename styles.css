@@ -160,6 +160,14 @@ a.site-notice-text:hover {
   overflow: visible;
 }
 
+@media (min-width: 941px) {
+  .site-header:has(.nav-shop-item:hover),
+  .site-header:has(.nav-shop-item:focus-within),
+  .site-header:has(.nav-shop-item.is-open) {
+    overflow: visible;
+  }
+}
+
 .header-inner {
   max-width: 1120px;
   margin: 0 auto;
@@ -673,14 +681,9 @@ a.site-notice-text:hover {
 }
 
 @media (max-width: 940px) {
-  .header-search {
-    margin-left: auto;
-  }
-
   .nav-toggle {
     display: inline-flex;
-    order: 2;
-    margin-left: 0;
+    margin-left: auto;
   }
 
   .site-nav {
@@ -708,10 +711,9 @@ a.site-notice-text:hover {
 
   .site-nav ul {
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: flex-start;
     gap: 1.5rem;
-    text-align: right;
   }
 
   .nav-shop-menu {
@@ -719,7 +721,6 @@ a.site-notice-text:hover {
     display: block;
     min-width: 0;
     padding-top: 0.75rem;
-    text-align: right;
   }
 
   .nav-shop-menu-inner {

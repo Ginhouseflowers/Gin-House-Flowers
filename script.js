@@ -306,22 +306,24 @@
 
   shopLink.addEventListener("click", function (event) {
     event.preventDefault();
+    event.stopPropagation();
     setExpanded(!item.classList.contains("is-open"));
   });
 
   item.addEventListener("pointerenter", function (event) {
     if (event.pointerType === "touch") return;
-    setExpanded(true);
+    if (!item.classList.contains("is-open")) shopLink.setAttribute("aria-expanded", "true");
   });
   item.addEventListener("pointerleave", function (event) {
     if (event.pointerType === "touch") return;
-    setExpanded(false);
+    if (!item.classList.contains("is-open")) shopLink.setAttribute("aria-expanded", "false");
   });
   item.addEventListener("focusin", function () {
-    setExpanded(true);
+    if (!item.classList.contains("is-open")) shopLink.setAttribute("aria-expanded", "true");
   });
   item.addEventListener("focusout", function (event) {
-    if (!item.contains(event.relatedTarget)) setExpanded(false);
+    if (item.contains(event.relatedTarget)) return;
+    if (!item.classList.contains("is-open")) shopLink.setAttribute("aria-expanded", "false");
   });
 
   document.addEventListener("click", function (event) {
