@@ -1,0 +1,23 @@
+{
+  "products": {
+    "ccc-cp001203": {
+      "available": null,
+      "outOfStock": false,
+      "deleted": true,
+      "pricePence": null,
+      "onSale": false,
+      "salePricePence": null
+    },
+    "ccc-pouch004": {
+      "available": null,
+      "outOfStock": false,
+      "deleted": true,
+      "pricePence": 599,
+      "onSale": false,
+      "salePricePence": null
+    }
+  },
+  "customProducts": {},
+  "notice": null,
+  "consumedSessions": []
+}

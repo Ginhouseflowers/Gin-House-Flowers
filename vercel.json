@@ -1,0 +1,14 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/holding.html",
+      "permanent": false
+    },
+    {
+      "source": "/:file((?!holding$).*).html",
+      "destination": "/holding.html",
+      "permanent": false
+    }
+  ]
+}

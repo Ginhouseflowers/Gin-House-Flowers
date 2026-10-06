@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Your basket at Gin House Flowers. Review flowers, cards, gifts and chocolate, then pay securely." />
+    <title>Basket — Gin House Flowers</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Gin House Flowers" />
+    <meta property="og:title" content="Basket — Gin House Flowers" />
+    <meta property="og:description" content="Your basket at Gin House Flowers. Review flowers, cards, gifts and chocolate, then pay securely." />
+    <meta property="og:image" content="https://www.ginhouseflowers.co.uk/images/home/hero-feature.jpg" />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Satisfy&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" id="top">
+      <div class="header-inner">
+        <a class="logo" href="index.html" aria-label="Gin House Flowers home">
+          <img
+            class="logo-img"
+            src="images/logo.png"
+            alt="Gin House Flowers"
+            width="1994"
+            height="980"
+            decoding="sync"
+          />
+        </a>
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="site-nav"
+          data-nav-toggle
+        >
+          <span class="nav-toggle-bar"></span>
+          <span class="visually-hidden">Menu</span>
+        </button>
+        <nav class="site-nav" id="site-nav" aria-label="Primary">
+          <ul>
+            <li><a href="shop.html">About Us</a></li>
+            <li><a href="weddings.html">Weddings</a></li>
+            <li><a href="funerals.html">Funerals</a></li>
+            <li><a href="corporate-events.html">Corporate</a></li>
+            <li><a href="flower-school.html">Flower School</a></li>
+            <li><a href="online-shop.html" class="nav-shop">Shop Online</a></li>
+            <li><a href="contact.html" class="nav-cta">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-main basket-page" data-shop>
+      <header class="page-hero">
+        <div class="page-hero-inner">
+          <p class="eyebrow">Shop online</p>
+          <h1>Basket</h1>
+        </div>
+      </header>
+
+      <section class="section" aria-labelledby="basket-heading">
+        <div class="section-inner">
+          <div class="basket-sheet">
+            <h2 id="basket-heading" class="visually-hidden">Your basket</h2>
+            <p class="basket-status" data-basket-status aria-live="polite"></p>
+            <p class="basket-empty" data-basket-empty>
+              Your basket is empty.
+              <a href="online-shop.html">Shop flowers</a>,
+              <a href="cards.html">cards</a>,
+              <a href="gifts.html">gifts</a> or
+              <a href="chocolate.html">chocolate</a>.
+            </p>
+            <div data-basket-items-wrap hidden>
+              <ul class="basket-list" data-basket-list></ul>
+              <section class="basket-addons" data-basket-addons hidden aria-labelledby="basket-addons-heading">
+                <div class="basket-addons-head">
+                  <h3 id="basket-addons-heading">Add a little extra</h3>
+                  <p>Hand-finished chocolates from Cambridge, or a card to go with your flowers.</p>
+                </div>
+                <ul class="basket-addons-list" data-basket-addons-list></ul>
+              </section>
+              <p class="basket-delivery-fee" data-basket-delivery-fee hidden></p>
+              <p class="basket-total" data-basket-total></p>
+              <fieldset class="basket-fulfilment" data-basket-fulfilment>
+                <legend class="basket-fulfilment-legend">Collection or delivery</legend>
+                <label class="basket-fulfilment-option">
+                  <input
+                    type="radio"
+                    name="basket-fulfilment"
+                    value="collection"
+                    data-basket-fulfilment-input
+                    checked
+                  />
+                  Collect from the shop
+                </label>
+                <div class="basket-collection-details" data-collection-details>
+                  <div class="field basket-collection-date">
+                    <label for="basket-collection-date">Collection date</label>
+                    <input
+                      type="date"
+                      id="basket-collection-date"
+                      name="collectionDate"
+                      data-collection-date
+                      required
+                    />
+                  </div>
+                  <div class="field basket-collection-time">
+                    <label for="basket-collection-time">Collection time</label>
+                    <select id="basket-collection-time" name="collectionTime" data-collection-time required>
+                      <option value="">Choose a time</option>
+                    </select>
+                    <p class="field-hint">Tue 10:30–5 · Wed–Fri 9:30–5 · Sat 9–1</p>
+                    <p class="basket-collection-error" data-collection-error role="alert" hidden></p>
+                  </div>
+                </div>
+                <label class="basket-fulfilment-option">
+                  <input
+                    type="radio"
+                    name="basket-fulfilment"
+                    value="delivery"
+                    data-basket-fulfilment-input
+                  />
+                  Delivery within 10 miles
+                </label>
+                <div class="basket-delivery-details" data-delivery-details hidden>
+                  <div class="field basket-delivery-name">
+                    <label for="basket-delivery-name">Recipient’s name</label>
+                    <input
+                      type="text"
+                      id="basket-delivery-name"
+                      name="deliveryName"
+                      data-delivery-name
+                      autocomplete="off"
+                      maxlength="80"
+                    />
+                  </div>
+                  <div class="field basket-delivery-postcode">
+                    <label for="basket-delivery-postcode">Address</label>
+                    <input
+                      type="text"
+                      id="basket-delivery-postcode"
+                      name="deliveryAddress"
+                      data-delivery-postcode
+                      autocomplete="off"
+                      maxlength="300"
+                      placeholder="Start typing the address, e.g. 12 Station Road, Histon"
+                    />
+                    <p class="field-hint">Choose from the suggestions, or type the full address including the postcode.</p>
+                    <p class="basket-delivery-postcode-error" data-delivery-postcode-error role="alert" hidden></p>
+                  </div>
+                  <div class="field basket-delivery-date">
+                    <label for="basket-delivery-date">Delivery date</label>
+                    <input
+                      type="date"
+                      id="basket-delivery-date"
+                      name="deliveryDate"
+                      data-delivery-date
+                      required
+                    />
+                    <p class="field-hint">Tue–Sat. £3 to Histon, Cottenham, Impington, Oakington or Girton; £5 elsewhere in the area.</p>
+                    <p class="basket-delivery-date-error" data-delivery-date-error role="alert" hidden></p>
+                  </div>
+                </div>
+                <div data-uk-postage-option hidden>
+                  <label class="basket-fulfilment-option">
+                    <input
+                      type="radio"
+                      name="basket-fulfilment"
+                      value="postage"
+                      data-basket-fulfilment-input
+                    />
+                    Delivery anywhere — £3.99
+                  </label>
+                  <p class="field-hint">Posted anywhere in the UK. Cards and gifts only.</p>
+                </div>
+              </fieldset>
+              <div class="basket-actions">
+                <button type="button" class="btn btn-primary" data-basket-checkout hidden>
+                  Pay securely
+                </button>
+                <button type="button" class="btn btn-ghost" data-basket-clear hidden>
+                  Clear basket
+                </button>
+                <a class="basket-email-fallback" data-basket-email-fallback hidden href="mailto:info@ginhouseflowers.co.uk">Or email your order instead</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p class="footer-brand">Gin House Flowers</p>
+        <p class="footer-tag">11 High Street, Histon · CB24 9JD</p>
+        <div class="footer-grid">
+          <div class="footer-col">
+            <h2>Visit</h2>
+            <p>
+              11 High Street, Histon<br />
+              Cambridge CB24 9JD
+            </p>
+            <p>
+              <a href="tel:+441223656670">01223 656670</a><br />
+              <a href="mailto:info@ginhouseflowers.co.uk">info@ginhouseflowers.co.uk</a>
+            </p>
+            <p>
+              Tuesday–Friday 9:30am–5pm<br />
+              Saturday 9am–1pm<br />
+              Closed Sunday &amp; Monday
+            </p>
+          </div>
+          <div class="footer-col">
+            <h2>Shop</h2>
+            <ul>
+              <li><a href="online-shop.html">Flowers</a></li>
+              <li><a href="cards.html">Cards</a></li>
+              <li><a href="gifts.html">Gifts</a></li>
+              <li><a href="chocolate.html">Chocolate</a></li>
+              <li><a href="online-shop.html#florists-choice-bouquet">Hand tied bouquets</a></li>
+              <li><a href="online-shop.html#florists-choice-hatbox">Hat boxes</a></li>
+              <li><a href="basket.html">Basket</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h2>The studio</h2>
+            <ul>
+              <li><a href="shop.html">About us</a></li>
+              <li><a href="weddings.html">Weddings</a></li>
+              <li><a href="funerals.html">Funerals</a></li>
+              <li><a href="corporate-events.html">Corporate &amp; events</a></li>
+              <li><a href="flower-school.html">Flower School</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h2>Customer service</h2>
+            <ul>
+              <li><a href="contact.html">Contact us</a></li>
+              <li><a href="online-shop.html#shop-faq-heading">Ordering FAQs</a></li>
+              <li><a href="https://www.facebook.com/Ginhouseflowers/?locale=en_GB" rel="noopener noreferrer" target="_blank">Facebook</a></li>
+              <li><a href="https://www.instagram.com/ginhouseflowers/" rel="noopener noreferrer" target="_blank">Instagram</a></li>
+              <li><a href="https://share.google/cvDpNgMsYYmBlyJOs" rel="noopener noreferrer" target="_blank">Google reviews</a></li>
+            </ul>
+          </div>
+        </div>
+        <p class="footer-copy">
+          © <span data-year></span> Gin House Flowers Ltd. Registered in England and Wales, company no. 11902166.
+          Registered office: 11 High Street, Histon, Cambridge CB24 9JD.
+        </p>
+        <p class="footer-legal">
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+          <button type="button" class="footer-cookie-settings" data-cookie-settings>Cookie settings</button>
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      window.GIN_SHOP_CONFIG = { checkoutApi: "/api/create-checkout-session" };
+    </script>
+    <script src="gift-ranges.js"></script>
+    <script src="shared/ohh-deer-cards.js"></script>
+    <script src="shared/museums-galleries.js"></script>
+    <script src="shared/paper-salad.js"></script>
+    <script src="shared/cambridge-confectionery.js"></script>
+    <script src="/api/catalogue.js"></script>
+    <script src="script.js" defer></script>
+    <script src="stock.js" defer></script>
+    <script src="shared/delivery-radius-client.js" defer></script>
+    <script src="shared/address-search-client.js" defer></script>
+    <script src="shared/delivery-schedule-client.js" defer></script>
+    <script src="shared/collection-schedule-client.js" defer></script>
+    <script src="shared/shop-colour-client.js" defer></script>
+    <script src="shop-products-client.js" defer></script>
+    <script src="shop-basket.js" defer></script>
+  </body>
+</html>
