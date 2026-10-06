@@ -175,15 +175,38 @@
       .join("");
   }
 
+  var mobileBasket = window.matchMedia("(max-width: 940px)");
+
+  function placeOverlay() {
+    var header = document.querySelector(".site-header");
+    var bottom = header ? header.getBoundingClientRect().bottom : 0;
+    panel.style.top = Math.round(bottom + 6) + "px";
+  }
+
+  function floatPanel(open) {
+    if (open && mobileBasket.matches) {
+      document.body.appendChild(panel);
+      panel.classList.add("is-overlay");
+      placeOverlay();
+      return;
+    }
+    panel.classList.remove("is-overlay");
+    panel.style.top = "";
+    if (panel.parentElement !== root) root.appendChild(panel);
+  }
+
   function setOpen(open) {
     panel.hidden = !open;
     button.setAttribute("aria-expanded", open ? "true" : "false");
+    floatPanel(open);
     if (open) {
       var nav = document.getElementById("site-nav");
       var toggle = document.querySelector("[data-nav-toggle]");
       var searchPanel = document.getElementById("header-search-panel");
       var searchBtn = document.querySelector(".header-search-toggle");
+      var header = document.querySelector(".site-header");
       if (nav) nav.classList.remove("is-open");
+      if (header) header.classList.remove("nav-open");
       if (toggle) toggle.setAttribute("aria-expanded", "false");
       if (searchPanel) searchPanel.hidden = true;
       if (searchBtn) searchBtn.setAttribute("aria-expanded", "false");
@@ -237,11 +260,19 @@
   });
 
   document.addEventListener("click", function (event) {
-    if (!root.contains(event.target)) setOpen(false);
+    if (!root.contains(event.target) && !panel.contains(event.target)) setOpen(false);
   });
 
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") setOpen(false);
+  });
+
+  window.addEventListener("scroll", function () {
+    if (!panel.hidden && panel.classList.contains("is-overlay")) placeOverlay();
+  }, { passive: true });
+
+  window.addEventListener("resize", function () {
+    if (!panel.hidden) floatPanel(true);
   });
 
   window.addEventListener("ginhouse:basket", function (event) {
