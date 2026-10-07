@@ -236,22 +236,134 @@
     showPostcodeError("");
     showDateError("");
     if (deliveryDateInput) deliveryDateInput.value = "";
+    renderDeliveryCalendar();
     updateBasketTotals();
     syncCheckoutAvailability();
   }
 
+  var renderDeliveryCalendar = function () {};
+
   function setupDeliveryDateInput() {
     if (!deliveryDateInput || !window.GinDeliverySchedule) return;
-    var previous = deliveryDateInput.value;
-    var dates = window.GinDeliverySchedule.listDeliveryDates(8);
-    deliveryDateInput.innerHTML = '<option value="">Choose a date</option>';
-    dates.forEach(function (iso) {
-      var option = document.createElement("option");
-      option.value = iso;
-      option.textContent = window.GinDeliverySchedule.formatDeliveryLabel(iso);
-      deliveryDateInput.appendChild(option);
+    var calendar = root.querySelector("[data-delivery-calendar]");
+    if (!calendar) return;
+
+    function parseIso(iso) {
+      var parts = String(iso || "").split("-").map(Number);
+      if (parts.length !== 3) return null;
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function toIso(date) {
+      var m = String(date.getMonth() + 1).padStart(2, "0");
+      var d = String(date.getDate()).padStart(2, "0");
+      return date.getFullYear() + "-" + m + "-" + d;
+    }
+
+    var earliest = parseIso(window.GinDeliverySchedule.getEarliestDeliveryDate());
+    var latest = new Date(earliest.getFullYear(), earliest.getMonth() + 6, earliest.getDate());
+    var view = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
+
+    function dayAvailable(date) {
+      if (date < earliest || date > latest) return false;
+      var day = date.getDay();
+      return day >= 2 && day <= 6;
+    }
+
+    renderDeliveryCalendar = function () {
+      var selected = deliveryDateInput.value;
+      var monthName = new Intl.DateTimeFormat("en-GB", {
+        month: "long",
+        year: "numeric",
+      }).format(view);
+      var prevMonth = new Date(view.getFullYear(), view.getMonth() - 1, 1);
+      var nextMonth = new Date(view.getFullYear(), view.getMonth() + 1, 1);
+      var prevDisabled = prevMonth < new Date(earliest.getFullYear(), earliest.getMonth(), 1);
+      var nextDisabled = nextMonth > new Date(latest.getFullYear(), latest.getMonth(), 1);
+      var html =
+        '<div class="delivery-calendar-head">' +
+        '<button type="button" class="delivery-calendar-nav" data-cal-prev' +
+        (prevDisabled ? " disabled" : "") +
+        ' aria-label="Previous month">‹</button>' +
+        '<p class="delivery-calendar-month">' +
+        monthName +
+        "</p>" +
+        '<button type="button" class="delivery-calendar-nav" data-cal-next' +
+        (nextDisabled ? " disabled" : "") +
+        ' aria-label="Next month">›</button>' +
+        "</div>" +
+        '<div class="delivery-calendar-grid" role="grid">' +
+        ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+          .map(function (label) {
+            return '<span class="delivery-calendar-dow">' + label + "</span>";
+          })
+          .join("");
+
+      var first = new Date(view.getFullYear(), view.getMonth(), 1);
+      var lead = (first.getDay() + 6) % 7;
+      var i;
+      for (i = 0; i < lead; i += 1) {
+        html += '<span class="delivery-calendar-empty"></span>';
+      }
+      var daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+      for (i = 1; i <= daysInMonth; i += 1) {
+        var date = new Date(view.getFullYear(), view.getMonth(), i);
+        var iso = toIso(date);
+        var available = dayAvailable(date);
+        var closed = date.getDay() === 0 || date.getDay() === 1;
+        var label = new Intl.DateTimeFormat("en-GB", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }).format(date);
+        if (!available) {
+          html +=
+            '<button type="button" class="delivery-calendar-day' +
+            (closed ? " is-closed" : "") +
+            '" disabled aria-label="' +
+            label +
+            ', unavailable">' +
+            i +
+            "</button>";
+        } else {
+          html +=
+            '<button type="button" class="delivery-calendar-day" data-cal-day="' +
+            iso +
+            '" aria-pressed="' +
+            (selected === iso ? "true" : "false") +
+            '" aria-label="' +
+            label +
+            '">' +
+            i +
+            "</button>";
+        }
+      }
+      html += "</div>";
+      calendar.innerHTML = html;
+    };
+
+    calendar.addEventListener("click", function (event) {
+      var prev = event.target.closest("[data-cal-prev]");
+      var next = event.target.closest("[data-cal-next]");
+      var day = event.target.closest("[data-cal-day]");
+      if (prev && !prev.disabled) {
+        view = new Date(view.getFullYear(), view.getMonth() - 1, 1);
+        renderDeliveryCalendar();
+        return;
+      }
+      if (next && !next.disabled) {
+        view = new Date(view.getFullYear(), view.getMonth() + 1, 1);
+        renderDeliveryCalendar();
+        return;
+      }
+      if (!day) return;
+      deliveryDateInput.value = day.getAttribute("data-cal-day");
+      deliveryDateInput.dispatchEvent(new Event("change", { bubbles: true }));
+      renderDeliveryCalendar();
     });
-    if (previous && dates.indexOf(previous) !== -1) deliveryDateInput.value = previous;
+
+    renderDeliveryCalendar();
   }
 
   function showCollectionError(message) {
@@ -1007,7 +1119,9 @@
       }
 
       if (!checkDeliveryDate()) {
-        if (deliveryDateInput) deliveryDateInput.focus();
+        var deliveryDay = root.querySelector(".delivery-calendar-day:not(:disabled)");
+        if (deliveryDay) deliveryDay.focus();
+        else if (deliveryDateInput) deliveryDateInput.focus();
         return;
       }
 

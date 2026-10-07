@@ -159,11 +159,15 @@
                     <p class="basket-delivery-postcode-error" data-delivery-postcode-error role="alert" hidden></p>
                   </div>
                   <div class="field basket-delivery-date">
-                    <label for="basket-delivery-date">Delivery date</label>
-                    <select id="basket-delivery-date" name="deliveryDate" data-delivery-date required>
-                      <option value="">Choose a date</option>
-                    </select>
-                    <p class="field-hint">Tuesday to Saturday only. £3 to Histon, Cottenham, Impington, Oakington or Girton; £5 elsewhere in the area.</p>
+                    <label id="basket-delivery-date-label">Delivery date</label>
+                    <input type="hidden" id="basket-delivery-date" name="deliveryDate" data-delivery-date />
+                    <div
+                      class="delivery-calendar"
+                      data-delivery-calendar
+                      role="group"
+                      aria-labelledby="basket-delivery-date-label"
+                    ></div>
+                    <p class="field-hint">Tuesday to Saturday. Sunday and Monday are unavailable. £3 to Histon, Cottenham, Impington, Oakington or Girton; £5 elsewhere in the area.</p>
                     <p class="basket-delivery-date-error" data-delivery-date-error role="alert" hidden></p>
                   </div>
                 </div>

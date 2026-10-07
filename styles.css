@@ -3994,15 +3994,84 @@ a.service-card:focus-visible h3 {
   margin-top: 1rem;
 }
 
-.basket-delivery-date input[type="date"],
-.basket-delivery-date select {
+.delivery-calendar {
   width: 100%;
-  max-width: 16rem;
-  padding: 0.5rem 0.6rem;
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
+  max-width: 18rem;
+  padding: 0.55rem 0.6rem 0.7rem;
   border: 1px solid var(--line);
-  border-radius: 2px;
+  background: #fff;
+}
+
+.delivery-calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.delivery-calendar-month {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.delivery-calendar-nav {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  background: transparent;
+  color: var(--forest);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.delivery-calendar-nav:disabled {
+  color: #c4c0b6;
+  cursor: not-allowed;
+}
+
+.delivery-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  text-align: center;
+}
+
+.delivery-calendar-dow {
+  padding: 0.2rem 0 0.35rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+
+.delivery-calendar-day {
+  aspect-ratio: 1;
+  border: 0;
+  background: transparent;
+  color: var(--ink, #1c2420);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.delivery-calendar-day:hover:not(:disabled) {
+  background: #f3ead0;
+}
+
+.delivery-calendar-day[aria-pressed="true"] {
+  background: var(--forest);
+  color: #f3ead0;
+}
+
+.delivery-calendar-day:disabled {
+  color: #c8c4ba;
+  cursor: not-allowed;
+}
+
+.basket-delivery-date--invalid .delivery-calendar {
+  border-color: #8b2e2e;
 }
 
 .basket-same-day-note {
@@ -4079,11 +4148,6 @@ a.service-card:focus-visible h3 {
 
 .basket-page .basket-actions {
   margin-top: 1rem;
-}
-
-.basket-delivery-date--invalid input[type="date"],
-.basket-delivery-date--invalid select {
-  border-color: #8b2e2e;
 }
 
 .basket-delivery-postcode .field-hint {
