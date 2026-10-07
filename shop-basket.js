@@ -1015,9 +1015,8 @@
           collectionDateValid = false;
           collectionTimeValid = false;
           showCollectionError(message);
-        } else {
-          announce(message);
         }
+        announce("");
         showCheckoutError(message);
         syncCheckoutAvailability();
         if (checkoutBtn) {
