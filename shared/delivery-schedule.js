@@ -36,16 +36,32 @@ function isDeliveryWeekday(date) {
   return day >= 2 && day <= 6;
 }
 
+function formatIsoDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 function getEarliestDeliveryDate() {
   const date = startOfToday();
   date.setDate(date.getDate() + 1);
   while (!isDeliveryWeekday(date)) {
     date.setDate(date.getDate() + 1);
   }
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  return formatIsoDate(date);
+}
+
+function listDeliveryDates(weeks) {
+  const limit = (Number(weeks) || 8) * 5;
+  const dates = [];
+  const cursor = parseIsoDate(getEarliestDeliveryDate());
+  if (!cursor) return dates;
+  while (dates.length < limit) {
+    if (isDeliveryWeekday(cursor)) dates.push(formatIsoDate(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return dates;
 }
 
 function validateDeliveryDate(dateStr) {
@@ -72,5 +88,6 @@ module.exports = {
   parseIsoDate,
   isDeliveryWeekday,
   getEarliestDeliveryDate,
+  listDeliveryDates,
   validateDeliveryDate,
 };

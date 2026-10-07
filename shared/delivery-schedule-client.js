@@ -51,6 +51,29 @@
     return formatIsoDate(date);
   }
 
+  function listDeliveryDates(weeks) {
+    var limit = (Number(weeks) || 8) * 5;
+    var dates = [];
+    var cursor = parseIsoDate(getEarliestDeliveryDate());
+    if (!cursor) return dates;
+    while (dates.length < limit) {
+      if (isDeliveryWeekday(cursor)) dates.push(formatIsoDate(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return dates;
+  }
+
+  function formatDeliveryLabel(iso) {
+    var date = parseIsoDate(iso);
+    if (!date) return iso;
+    return new Intl.DateTimeFormat("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(date);
+  }
+
   function validateDeliveryDate(dateStr) {
     var date = parseIsoDate(dateStr);
     if (!date) {
@@ -73,6 +96,8 @@
     DELIVERY_DAY_ERROR: DELIVERY_DAY_ERROR,
     SAME_DAY_DELIVERY_ERROR: SAME_DAY_DELIVERY_ERROR,
     getEarliestDeliveryDate: getEarliestDeliveryDate,
+    listDeliveryDates: listDeliveryDates,
+    formatDeliveryLabel: formatDeliveryLabel,
     validateDeliveryDate: validateDeliveryDate,
   };
 })(typeof window !== "undefined" ? window : global);

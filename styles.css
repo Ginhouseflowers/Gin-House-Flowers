@@ -3994,7 +3994,8 @@ a.service-card:focus-visible h3 {
   margin-top: 1rem;
 }
 
-.basket-delivery-date input[type="date"] {
+.basket-delivery-date input[type="date"],
+.basket-delivery-date select {
   width: 100%;
   max-width: 16rem;
   padding: 0.5rem 0.6rem;
@@ -4080,7 +4081,8 @@ a.service-card:focus-visible h3 {
   margin-top: 1rem;
 }
 
-.basket-delivery-date--invalid input[type="date"] {
+.basket-delivery-date--invalid input[type="date"],
+.basket-delivery-date--invalid select {
   border-color: #8b2e2e;
 }
 

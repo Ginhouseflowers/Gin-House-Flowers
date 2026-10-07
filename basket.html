@@ -160,14 +160,10 @@
                   </div>
                   <div class="field basket-delivery-date">
                     <label for="basket-delivery-date">Delivery date</label>
-                    <input
-                      type="date"
-                      id="basket-delivery-date"
-                      name="deliveryDate"
-                      data-delivery-date
-                      required
-                    />
-                    <p class="field-hint">Tue–Sat. £3 to Histon, Cottenham, Impington, Oakington or Girton; £5 elsewhere in the area.</p>
+                    <select id="basket-delivery-date" name="deliveryDate" data-delivery-date required>
+                      <option value="">Choose a date</option>
+                    </select>
+                    <p class="field-hint">Tuesday to Saturday only. £3 to Histon, Cottenham, Impington, Oakington or Girton; £5 elsewhere in the area.</p>
                     <p class="basket-delivery-date-error" data-delivery-date-error role="alert" hidden></p>
                   </div>
                 </div>

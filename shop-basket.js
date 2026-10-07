@@ -242,7 +242,16 @@
 
   function setupDeliveryDateInput() {
     if (!deliveryDateInput || !window.GinDeliverySchedule) return;
-    deliveryDateInput.min = window.GinDeliverySchedule.getEarliestDeliveryDate();
+    var previous = deliveryDateInput.value;
+    var dates = window.GinDeliverySchedule.listDeliveryDates(8);
+    deliveryDateInput.innerHTML = '<option value="">Choose a date</option>';
+    dates.forEach(function (iso) {
+      var option = document.createElement("option");
+      option.value = iso;
+      option.textContent = window.GinDeliverySchedule.formatDeliveryLabel(iso);
+      deliveryDateInput.appendChild(option);
+    });
+    if (previous && dates.indexOf(previous) !== -1) deliveryDateInput.value = previous;
   }
 
   function showCollectionError(message) {
