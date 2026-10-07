@@ -32,6 +32,8 @@ exports.handler = async function (event) {
   }
 
   let emailError = "";
+  let emailNote = "";
+  let customerReceipt = false;
 
   if (stripeEvent.type === "checkout.session.completed") {
     const sessionId = stripeEvent.data.object.id;
@@ -39,6 +41,10 @@ exports.handler = async function (event) {
     try {
       const emailResult = await sendOrderNotificationEmail(stripe, sessionId);
       if (!emailResult.ok) emailError = emailResult.error || "Order email was not sent.";
+      else {
+        customerReceipt = true;
+        emailNote = emailResult.resend || "";
+      }
     } catch (err) {
       emailError = err.message || "Order email was not sent.";
       console.error("Order notification email error:", emailError);
@@ -72,5 +78,8 @@ exports.handler = async function (event) {
     };
   }
 
-  return { statusCode: 200, body: JSON.stringify({ received: true }) };
+  const body = { received: true };
+  if (customerReceipt) body.customer = "stripe-receipt";
+  if (emailNote) body.resend = emailNote;
+  return { statusCode: 200, body: JSON.stringify(body) };
 };

@@ -263,6 +263,27 @@ async function sendViaResend({ subject, text, html, to, replyTo }) {
   });
 }
 
+async function sendStripeCustomerReceipt(stripe, session, lineItems) {
+  const email = session.customer_details && session.customer_details.email;
+  const paymentIntentId =
+    typeof session.payment_intent === "string"
+      ? session.payment_intent
+      : session.payment_intent && session.payment_intent.id;
+  if (!email || !paymentIntentId) {
+    return { ok: false, error: "Customer email: no email address on the payment" };
+  }
+
+  const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
+  if (intent && intent.receipt_email) return { ok: true, already: true };
+
+  const content = buildOrderEmailContent(session, lineItems, true);
+  await stripe.paymentIntents.update(paymentIntentId, {
+    receipt_email: email,
+    description: String(content.text || "").slice(0, 1000),
+  });
+  return { ok: true };
+}
+
 async function sendOrderNotificationEmail(stripe, sessionId) {
   const session = await stripe.checkout.sessions.retrieve(sessionId, {
     expand: ["line_items.data.price.product", "customer_details"],
@@ -272,6 +293,13 @@ async function sendOrderNotificationEmail(stripe, sessionId) {
     limit: 100,
     expand: ["data.price.product"],
   });
+
+  let receipt;
+  try {
+    receipt = await sendStripeCustomerReceipt(stripe, session, lineItems);
+  } catch (err) {
+    receipt = { ok: false, error: err.message || "Stripe receipt was not sent." };
+  }
 
   const content = buildOrderEmailContent(session, lineItems);
   const shopResult = await sendViaResend(content);
@@ -291,18 +319,21 @@ async function sendOrderNotificationEmail(stripe, sessionId) {
   if (customerEmail && !customerResult.ok) {
     problems.push("Customer email: " + (customerResult.error || "not sent"));
   }
-  if (!customerEmail) problems.push("Customer email: no email address on the payment");
+  if (problems.length) console.error(problems.join(" "));
 
-  if (problems.length) {
-    console.error(problems.join(" "));
-    return { ok: false, error: problems.join(" "), id: shopResult.id || customerResult.id };
+  if (!receipt.ok) {
+    return { ok: false, error: receipt.error || "Stripe receipt was not sent.", resend: problems.join(" ") };
   }
 
-  console.log("Order emails sent for session", sessionId);
-  return { ok: true, id: shopResult.id };
+  console.log(
+    receipt.already ? "Stripe receipt already sent for session" : "Stripe receipt sent for session",
+    sessionId
+  );
+  return { ok: true, receipt: receipt.already ? "already-sent" : "sent", resend: problems.join(" ") };
 }
 
 module.exports = {
   buildOrderEmailContent,
   sendOrderNotificationEmail,
+  sendStripeCustomerReceipt,
 };
