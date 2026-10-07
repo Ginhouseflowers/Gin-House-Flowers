@@ -193,6 +193,13 @@ function validateOrder(order, items, stock) {
 }
 
 async function createCheckoutSession(items, baseUrl, order) {
+  // Online shop is paused. Delete this return to take payments again.
+  return {
+    ok: false,
+    status: 503,
+    error: "Online ordering is coming soon. Please call us on 01223 656670.",
+  };
+
   const secretKey = String(process.env.STRIPE_SECRET_KEY || "")
     .trim()
     .replace(/^["']|["']$/g, "");

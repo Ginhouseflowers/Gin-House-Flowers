@@ -2,8 +2,48 @@
   "redirects": [
     {
       "source": "/chocolate.html",
-      "destination": "/range.html?brand=cambridge-confectionery&from=chocolate",
-      "permanent": true
+      "destination": "/shop-online.html",
+      "permanent": false
+    },
+    {
+      "source": "/online-shop.html",
+      "destination": "/shop-online.html",
+      "permanent": false
+    },
+    {
+      "source": "/cards.html",
+      "destination": "/shop-online.html",
+      "permanent": false
+    },
+    {
+      "source": "/gifts.html",
+      "destination": "/shop-online.html",
+      "permanent": false
+    },
+    {
+      "source": "/range.html",
+      "destination": "/shop-online.html",
+      "permanent": false
+    },
+    {
+      "source": "/basket.html",
+      "destination": "/shop-online.html",
+      "permanent": false
+    },
+    {
+      "source": "/view-all.html",
+      "destination": "/shop-online.html",
+      "permanent": false
+    },
+    {
+      "source": "/shop-checkout-success.html",
+      "destination": "/shop-online.html",
+      "permanent": false
+    },
+    {
+      "source": "/shop-checkout-cancelled.html",
+      "destination": "/shop-online.html",
+      "permanent": false
     }
   ],
   "rewrites": [
