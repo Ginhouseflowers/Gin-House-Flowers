@@ -10,7 +10,7 @@ exports.handler = async function (event) {
     statusCode: 200,
     headers: {
       "Content-Type": image.contentType,
-      "Cache-Control": "public, max-age=300",
+      "Cache-Control": "public, max-age=86400",
     },
     isBase64Encoded: true,
     body: image.buffer.toString("base64"),

@@ -114,7 +114,7 @@ const server = http.createServer(async function (req, res) {
   if (req.method === "GET" && urlPath === "/api/catalogue.js") {
     res.writeHead(200, {
       "Content-Type": "application/javascript; charset=utf-8",
-      "Cache-Control": "no-store",
+      "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
     });
     res.end(await catalogueScript());
     return;
@@ -128,7 +128,7 @@ const server = http.createServer(async function (req, res) {
       res.end("Not found");
       return;
     }
-    res.writeHead(200, { "Content-Type": image.contentType, "Cache-Control": "public, max-age=300" });
+    res.writeHead(200, { "Content-Type": image.contentType, "Cache-Control": "public, max-age=86400" });
     res.end(image.buffer);
     return;
   }

@@ -12,6 +12,6 @@ module.exports = async function (req, res) {
     return;
   }
   res.setHeader("Content-Type", image.contentType);
-  res.setHeader("Cache-Control", "public, max-age=300");
+  res.setHeader("Cache-Control", "public, max-age=86400");
   res.status(200).send(image.buffer);
 };

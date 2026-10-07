@@ -11,5 +11,16 @@
       "source": "/api/catalogue.js",
       "destination": "/api/catalogue"
     }
+  ],
+  "headers": [
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800"
+        }
+      ]
+    }
   ]
 }

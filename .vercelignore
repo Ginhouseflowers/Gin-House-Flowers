@@ -1,14 +1,12 @@
 node_modules/
+.git/
+.netlify/
+.vercel/
 .env
 .env.*
 !.env.example
-data/newsletter.json
-.netlify/
-.DS_Store
-.vercel
-~$*
 
-# Original camera folders. The website uses the smaller copies in images/.
+# Original camera folders are not used by the site.
 Wedding Images/
 Funeral Images/
 funeral gallery/
