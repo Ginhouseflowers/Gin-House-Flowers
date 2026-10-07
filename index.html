@@ -303,11 +303,13 @@
               Sign up for 10% off your first online order, exclusive updates and
               deals, seasonal information and more.
             </p>
-            <p style="margin-bottom: 0">
-              <a class="btn btn-primary" href="mailto:info@ginhouseflowers.co.uk?subject=Mailing%20list%20signup"
-                >Email to sign up</a
-              >
-            </p>
+            <form class="mailing-form" id="mailing-form" novalidate>
+              <label class="visually-hidden" for="mailing-email">Email address</label>
+              <input id="mailing-email" name="email" type="email" required autocomplete="email" placeholder="Email address" />
+              <input class="visually-hidden" type="text" name="company" tabindex="-1" autocomplete="off" />
+              <button class="btn btn-primary" type="submit">Sign up</button>
+              <p class="mailing-message" data-mailing-message hidden></p>
+            </form>
           </div>
         </div>
       </section>

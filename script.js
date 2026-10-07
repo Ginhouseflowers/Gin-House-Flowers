@@ -1065,3 +1065,60 @@
     });
   }).observe(document.querySelector("main") || document.body, { childList: true, subtree: true });
 })();
+
+(function () {
+  var form = document.getElementById("mailing-form");
+  if (!form) return;
+  var message = form.querySelector("[data-mailing-message]");
+  var button = form.querySelector("button[type='submit']");
+
+  function showMessage(text, code) {
+    if (!message) return;
+    message.hidden = false;
+    message.textContent = "";
+    if (!code) {
+      message.textContent = text;
+      return;
+    }
+    var before = text.split(code);
+    message.appendChild(document.createTextNode(before[0] || ""));
+    var strong = document.createElement("strong");
+    strong.textContent = code;
+    message.appendChild(strong);
+    message.appendChild(document.createTextNode(before[1] || ""));
+  }
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var emailInput = form.querySelector("input[type='email']");
+    var trap = form.querySelector("input[name='company']");
+    var email = emailInput ? emailInput.value.trim() : "";
+    if (message) message.hidden = true;
+    if (button) button.disabled = true;
+
+    fetch("/api/newsletter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, company: trap ? trap.value : "" }),
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { ok: response.ok, data: data || {} };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          showMessage(result.data.error || "We couldn't add you to the list. Please try again.");
+          return;
+        }
+        showMessage(result.data.message || "You're signed up.", result.data.code || "");
+        if (emailInput) emailInput.value = "";
+      })
+      .catch(function () {
+        showMessage("We couldn't add you to the list. Please try again.");
+      })
+      .then(function () {
+        if (button) button.disabled = false;
+      });
+  });
+})();

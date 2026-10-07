@@ -867,7 +867,7 @@ p {
     height: auto;
     aspect-ratio: 4 / 3;
     max-height: min(42vh, 320px);
-    order: 1;
+    order: -1;
   }
 
   .hero-media img {
@@ -876,11 +876,11 @@ p {
   }
 
   .hero--split .hero-content {
-    order: 0;
+    order: 1;
   }
 
   .hero {
-    padding-top: 2rem;
+    padding-top: 1rem;
     padding-bottom: 2.25rem;
   }
 }
@@ -2128,8 +2128,32 @@ p {
   font-size: 1.5rem;
 }
 
-.mailing-panel p:last-child {
-  margin-bottom: 0;
+.mailing-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.75rem 0 0;
+}
+
+.mailing-form input[type="email"] {
+  flex: 1 1 12rem;
+  min-width: 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.mailing-message {
+  flex: 1 1 100%;
+  margin: 0.35rem 0 0;
+}
+
+.mailing-message strong {
+  font-family: var(--font-label);
+  letter-spacing: 0.06em;
 }
 
 .hours-list {

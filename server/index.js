@@ -9,6 +9,7 @@ const fs = require("fs");
 const path = require("path");
 const { createCheckoutSession } = require("../shared/stripe-checkout");
 const { sendContactEnquiryEmail } = require("../shared/contact-email");
+const { subscribeNewsletter } = require("../shared/newsletter");
 const {
   stockGet,
   stockPost,
@@ -210,6 +211,25 @@ const server = http.createServer(async function (req, res) {
         message:
           "Thank you — your enquiry has been sent. We will get back to you soon.",
       });
+    });
+    return;
+  }
+
+  if (req.method === "POST" && req.url.split("?")[0] === "/api/newsletter") {
+    let body = "";
+    req.on("data", function (chunk) {
+      body += chunk;
+    });
+    req.on("end", async function () {
+      let payload;
+      try {
+        payload = JSON.parse(body || "{}");
+      } catch (e) {
+        sendJson(res, 400, { error: "Please enter a valid email address." });
+        return;
+      }
+      const result = await subscribeNewsletter(payload);
+      sendJson(res, result.status, result.body);
     });
     return;
   }
