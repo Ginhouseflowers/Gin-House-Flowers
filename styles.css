@@ -4110,6 +4110,13 @@ a.service-card:focus-visible h3 {
   cursor: not-allowed;
 }
 
+.basket-checkout-error {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #8b2e2e;
+}
+
 .basket-actions {
   display: flex;
   flex-direction: column;

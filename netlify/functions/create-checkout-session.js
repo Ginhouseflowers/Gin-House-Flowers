@@ -51,7 +51,7 @@ exports.handler = async function (event) {
   });
 
   if (!result.ok) {
-    return jsonResponse(result.status, { error: result.error });
+    return jsonResponse(result.status, { error: result.error, code: result.code || "" });
   }
 
   return jsonResponse(200, { url: result.url });

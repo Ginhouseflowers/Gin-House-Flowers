@@ -312,11 +312,24 @@ async function createCheckoutSession(items, baseUrl, order) {
 
     return { ok: true, status: 200, url: session.url };
   } catch (err) {
-    console.error("Stripe Checkout error:", err.message);
+    console.error("Stripe Checkout error:", err.type, err.code, err.message);
+    const invalidKey =
+      err.type === "StripeAuthenticationError" ||
+      err.code === "api_key_expired" ||
+      /invalid api key/i.test(err.message || "");
+    if (invalidKey) {
+      return {
+        ok: false,
+        status: 503,
+        error: "Card payments are not connected yet. Please call us on 01223 656670 to place your order.",
+        code: err.code || err.type || "invalid_key",
+      };
+    }
     return {
       ok: false,
       status: 500,
-      error: "Unable to start checkout. Please try again or contact us.",
+      error: "Unable to start checkout. Please try again or call us on 01223 656670.",
+      code: err.code || err.type || "checkout_error",
     };
   }
 }

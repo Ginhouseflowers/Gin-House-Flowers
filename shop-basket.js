@@ -17,6 +17,7 @@
   var deliveryFeeEl = root.querySelector("[data-basket-delivery-fee]");
   var clearBtn = root.querySelector("[data-basket-clear]");
   var checkoutBtn = root.querySelector("[data-basket-checkout]");
+  var checkoutError = root.querySelector("[data-basket-checkout-error]");
   var emailFallback = root.querySelector("[data-basket-email-fallback]");
   var statusEl = root.querySelector("[data-basket-status]");
   var fulfilmentInputs = root.querySelectorAll("[data-basket-fulfilment-input]");
@@ -396,60 +397,21 @@
     return "";
   }
 
+  function showCheckoutError(message) {
+    if (!checkoutError) return;
+    if (message) {
+      checkoutError.textContent = message;
+      checkoutError.hidden = false;
+      checkoutError.scrollIntoView({ block: "nearest" });
+      return;
+    }
+    checkoutError.textContent = "";
+    checkoutError.hidden = true;
+  }
+
   function syncCheckoutAvailability() {
     if (!checkoutBtn || checkoutBtn.hidden) return;
-
-    var stockProblem = basketStockProblem(loadBasket());
-    if (stockProblem) {
-      checkoutBtn.disabled = true;
-      checkoutBtn.title = stockProblem;
-      return;
-    }
-
-    if (selectedFulfilment() === "postage") {
-      checkoutBtn.disabled = false;
-      checkoutBtn.title = "";
-      return;
-    }
-
-    if (selectedFulfilment() === "collection") {
-      if (!collectionDateValid || !collectionTimeValid) {
-        checkoutBtn.disabled = true;
-        checkoutBtn.title =
-          "Choose a collection date and time within our opening hours to continue.";
-        return;
-      }
-      checkoutBtn.disabled = false;
-      checkoutBtn.title = "";
-      return;
-    }
-
-    if (!deliveryNameValue()) {
-      checkoutBtn.disabled = true;
-      checkoutBtn.title = "Enter the recipient’s name to continue.";
-      return;
-    }
-
-    if (deliveryPostcodeChecking) {
-      checkoutBtn.disabled = true;
-      checkoutBtn.title = "Checking the delivery address…";
-      return;
-    }
-
-    if (!deliveryPostcodeValid) {
-      checkoutBtn.disabled = true;
-      checkoutBtn.title =
-        "Enter a delivery address within our 10-mile delivery area to continue.";
-      return;
-    }
-
-    if (!deliveryDateValid) {
-      checkoutBtn.disabled = true;
-      checkoutBtn.title =
-        "Choose a delivery date (Tuesday to Saturday) to continue.";
-      return;
-    }
-
+    if (checkoutBtn.textContent === "Redirecting…") return;
     checkoutBtn.disabled = false;
     checkoutBtn.title = "";
   }
@@ -915,6 +877,14 @@
     var items = loadBasket();
     if (items.length === 0) {
       announce("Your basket is empty.");
+      showCheckoutError("Your basket is empty.");
+      return;
+    }
+
+    var stockProblem = basketStockProblem(items);
+    if (stockProblem) {
+      announce(stockProblem);
+      showCheckoutError(stockProblem);
       return;
     }
 
@@ -924,6 +894,7 @@
     if (fulfilment === "postage") {
       if (!isCardsAndGiftsOnly(items)) {
         announce("Delivery anywhere for £3.99 is only available when the basket is cards and gifts.");
+        showCheckoutError("Delivery anywhere for £3.99 is only available when the basket is cards and gifts.");
         syncPostageOption();
         return;
       }
@@ -932,6 +903,7 @@
     if (fulfilment === "collection") {
       collectionPrompt = true;
       if (!checkCollectionSchedule()) {
+        showCheckoutError(collectionError ? collectionError.textContent : "Please choose a collection date and time.");
         if (collectionDateInput && !collectionDateInput.value) {
           collectionDateInput.focus();
         } else if (collectionTimeSelect) {
@@ -944,6 +916,7 @@
     if (fulfilment === "delivery") {
       if (!deliveryNameValue()) {
         announce("Please enter the recipient’s name.");
+        showCheckoutError("Please enter the recipient’s name.");
         if (deliveryNameInput) deliveryNameInput.focus();
         return;
       }
@@ -965,6 +938,7 @@
 
       if (!deliveryPostcodeValid || deliveryPostcodeChecking) {
         announce("Please wait while we check the delivery address.");
+        showCheckoutError("Please wait while we check the delivery address.");
         checkDeliveryPostcode().then(function (result) {
           if (result.ok && checkDeliveryDate()) {
             startStripeCheckout();
@@ -974,9 +948,7 @@
       }
     }
 
-    if (checkoutBtn && checkoutBtn.disabled) {
-      return;
-    }
+    showCheckoutError("");
 
     if (checkoutBtn) {
       checkoutBtn.disabled = true;
@@ -1046,8 +1018,10 @@
         } else {
           announce(message);
         }
+        showCheckoutError(message);
         syncCheckoutAvailability();
         if (checkoutBtn) {
+          checkoutBtn.disabled = false;
           checkoutBtn.textContent = "Pay securely";
         }
       });
