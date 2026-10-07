@@ -103,8 +103,41 @@ function serveStatic(req, res) {
   });
 }
 
+const LEGACY_REDIRECTS = {
+  "/about": "/shop.html",
+  "/shop": "/shop-online.html",
+  "/contact": "/contact.html",
+  "/gallery": "/#gallery-heading",
+  "/events": "/corporate-events.html",
+  "/funerals": "/funerals.html",
+  "/weddings": "/weddings.html",
+  "/cart": "/basket.html",
+  "/services": "/",
+  "/services/corporate": "/corporate-events.html",
+  "/services/events": "/corporate-events.html",
+  "/services/funerals": "/funerals.html",
+  "/services/weddings": "/weddings.html",
+  "/component/users": "/",
+};
+
+function legacyRedirect(urlPath) {
+  const bare = urlPath.length > 1 && urlPath.endsWith("/") ? urlPath.slice(0, -1) : urlPath;
+  if (LEGACY_REDIRECTS[bare]) return LEGACY_REDIRECTS[bare];
+  if (bare.indexOf("/component/users/") === 0) return "/";
+  return null;
+}
+
 const server = http.createServer(async function (req, res) {
   const urlPath = req.url.split("?")[0];
+
+  if (req.method === "GET" || req.method === "HEAD") {
+    const redirectTo = legacyRedirect(urlPath);
+    if (redirectTo) {
+      res.writeHead(308, { Location: redirectTo });
+      res.end();
+      return;
+    }
+  }
 
   if (req.method === "GET" && urlPath === "/api/stock") {
     const result = await stockGet();
