@@ -114,6 +114,10 @@ function validateItems(items, stock) {
 
     const waterBubbleBag =
       product.waterBubbleBagAddon && Boolean(item.waterBubbleBag);
+    const isFlower =
+      product.group !== "cards" &&
+      product.group !== "gifts" &&
+      product.group !== "chocolate";
 
     lineItems.push({
       price_data: {
@@ -129,15 +133,16 @@ function validateItems(items, stock) {
             colour: String(item.colour || ""),
             colour_other: String(item.colourOther || "").slice(0, 120),
             water_bubble_bag: waterBubbleBag ? "yes" : "no",
-            is_flower:
-              product.group === "cards" || product.group === "gifts" || product.group === "chocolate"
-                ? "no"
-                : "yes",
+            is_flower: isFlower ? "yes" : "no",
           },
         },
       },
       quantity,
     });
+
+    if (isFlower) {
+      lineItems.push(detailLine("Colour preference: " + colourLabel(item), product.name));
+    }
 
     if (waterBubbleBag) {
       lineItems.push({
