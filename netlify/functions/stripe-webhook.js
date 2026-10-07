@@ -34,6 +34,7 @@ exports.handler = async function (event) {
   let emailError = "";
   let emailNote = "";
   let customerReceipt = false;
+  let shopReceipt = "";
 
   if (stripeEvent.type === "checkout.session.completed") {
     const sessionId = stripeEvent.data.object.id;
@@ -44,6 +45,7 @@ exports.handler = async function (event) {
       else {
         customerReceipt = true;
         emailNote = emailResult.resend || "";
+        shopReceipt = emailResult.shopReceipt || "";
       }
     } catch (err) {
       emailError = err.message || "Order email was not sent.";
@@ -80,6 +82,7 @@ exports.handler = async function (event) {
 
   const body = { received: true };
   if (customerReceipt) body.customer = "stripe-receipt";
+  if (shopReceipt) body.shop = shopReceipt === "already-sent" ? "already-sent" : "stripe-receipt";
   if (emailNote) body.resend = emailNote;
   return { statusCode: 200, body: JSON.stringify(body) };
 };

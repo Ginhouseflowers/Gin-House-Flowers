@@ -263,6 +263,10 @@ async function sendViaResend({ subject, text, html, to, replyTo }) {
   });
 }
 
+function shopNotifyEmail() {
+  return String(process.env.ORDER_NOTIFY_EMAIL || "info@ginhouseflowers.co.uk").trim();
+}
+
 async function sendStripeCustomerReceipt(stripe, session, lineItems) {
   const email = session.customer_details && session.customer_details.email;
   const paymentIntentId =
@@ -274,14 +278,42 @@ async function sendStripeCustomerReceipt(stripe, session, lineItems) {
   }
 
   const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
-  if (intent && intent.receipt_email) return { ok: true, already: true };
+  const metadata = (intent && intent.metadata) || {};
+  const customerAlready = Boolean(intent && intent.receipt_email);
+  const shopAlready = metadata.shop_receipt_sent === "yes";
+  const customerText = String(buildOrderEmailContent(session, lineItems, true).text || "").slice(0, 1000);
+  const shopText = String(buildOrderEmailContent(session, lineItems, false).text || "").slice(0, 1000);
 
-  const content = buildOrderEmailContent(session, lineItems, true);
-  await stripe.paymentIntents.update(paymentIntentId, {
-    receipt_email: email,
-    description: String(content.text || "").slice(0, 1000),
-  });
-  return { ok: true };
+  if (!customerAlready) {
+    await stripe.paymentIntents.update(paymentIntentId, {
+      receipt_email: email,
+      description: customerText,
+    });
+  }
+
+  if (!shopAlready) {
+    await stripe.paymentIntents.update(paymentIntentId, {
+      description: shopText,
+    });
+    const chargeId =
+      intent && typeof intent.latest_charge === "string"
+        ? intent.latest_charge
+        : intent && intent.latest_charge && intent.latest_charge.id;
+    if (chargeId) {
+      await stripe.charges.update(chargeId, { receipt_email: shopNotifyEmail() });
+    } else {
+      await stripe.paymentIntents.update(paymentIntentId, { receipt_email: shopNotifyEmail() });
+    }
+    await stripe.paymentIntents.update(paymentIntentId, {
+      metadata: { shop_receipt_sent: "yes" },
+    });
+  }
+
+  return {
+    ok: true,
+    already: customerAlready,
+    shopReceipt: shopAlready ? "already-sent" : "sent",
+  };
 }
 
 async function sendOrderNotificationEmail(stripe, sessionId) {
@@ -329,7 +361,12 @@ async function sendOrderNotificationEmail(stripe, sessionId) {
     receipt.already ? "Stripe receipt already sent for session" : "Stripe receipt sent for session",
     sessionId
   );
-  return { ok: true, receipt: receipt.already ? "already-sent" : "sent", resend: problems.join(" ") };
+  return {
+    ok: true,
+    receipt: receipt.already ? "already-sent" : "sent",
+    shopReceipt: receipt.shopReceipt || "sent",
+    resend: problems.join(" "),
+  };
 }
 
 module.exports = {
