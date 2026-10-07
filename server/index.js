@@ -178,6 +178,8 @@ const server = http.createServer(async function (req, res) {
         deliveryDate: payload.deliveryDate,
         collectionDate: payload.collectionDate,
         collectionTime: payload.collectionTime,
+        cardNote: payload.cardNote,
+        cardMessage: payload.cardMessage,
       });
       if (!result.ok) {
         sendJson(res, result.status, { error: result.error });

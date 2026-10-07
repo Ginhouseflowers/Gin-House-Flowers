@@ -48,6 +48,8 @@ exports.handler = async function (event) {
     deliveryDate: payload.deliveryDate,
     collectionDate: payload.collectionDate,
     collectionTime: payload.collectionTime,
+    cardNote: payload.cardNote,
+    cardMessage: payload.cardMessage,
   });
 
   if (!result.ok) {

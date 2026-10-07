@@ -4145,11 +4145,30 @@ a.service-card:focus-visible h3 {
   margin-top: 1.5rem;
 }
 
-.basket-note {
-  margin: 1.25rem 0 0;
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  color: var(--ink-muted);
+.basket-flower-note {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border: 0;
+}
+
+.basket-flower-note[hidden],
+.basket-flower-note-message[hidden] {
+  display: none;
+}
+
+.basket-flower-note .field-hint {
+  margin: 0 0 0.75rem;
+}
+
+.basket-flower-note-message {
+  margin-top: 0.75rem;
+}
+
+.basket-flower-note-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #8b2e2e;
 }
 
 @media (max-width: 800px) {

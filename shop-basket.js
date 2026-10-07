@@ -37,6 +37,10 @@
   var WATER_BUBBLE_BAG_GBP = 5;
   var UK_POSTAGE_GBP = 3.99;
   var postageOption = root.querySelector("[data-uk-postage-option]");
+  var noteField = root.querySelector("[data-basket-note]");
+  var noteMessageWrap = root.querySelector("[data-basket-note-message]");
+  var noteMessageInput = root.querySelector("[data-basket-card-message]");
+  var noteChoices = root.querySelectorAll("[data-basket-note-choice]");
 
   function getProductConfig(productId) {
     return window.GinShopProducts && window.GinShopProducts[productId];
@@ -584,6 +588,7 @@
       if (checkoutBtn) checkoutBtn.hidden = true;
       if (emailFallback) emailFallback.hidden = true;
       syncPostageOption();
+      syncCardNote();
       return;
     }
 
@@ -680,6 +685,7 @@
 
     updateBasketTotals();
     syncPostageOption();
+    syncCardNote();
     syncCheckoutAvailability();
   }
 
@@ -688,6 +694,37 @@
       var product = getProductConfig(item.productId);
       return product && !product.fixedPrice;
     });
+  }
+
+  function selectedCardNote() {
+    var selected = root.querySelector("[data-basket-note-choice]:checked");
+    return selected ? selected.value : "";
+  }
+
+  function syncCardNote() {
+    var show = hasFlowers(loadBasket());
+    if (noteField) noteField.hidden = !show;
+    var wantsNote = show && selectedCardNote() === "yes";
+    if (noteMessageWrap) noteMessageWrap.hidden = !wantsNote;
+    if (noteMessageInput) noteMessageInput.required = wantsNote;
+    if (
+      checkoutError &&
+      !checkoutError.hidden &&
+      /note/i.test(checkoutError.textContent || "")
+    ) {
+      showCheckoutError("");
+    }
+    if (emailFallback && !emailFallback.hidden) {
+      emailFallback.href = buildCheckoutMailto(loadBasket(), basketTotal(loadBasket()));
+    }
+  }
+
+  function flowerNoteForOrder(items) {
+    if (!hasFlowers(items)) return { cardNote: "", cardMessage: "" };
+    var cardNote = selectedCardNote();
+    var cardMessage =
+      cardNote === "yes" && noteMessageInput ? noteMessageInput.value.replace(/\s+/g, " ").trim() : "";
+    return { cardNote: cardNote, cardMessage: cardMessage.slice(0, 200) };
   }
 
   function addonPrice(product) {
@@ -835,6 +872,17 @@
       );
     });
     lines.push("", "Basket total: " + formatMoney(total));
+    if (hasFlowers(items)) {
+      var note = flowerNoteForOrder(items);
+      lines.push(
+        "",
+        note.cardNote === "yes" && note.cardMessage
+          ? "Note with the flowers: " + note.cardMessage
+          : note.cardNote === "no"
+            ? "Note with the flowers: none"
+            : "Note with the flowers: not chosen yet"
+      );
+    }
     lines.push("", "Please include delivery details and your contact information in your email.");
 
     return (
@@ -948,6 +996,20 @@
       }
     }
 
+    var flowerNote = flowerNoteForOrder(items);
+    if (hasFlowers(items)) {
+      if (flowerNote.cardNote !== "yes" && flowerNote.cardNote !== "no") {
+        showCheckoutError("Please say whether you would like a note with your flowers.");
+        if (noteField) noteField.scrollIntoView({ block: "nearest" });
+        return;
+      }
+      if (flowerNote.cardNote === "yes" && !flowerNote.cardMessage) {
+        showCheckoutError("Please write the message for the note.");
+        if (noteMessageInput) noteMessageInput.focus();
+        return;
+      }
+    }
+
     showCheckoutError("");
 
     if (checkoutBtn) {
@@ -975,6 +1037,8 @@
         deliveryDate: deliveryDate,
         collectionDate: collectionDate,
         collectionTime: collectionTime,
+        cardNote: flowerNote.cardNote,
+        cardMessage: flowerNote.cardMessage,
       }),
     })
       .then(function (response) {
@@ -1232,6 +1296,15 @@
       input.addEventListener("change", toggleFulfilmentDetails);
     });
     toggleFulfilmentDetails();
+  }
+
+  if (noteChoices.length) {
+    noteChoices.forEach(function (input) {
+      input.addEventListener("change", syncCardNote);
+    });
+  }
+  if (noteMessageInput) {
+    noteMessageInput.addEventListener("input", syncCardNote);
   }
 
   setupDeliveryDateInput();

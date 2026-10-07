@@ -157,16 +157,17 @@ function buildOrderEmailContent(session, lineItems, forCustomer) {
   const discountPence = (session.total_details && session.total_details.amount_discount) || 0;
   const discountText = discountPence > 0 ? "Discount: -" + formatMoneyFromPence(discountPence) : "";
 
-  const cardMessage = (session.custom_fields || [])
+  const customCardMessage = (session.custom_fields || [])
     .filter(function (f) {
       return f.key === "card_message";
     })
     .map(getCustomFieldValue)
     .filter(Boolean)[0];
+  const cardMessage = metadata.card_message || customCardMessage || "";
   const flowers = orderHasFlowers(lineItems);
   const whenText = formatFulfilment(metadata);
   const cardLine = flowers
-    ? "Card message: " + (cardMessage || "(none)")
+    ? "Note with the flowers: " + (cardMessage || "(none)")
     : "";
 
   const textParts = [
@@ -215,7 +216,7 @@ function buildOrderEmailContent(session, lineItems, forCustomer) {
       escapeHtml(whenText) +
       "</pre>",
     flowers
-      ? "<p><strong>Card message:</strong> " + escapeHtml(cardMessage || "(none)") + "</p>"
+      ? "<p><strong>Note with the flowers:</strong> " + escapeHtml(cardMessage || "(none)") + "</p>"
       : "",
     forCustomer
       ? ""

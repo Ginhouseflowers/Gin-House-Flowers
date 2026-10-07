@@ -156,7 +156,7 @@ function validateOrder(order, items, stock) {
         error: "Delivery anywhere for £3.99 is only available when the basket is cards and gifts.",
       };
     }
-    return { ok: true, fulfilment };
+    return { ok: true, fulfilment, cardMessage: "" };
   }
 
   if (fulfilment === "delivery") {
@@ -189,7 +189,46 @@ function validateOrder(order, items, stock) {
     }
   }
 
-  return { ok: true, fulfilment };
+  const noteCheck = validateFlowerNote(order, items, stock);
+  if (!noteCheck.ok) return noteCheck;
+
+  return { ok: true, fulfilment, cardMessage: noteCheck.cardMessage };
+}
+
+function orderIncludesFlowers(items, stock) {
+  return (
+    Array.isArray(items) &&
+    items.some(function (item) {
+      const product = productFor(item.productId, stock);
+      return (
+        product &&
+        product.group !== "cards" &&
+        product.group !== "gifts" &&
+        product.group !== "chocolate"
+      );
+    })
+  );
+}
+
+function validateFlowerNote(order, items, stock) {
+  if (!orderIncludesFlowers(items, stock)) {
+    return { ok: true, cardMessage: "" };
+  }
+
+  const choice = order && order.cardNote === "yes" ? "yes" : order && order.cardNote === "no" ? "no" : "";
+  if (!choice) {
+    return {
+      ok: false,
+      error: "Please say whether you would like a note with your flowers.",
+    };
+  }
+  if (choice === "no") return { ok: true, cardMessage: "" };
+
+  const cardMessage = cleanLine(order && order.cardMessage, 200);
+  if (!cardMessage) {
+    return { ok: false, error: "Please write the message for the note." };
+  }
+  return { ok: true, cardMessage };
 }
 
 async function createCheckoutSession(items, baseUrl, order) {
@@ -222,6 +261,7 @@ async function createCheckoutSession(items, baseUrl, order) {
   }
 
   const fulfilment = orderCheck.fulfilment;
+  const cardMessage = orderCheck.cardMessage || "";
   let deliveryPostcode = "";
   let deliveryAddress = "";
   let deliveryName = "";
@@ -289,14 +329,6 @@ async function createCheckoutSession(items, baseUrl, order) {
     cancel_url: base + "/shop-checkout-cancelled.html",
     phone_number_collection: { enabled: true },
     allow_promotion_codes: true,
-    custom_fields: [
-      {
-        key: "card_message",
-        label: { type: "custom", custom: "Card message (optional)" },
-        type: "text",
-        optional: true,
-      },
-    ],
     metadata: {
       source: "ginhouseflowers-online-shop",
       fulfilment,
@@ -309,6 +341,8 @@ async function createCheckoutSession(items, baseUrl, order) {
       collection_time: collectionTime,
     },
   };
+
+  if (cardMessage) sessionConfig.metadata.card_message = cardMessage;
 
   if (fulfilment === "postage") {
     sessionConfig.shipping_address_collection = { allowed_countries: ["GB"] };

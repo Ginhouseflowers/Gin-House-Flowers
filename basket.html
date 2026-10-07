@@ -184,6 +184,29 @@
                   <p class="field-hint">Posted anywhere in the UK. Cards and gifts only.</p>
                 </div>
               </fieldset>
+              <fieldset class="basket-flower-note" data-basket-note hidden>
+                <legend class="basket-fulfilment-legend">A note with your flowers</legend>
+                <p class="field-hint">We can write a short message on a card with the flowers.</p>
+                <label class="basket-fulfilment-option">
+                  <input type="radio" name="basket-card-note" value="yes" data-basket-note-choice />
+                  Yes, add a note
+                </label>
+                <label class="basket-fulfilment-option">
+                  <input type="radio" name="basket-card-note" value="no" data-basket-note-choice />
+                  No thank you
+                </label>
+                <div class="field basket-flower-note-message" data-basket-note-message hidden>
+                  <label for="basket-card-message">Message</label>
+                  <textarea
+                    id="basket-card-message"
+                    data-basket-card-message
+                    maxlength="200"
+                    rows="3"
+                  ></textarea>
+                  <p class="field-hint">Up to 200 characters. This is what we write on the card.</p>
+                </div>
+                <p class="basket-flower-note-error" data-basket-note-error role="alert" hidden></p>
+              </fieldset>
               <div class="basket-actions">
                 <button type="button" class="btn btn-primary" data-basket-checkout hidden>
                   Pay securely
