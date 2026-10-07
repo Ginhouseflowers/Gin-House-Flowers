@@ -948,13 +948,18 @@ p {
   padding-bottom: 2.5rem;
 }
 
-.seller-grid {
+.seller-grid,
+.shop-front-grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
+}
+
+.shop-front {
+  padding-top: 1.75rem;
 }
 
 .seller-card {
@@ -1057,6 +1062,14 @@ p {
 @media (max-width: 700px) {
   .seller-grid {
     grid-template-columns: 1fr;
+  }
+
+  .shop-front-grid {
+    gap: 0.75rem;
+  }
+
+  .shop-front-grid .seller-card h3 {
+    font-size: 1.35rem;
   }
 }
 

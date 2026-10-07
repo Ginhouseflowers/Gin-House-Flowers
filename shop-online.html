@@ -3,12 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Order a card or gift range from Gin House Flowers in Histon. Collection from the High Street shop, or delivery within 10 miles." />
-    <title>Shop range — Gin House Flowers</title>
+    <meta name="description" content="Shop online at Gin House Flowers in Histon: flowers, cards, gifts and chocolate. Collection from the High Street or local delivery." />
+    <title>Shop Online | Gin House Flowers, Histon</title>
+    <link rel="canonical" href="https://www.ginhouseflowers.co.uk/shop-online.html" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Gin House Flowers" />
-    <meta property="og:title" content="Shop range — Gin House Flowers" />
-    <meta property="og:description" content="Order a card or gift range from Gin House Flowers in Histon. Collection from the High Street shop, or delivery within 10 miles." />
+    <meta property="og:title" content="Shop Online | Gin House Flowers, Histon" />
+    <meta property="og:description" content="Flowers, cards, gifts and chocolate from Gin House Flowers in Histon. Collection from the High Street or local delivery." />
+    <meta property="og:url" content="https://www.ginhouseflowers.co.uk/shop-online.html" />
     <meta property="og:image" content="https://www.ginhouseflowers.co.uk/images/home/hero-feature.jpg" />
     <meta property="og:locale" content="en_GB" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -52,7 +54,7 @@
             <li><a href="funerals.html">Funerals</a></li>
             <li><a href="corporate-events.html">Corporate</a></li>
             <li><a href="flower-school.html">Flower School</a></li>
-            <li><a href="shop-online.html" class="nav-shop">Shop Online</a></li>
+            <li><a href="shop-online.html" class="nav-shop" aria-current="page">Shop Online</a></li>
             <li><a href="contact.html" class="nav-cta">Contact</a></li>
           </ul>
         </nav>
@@ -61,29 +63,81 @@
 
     <main id="main" class="page-main">
       <header class="page-hero">
-        <div class="page-hero-inner" data-range-detail></div>
+        <div class="page-hero-inner">
+          <p class="eyebrow">Histon High Street · Cambridge</p>
+          <h1>Shop online</h1>
+          <p class="lede">
+            Flowers, cards, gifts and chocolate from the shop. Order for collection
+            on the High Street, or delivery nearby.
+          </p>
+        </div>
       </header>
 
-      <section class="section" data-brand-products data-products-shop hidden aria-labelledby="filters-heading">
-        <div class="section-inner browse-all">
-          <aside class="filter-panel">
-            <h2 id="filters-heading" class="filter-heading">Filters</h2>
-            <button type="button" class="filter-toggle filter-view-all is-active" data-products-reset>
-              <span>View All</span>
-            </button>
-            <div data-products-filters></div>
-          </aside>
-          <div>
-            <form class="browse-search" data-products-search-form role="search">
-              <label>
-                <span class="visually-hidden">Search this range</span>
-                <input type="search" data-products-search placeholder="Search this range" autocomplete="off" />
-              </label>
-            </form>
-            <p class="browse-all-count" data-products-count></p>
-            <p class="browse-all-empty" data-products-empty hidden>No products match that search.</p>
-            <ul class="browse-grid" data-products-grid></ul>
-          </div>
+      <section class="section shop-front" aria-labelledby="shop-front-heading">
+        <div class="section-inner">
+          <h2 id="shop-front-heading" class="visually-hidden">What you can shop</h2>
+          <ul class="shop-front-grid">
+            <li>
+              <a class="seller-card" href="online-shop.html">
+                <img
+                  src="images/shop/florists-choice-bouquet.jpg"
+                  alt="Florist's choice bouquet"
+                  width="900"
+                  height="1200"
+                />
+                <span class="seller-card-body">
+                  <h3>Flowers</h3>
+                  <p class="seller-price">Bouquets and hat boxes</p>
+                  <span class="seller-buy">Shop flowers</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="seller-card" href="cards.html">
+                <img
+                  src="images/ranges/ohh-deer.jpg"
+                  alt="Greeting cards"
+                  width="800"
+                  height="800"
+                />
+                <span class="seller-card-body">
+                  <h3>Cards</h3>
+                  <p class="seller-price">Greeting cards</p>
+                  <span class="seller-buy">Shop cards</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="seller-card" href="gifts.html">
+                <img
+                  src="images/ranges/jellycat.jpg"
+                  alt="Gifts including Jellycat"
+                  width="800"
+                  height="800"
+                />
+                <span class="seller-card-body">
+                  <h3>Gifts</h3>
+                  <p class="seller-price">Soft toys, candles and more</p>
+                  <span class="seller-buy">Shop gifts</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="seller-card" href="range.html?brand=cambridge-confectionery&amp;from=chocolate">
+                <img
+                  src="images/ranges/cambridge-confectionery.png"
+                  alt="Chocolate from The Cambridge Confectionery Company"
+                  width="800"
+                  height="800"
+                />
+                <span class="seller-card-body">
+                  <h3>Chocolate</h3>
+                  <p class="seller-price">The Cambridge Confectionery Company</p>
+                  <span class="seller-buy">Shop chocolate</span>
+                </span>
+              </a>
+            </li>
+          </ul>
         </div>
       </section>
     </main>
@@ -154,13 +208,6 @@
       </div>
     </footer>
 
-    <script src="gift-ranges.js"></script>
-    <script src="shared/ohh-deer-cards.js"></script>
-    <script src="shared/museums-galleries.js"></script>
-    <script src="shared/paper-salad.js"></script>
-    <script src="shared/cambridge-confectionery.js"></script>
-    <script src="/api/catalogue.js"></script>
-    <script src="range-browse.js"></script>
     <script src="script.js" defer></script>
     <script src="stock.js" defer></script>
   </body>

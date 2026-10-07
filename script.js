@@ -145,7 +145,7 @@
     totalEl.hidden = count === 0;
     totalEl.textContent = "Total " + formatMoney(goods);
     viewLink.textContent = count ? "View basket" : "Shop online";
-    viewLink.href = count ? "basket.html" : "online-shop.html";
+    viewLink.href = count ? "basket.html" : "shop-online.html";
     listEl.innerHTML = items
       .map(function (item) {
         return (
@@ -312,6 +312,7 @@
 
   var path = (location.pathname.split("/").pop() || "index.html").toLowerCase();
   var current = "";
+  if (path === "shop-online.html") shopLink.setAttribute("aria-current", "page");
   if (path === "online-shop.html") current = "flowers";
   if (path === "cards.html") current = "cards";
   if (path === "gifts.html") current = "gifts";
@@ -334,12 +335,6 @@
     item.classList.toggle("is-open", open);
     shopLink.setAttribute("aria-expanded", open ? "true" : "false");
   }
-
-  shopLink.addEventListener("click", function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    setExpanded(!item.classList.contains("is-open"));
-  });
 
   item.addEventListener("pointerenter", function (event) {
     if (event.pointerType === "touch") return;
@@ -424,6 +419,12 @@
         meta: "Flowers",
         href: "online-shop.html#florists-choice-hatbox",
         text: "florist's choice hat box flowers",
+      },
+      {
+        name: "Shop online",
+        meta: "Flowers, cards, gifts and chocolate",
+        href: "shop-online.html",
+        text: "shop online store flowers cards gifts chocolate",
       },
       {
         name: "Flowers",
