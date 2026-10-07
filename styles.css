@@ -958,8 +958,87 @@ p {
   gap: 1.25rem;
 }
 
-.shop-front {
-  padding-top: 1.75rem;
+.shop-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--header-h));
+  max-height: calc(100dvh - var(--header-h));
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.shop-page .page-hero {
+  padding: 1rem 1.5rem 0;
+}
+
+.shop-page .page-hero h1 {
+  margin-bottom: 0.2rem;
+  font-size: clamp(1.85rem, 3.2vw, 2.45rem);
+}
+
+.shop-page .page-hero .lede {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.shop-front.section {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0.75rem 1.5rem 1rem;
+}
+
+.shop-front .section-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.shop-front-grid {
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.shop-front-grid > li,
+.shop-front-grid .seller-card {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.shop-front-grid .seller-card {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.shop-front-grid .seller-card img {
+  aspect-ratio: auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.shop-front-grid .seller-card-body {
+  gap: 0.1rem;
+  padding: 0.5rem 0.7rem 0.6rem;
+}
+
+.shop-front-grid .seller-card h3 {
+  font-size: 1.35rem;
+}
+
+.shop-front-grid .seller-price {
+  font-size: 0.8rem;
+}
+
+.shop-front-grid .seller-buy {
+  margin-top: 0.15rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.6875rem;
 }
 
 .seller-card {
