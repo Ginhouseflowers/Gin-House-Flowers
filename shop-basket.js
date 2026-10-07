@@ -242,44 +242,62 @@
   }
 
   var renderDeliveryCalendar = function () {};
+  var renderCollectionCalendar = function () {};
 
-  function setupDeliveryDateInput() {
-    if (!deliveryDateInput || !window.GinDeliverySchedule) return;
-    var calendar = root.querySelector("[data-delivery-calendar]");
-    if (!calendar) return;
+  function parseCalendarIso(iso) {
+    var parts = String(iso || "").split("-").map(Number);
+    if (parts.length !== 3 || parts.some(function (n) { return !n && n !== 0; })) return null;
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
 
-    function parseIso(iso) {
-      var parts = String(iso || "").split("-").map(Number);
-      if (parts.length !== 3) return null;
-      return new Date(parts[0], parts[1] - 1, parts[2]);
+  function calendarIso(date) {
+    var m = String(date.getMonth() + 1).padStart(2, "0");
+    var d = String(date.getDate()).padStart(2, "0");
+    return date.getFullYear() + "-" + m + "-" + d;
+  }
+
+  function mountShopCalendar(calendar, input) {
+    if (!calendar || !input) return function () {};
+    if (!calendar._shopCal) calendar._shopCal = { view: null, bounds: null };
+    if (!calendar._shopCalBound) {
+      calendar._shopCalBound = true;
+      calendar.addEventListener("click", function (event) {
+        var state = calendar._shopCal;
+        if (!state.bounds) return;
+        var prev = event.target.closest("[data-cal-prev]");
+        var next = event.target.closest("[data-cal-next]");
+        var day = event.target.closest("[data-cal-day]");
+        if (prev && !prev.disabled) {
+          state.view = new Date(state.view.getFullYear(), state.view.getMonth() - 1, 1);
+          state.render();
+          return;
+        }
+        if (next && !next.disabled) {
+          state.view = new Date(state.view.getFullYear(), state.view.getMonth() + 1, 1);
+          state.render();
+          return;
+        }
+        if (!day) return;
+        input.value = day.getAttribute("data-cal-day");
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        state.render();
+      });
     }
 
-    function toIso(date) {
-      var m = String(date.getMonth() + 1).padStart(2, "0");
-      var d = String(date.getDate()).padStart(2, "0");
-      return date.getFullYear() + "-" + m + "-" + d;
-    }
-
-    var earliest = parseIso(window.GinDeliverySchedule.getEarliestDeliveryDate());
-    var latest = new Date(earliest.getFullYear(), earliest.getMonth() + 6, earliest.getDate());
-    var view = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
-
-    function dayAvailable(date) {
-      if (date < earliest || date > latest) return false;
-      var day = date.getDay();
-      return day >= 2 && day <= 6;
-    }
-
-    renderDeliveryCalendar = function () {
-      var selected = deliveryDateInput.value;
+    calendar._shopCal.render = function () {
+      var state = calendar._shopCal;
+      var bounds = state.bounds;
+      if (!bounds) return;
+      if (!state.view) state.view = new Date(bounds.earliest.getFullYear(), bounds.earliest.getMonth(), 1);
+      var selected = input.value;
       var monthName = new Intl.DateTimeFormat("en-GB", {
         month: "long",
         year: "numeric",
-      }).format(view);
-      var prevMonth = new Date(view.getFullYear(), view.getMonth() - 1, 1);
-      var nextMonth = new Date(view.getFullYear(), view.getMonth() + 1, 1);
-      var prevDisabled = prevMonth < new Date(earliest.getFullYear(), earliest.getMonth(), 1);
-      var nextDisabled = nextMonth > new Date(latest.getFullYear(), latest.getMonth(), 1);
+      }).format(state.view);
+      var earliestMonth = new Date(bounds.earliest.getFullYear(), bounds.earliest.getMonth(), 1);
+      var latestMonth = new Date(bounds.latest.getFullYear(), bounds.latest.getMonth(), 1);
+      var prevDisabled = state.view <= earliestMonth;
+      var nextDisabled = state.view >= latestMonth;
       var html =
         '<div class="delivery-calendar-head">' +
         '<button type="button" class="delivery-calendar-nav" data-cal-prev' +
@@ -298,18 +316,15 @@
             return '<span class="delivery-calendar-dow">' + label + "</span>";
           })
           .join("");
-
-      var first = new Date(view.getFullYear(), view.getMonth(), 1);
+      var first = new Date(state.view.getFullYear(), state.view.getMonth(), 1);
       var lead = (first.getDay() + 6) % 7;
       var i;
-      for (i = 0; i < lead; i += 1) {
-        html += '<span class="delivery-calendar-empty"></span>';
-      }
-      var daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+      for (i = 0; i < lead; i += 1) html += '<span class="delivery-calendar-empty"></span>';
+      var daysInMonth = new Date(state.view.getFullYear(), state.view.getMonth() + 1, 0).getDate();
       for (i = 1; i <= daysInMonth; i += 1) {
-        var date = new Date(view.getFullYear(), view.getMonth(), i);
-        var iso = toIso(date);
-        var available = dayAvailable(date);
+        var date = new Date(state.view.getFullYear(), state.view.getMonth(), i);
+        var iso = calendarIso(date);
+        var available = bounds.dayAvailable(date);
         var closed = date.getDay() === 0 || date.getDay() === 1;
         var label = new Intl.DateTimeFormat("en-GB", {
           weekday: "long",
@@ -343,27 +358,45 @@
       calendar.innerHTML = html;
     };
 
-    calendar.addEventListener("click", function (event) {
-      var prev = event.target.closest("[data-cal-prev]");
-      var next = event.target.closest("[data-cal-next]");
-      var day = event.target.closest("[data-cal-day]");
-      if (prev && !prev.disabled) {
-        view = new Date(view.getFullYear(), view.getMonth() - 1, 1);
-        renderDeliveryCalendar();
-        return;
-      }
-      if (next && !next.disabled) {
-        view = new Date(view.getFullYear(), view.getMonth() + 1, 1);
-        renderDeliveryCalendar();
-        return;
-      }
-      if (!day) return;
-      deliveryDateInput.value = day.getAttribute("data-cal-day");
-      deliveryDateInput.dispatchEvent(new Event("change", { bubbles: true }));
-      renderDeliveryCalendar();
-    });
+    return calendar._shopCal.render;
+  }
 
+  function weekdayBounds(earliest) {
+    var latest = new Date(earliest.getFullYear(), earliest.getMonth() + 6, earliest.getDate());
+    return {
+      earliest: earliest,
+      latest: latest,
+      dayAvailable: function (date) {
+        if (date < earliest || date > latest) return false;
+        var day = date.getDay();
+        return day >= 2 && day <= 6;
+      },
+    };
+  }
+
+  function setupDeliveryDateInput() {
+    if (!deliveryDateInput || !window.GinDeliverySchedule) return;
+    var calendar = root.querySelector("[data-delivery-calendar]");
+    var earliest = parseCalendarIso(window.GinDeliverySchedule.getEarliestDeliveryDate());
+    if (!calendar || !earliest) return;
+    if (calendar._shopCal) calendar._shopCal.bounds = weekdayBounds(earliest);
+    else calendar._shopCal = { view: null, bounds: weekdayBounds(earliest) };
+    renderDeliveryCalendar = mountShopCalendar(calendar, deliveryDateInput);
     renderDeliveryCalendar();
+  }
+
+  function setupCollectionDateInput() {
+    if (!collectionDateInput || !window.GinCollectionSchedule) return;
+    var calendar = root.querySelector("[data-collection-calendar]");
+    var earliestIso = window.GinCollectionSchedule.getEarliestCollectionDate();
+    var earliest = parseCalendarIso(earliestIso);
+    if (!calendar || !earliest) return;
+    if (!collectionDateInput.value) collectionDateInput.value = earliestIso;
+    if (calendar._shopCal) calendar._shopCal.bounds = weekdayBounds(earliest);
+    else calendar._shopCal = { view: null, bounds: weekdayBounds(earliest) };
+    renderCollectionCalendar = mountShopCalendar(calendar, collectionDateInput);
+    renderCollectionCalendar();
+    populateCollectionTimes();
   }
 
   function showCollectionError(message) {
@@ -462,15 +495,6 @@
       collectionTimeSelect.innerHTML = '<option value="">Choose a time</option>';
     }
     syncCheckoutAvailability();
-  }
-
-  function setupCollectionDateInput() {
-    if (!collectionDateInput || !window.GinCollectionSchedule) return;
-    collectionDateInput.min = window.GinCollectionSchedule.getEarliestCollectionDate();
-    if (!collectionDateInput.value) {
-      collectionDateInput.value = collectionDateInput.min;
-      populateCollectionTimes();
-    }
   }
 
   function updateBasketTotals() {
@@ -672,6 +696,7 @@
     } else if (isDelivery) {
       resetCollectionDetailsState();
       if (collectionDateInput) collectionDateInput.value = "";
+      renderCollectionCalendar();
       setupDeliveryDateInput();
       resetDeliveryDetailsState();
       if (deliveryPostcodeInput && deliveryPostcodeInput.value.trim()) {
@@ -1092,7 +1117,8 @@
       if (!checkCollectionSchedule()) {
         showCheckoutError(collectionError ? collectionError.textContent : "Please choose a collection date and time.");
         if (collectionDateInput && !collectionDateInput.value) {
-          collectionDateInput.focus();
+          var collectionDay = root.querySelector("[data-collection-calendar] .delivery-calendar-day:not(:disabled)");
+          if (collectionDay) collectionDay.focus();
         } else if (collectionTimeSelect) {
           collectionTimeSelect.focus();
         }

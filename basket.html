@@ -105,21 +105,21 @@
                 </label>
                 <div class="basket-collection-details" data-collection-details>
                   <div class="field basket-collection-date">
-                    <label for="basket-collection-date">Collection date</label>
-                    <input
-                      type="date"
-                      id="basket-collection-date"
-                      name="collectionDate"
-                      data-collection-date
-                      required
-                    />
+                    <label id="basket-collection-date-label">Collection date</label>
+                    <input type="hidden" id="basket-collection-date" name="collectionDate" data-collection-date />
+                    <div
+                      class="delivery-calendar"
+                      data-collection-calendar
+                      role="group"
+                      aria-labelledby="basket-collection-date-label"
+                    ></div>
+                    <p class="field-hint">Closed Sunday and Monday. Tue 10:30–5 · Wed–Fri 9:30–5 · Sat 9–1</p>
                   </div>
                   <div class="field basket-collection-time">
                     <label for="basket-collection-time">Collection time</label>
                     <select id="basket-collection-time" name="collectionTime" data-collection-time required>
                       <option value="">Choose a time</option>
                     </select>
-                    <p class="field-hint">Tue 10:30–5 · Wed–Fri 9:30–5 · Sat 9–1</p>
                     <p class="basket-collection-error" data-collection-error role="alert" hidden></p>
                   </div>
                 </div>

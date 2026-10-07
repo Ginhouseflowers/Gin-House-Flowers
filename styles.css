@@ -3974,7 +3974,7 @@ a.service-card:focus-visible h3 {
   color: #8b2e2e;
 }
 
-.basket-collection-date--invalid input[type="date"],
+.basket-collection-date--invalid .delivery-calendar,
 .basket-collection-time--invalid select {
   border-color: #8b2e2e;
 }
