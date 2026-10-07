@@ -19,44 +19,77 @@ const { escapeHtml, sendResendEmail } = require("./resend-mail");
 
 function getCustomFieldValue(field) {
   if (!field) return "";
-  if (field.text && field.text.value) return field.text.value;
-  if (field.dropdown && field.dropdown.value) return field.dropdown.value;
+  if (field.text && field.text.value) return String(field.text.value).trim();
+  if (field.dropdown && field.dropdown.value) return String(field.dropdown.value).trim();
+  if (typeof field.value === "string") return field.value.trim();
   return "";
 }
 
-function formatMetadataBlock(metadata) {
-  if (!metadata || typeof metadata !== "object") return "";
+function formatGbpAmount(value) {
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return "£0.00";
+  return "£" + amount.toFixed(2);
+}
+
+function formatUkDate(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ""))) return "";
+  const parts = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])));
+}
+
+function formatClock(value) {
+  const match = String(value || "").match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return "";
+  let hour = Number(match[1]);
+  const minute = match[2];
+  const suffix = hour >= 12 ? "pm" : "am";
+  hour = hour % 12 || 12;
+  return hour + ":" + minute + suffix;
+}
+
+function formatFulfilment(metadata) {
+  metadata = metadata || {};
   const fulfilment = metadata.fulfilment || "";
   const lines = [];
 
-  if (fulfilment === "postage") {
-    lines.push("Fulfilment: UK delivery");
-    lines.push("Posted anywhere in the UK");
-    if (metadata.delivery_fee_gbp) {
-      lines.push("Delivery fee: £" + metadata.delivery_fee_gbp);
-    }
+  if (fulfilment === "collection") {
+    lines.push("Collect from the shop");
+    lines.push("Date: " + (formatUkDate(metadata.collection_date) || "Not given"));
+    lines.push("Time: " + (formatClock(metadata.collection_time) || "Not given"));
+    lines.push("Delivery cost: £0.00");
   } else if (fulfilment === "delivery") {
-    lines.push("Fulfilment: Delivery");
-    if (metadata.delivery_postcode) {
-      lines.push("Delivery postcode: " + metadata.delivery_postcode);
-    }
-    if (metadata.delivery_date) {
-      lines.push("Preferred delivery date: " + metadata.delivery_date);
-    }
-    if (metadata.delivery_fee_gbp) {
-      lines.push("Delivery fee: £" + metadata.delivery_fee_gbp);
-    }
-  } else if (fulfilment === "collection") {
-    lines.push("Fulfilment: Collection from shop");
-    if (metadata.collection_date) {
-      lines.push("Collection date: " + metadata.collection_date);
-    }
-    if (metadata.collection_time) {
-      lines.push("Collection time: " + metadata.collection_time);
-    }
+    lines.push("Local delivery");
+    lines.push("Date: " + (formatUkDate(metadata.delivery_date) || "Not given"));
+    lines.push("Delivery cost: " + formatGbpAmount(metadata.delivery_fee_gbp));
+    if (metadata.delivery_name) lines.push("Recipient: " + metadata.delivery_name);
+    if (metadata.delivery_address) lines.push("Address: " + metadata.delivery_address);
+    if (metadata.delivery_postcode) lines.push("Postcode: " + metadata.delivery_postcode);
+  } else if (fulfilment === "postage") {
+    lines.push("Posted anywhere in the UK");
+    lines.push("Delivery cost: " + formatGbpAmount(metadata.delivery_fee_gbp || "3.99"));
+  } else {
+    lines.push("Date: Not given");
+    lines.push("Delivery cost: " + formatGbpAmount(metadata.delivery_fee_gbp));
   }
 
   return lines.join("\n");
+}
+
+function orderHasFlowers(lineItems) {
+  const data = lineItems && lineItems.data ? lineItems.data : [];
+  return data.some(function (item) {
+    const product = item.price && item.price.product;
+    const meta = product && typeof product === "object" ? product.metadata : null;
+    if (meta && meta.is_flower === "yes") return true;
+    const name = String(item.description || (product && product.name) || "").toLowerCase();
+    return name.indexOf("bouquet") !== -1 || name.indexOf("hat box") !== -1;
+  });
 }
 
 function formatLineItems(lineItems) {
@@ -100,7 +133,7 @@ function formatLineItems(lineItems) {
     .join("\n\n");
 }
 
-function buildOrderEmailContent(session, lineItems) {
+function buildOrderEmailContent(session, lineItems, forCustomer) {
   const customer = session.customer_details || {};
   const shipping = session.shipping_details || {};
   const address = shipping.address || {};
@@ -130,31 +163,41 @@ function buildOrderEmailContent(session, lineItems) {
     })
     .map(getCustomFieldValue)
     .filter(Boolean)[0];
+  const flowers = orderHasFlowers(lineItems);
+  const whenText = formatFulfilment(metadata);
+  const cardLine = flowers
+    ? "Card message: " + (cardMessage || "(none)")
+    : "";
 
   const textParts = [
-    "New online shop order — Gin House Flowers",
+    forCustomer
+      ? "Thank you for your order from Gin House Flowers."
+      : "New online shop order — Gin House Flowers",
+    "",
+    whenText,
+    "",
+    cardLine,
     "",
     "Payment: " + formatMoneyFromPence(session.amount_total || 0),
     ...(discountText ? [discountText] : []),
-    "Stripe payment ID: " + session.payment_intent,
+    ...(forCustomer ? [] : ["Stripe payment ID: " + session.payment_intent]),
     "Order reference: " + session.id,
     "",
-    "Customer",
-    "Name: " + name,
-    "Email: " + email,
-    "Phone: " + phone,
-    "",
-    formatMetadataBlock(session.metadata),
-    "",
-    "Deliver to (if delivery)",
+    ...(forCustomer
+      ? []
+      : ["Customer", "Name: " + name, "Email: " + email, "Phone: " + phone, ""]),
+    "Deliver to",
     addressText,
-    "",
-    cardMessage ? "Card message: " + cardMessage : "Card message: (none)",
     "",
     "Items",
     formatLineItems(lineItems),
     "",
-    "View in Stripe Dashboard: https://dashboard.stripe.com/payments/" + session.payment_intent,
+    ...(forCustomer
+      ? ["If anything looks wrong, call us on 01223 656670 or reply to this email."]
+      : [
+          "View in Stripe Dashboard: https://dashboard.stripe.com/payments/" +
+            session.payment_intent,
+        ]),
   ];
 
   const text = textParts.filter(function (line, i, arr) {
@@ -163,47 +206,59 @@ function buildOrderEmailContent(session, lineItems) {
   }).join("\n");
 
   const html = [
-    "<h1 style=\"font-family:Georgia,serif;font-size:22px;\">New online shop order</h1>",
+    "<h1 style=\"font-family:Georgia,serif;font-size:22px;\">" +
+      (forCustomer ? "Your Gin House Flowers order" : "New online shop order") +
+      "</h1>",
+    forCustomer ? "<p>Thank you. Here is what we have for your order.</p>" : "",
+    "<h2 style=\"font-size:16px;\">When</h2>",
+    "<pre style=\"font-family:Georgia,serif;font-size:16px;white-space:pre-wrap;\">" +
+      escapeHtml(whenText) +
+      "</pre>",
+    flowers
+      ? "<p><strong>Card message:</strong> " + escapeHtml(cardMessage || "(none)") + "</p>"
+      : "",
+    forCustomer
+      ? ""
+      : "<h2 style=\"font-size:16px;\">Customer</h2><ul><li><strong>Name:</strong> " +
+        escapeHtml(name) +
+        "</li><li><strong>Email:</strong> " +
+        escapeHtml(email) +
+        "</li><li><strong>Phone:</strong> " +
+        escapeHtml(phone) +
+        "</li></ul>",
     "<p><strong>Total paid:</strong> " + escapeHtml(formatMoneyFromPence(session.amount_total || 0)) + "</p>",
     discountText ? "<p>" + escapeHtml(discountText) + "</p>" : "",
-    "<h2 style=\"font-size:16px;\">Customer</h2>",
-    "<ul>",
-    "<li><strong>Name:</strong> " + escapeHtml(name) + "</li>",
-    "<li><strong>Email:</strong> " + escapeHtml(email) + "</li>",
-    "<li><strong>Phone:</strong> " + escapeHtml(phone) + "</li>",
-    "</ul>",
-    "<h2 style=\"font-size:16px;\">Collection / delivery</h2>",
-    "<pre style=\"font-family:monospace;font-size:14px;white-space:pre-wrap;\">" +
-      escapeHtml(formatMetadataBlock(session.metadata)) +
-      "</pre>",
     "<h2 style=\"font-size:16px;\">Deliver to</h2>",
     "<p>" + escapeHtml(addressText) + "</p>",
-    "<p><strong>Card message:</strong> " + escapeHtml(cardMessage || "(none)") + "</p>",
     "<h2 style=\"font-size:16px;\">Items</h2>",
     "<pre style=\"font-family:monospace;font-size:14px;white-space:pre-wrap;\">" +
       escapeHtml(formatLineItems(lineItems)) +
       "</pre>",
-    "<p><a href=\"https://dashboard.stripe.com/payments/" +
-      escapeHtml(String(session.payment_intent || "")) +
-      "\">View payment in Stripe</a></p>",
+    forCustomer
+      ? "<p>If anything looks wrong, call us on 01223 656670 or reply to this email.</p>"
+      : "<p><a href=\"https://dashboard.stripe.com/payments/" +
+        escapeHtml(String(session.payment_intent || "")) +
+        "\">View payment in Stripe</a></p>",
   ].join("");
 
   return {
-    subject:
-      "New online order — Gin House Flowers (" +
-      formatMoneyFromPence(session.amount_total || 0) +
-      ")",
+    subject: forCustomer
+      ? "Your Gin House Flowers order"
+      : "New online order — Gin House Flowers (" +
+        formatMoneyFromPence(session.amount_total || 0) +
+        ")",
     text,
     html,
   };
 }
 
-async function sendViaResend({ subject, text, html }) {
+async function sendViaResend({ subject, text, html, to, replyTo }) {
   return sendResendEmail({
-    to: process.env.ORDER_NOTIFY_EMAIL || "info@ginhouseflowers.co.uk",
+    to: to || process.env.ORDER_NOTIFY_EMAIL || "info@ginhouseflowers.co.uk",
     subject,
     text,
     html,
+    replyTo,
   });
 }
 
@@ -219,6 +274,18 @@ async function sendOrderNotificationEmail(stripe, sessionId) {
 
   const content = buildOrderEmailContent(session, lineItems);
   const result = await sendViaResend(content);
+  const customerEmail = session.customer_details && session.customer_details.email;
+  if (customerEmail) {
+    const copy = buildOrderEmailContent(session, lineItems, true);
+    const customerResult = await sendViaResend({
+      ...copy,
+      to: customerEmail,
+      replyTo: process.env.ORDER_NOTIFY_EMAIL || "info@ginhouseflowers.co.uk",
+    });
+    if (!customerResult.ok && !customerResult.skipped) {
+      console.error("Customer order email failed:", customerResult.error);
+    }
+  }
 
   if (result.skipped) {
     console.warn(result.error);

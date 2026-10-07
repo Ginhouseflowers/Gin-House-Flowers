@@ -90,6 +90,10 @@ function validateItems(items, stock) {
             colour: String(item.colour || ""),
             colour_other: String(item.colourOther || "").slice(0, 120),
             water_bubble_bag: waterBubbleBag ? "yes" : "no",
+            is_flower:
+              product.group === "cards" || product.group === "gifts" || product.group === "chocolate"
+                ? "no"
+                : "yes",
           },
         },
       },
@@ -189,12 +193,15 @@ function validateOrder(order, items, stock) {
 }
 
 async function createCheckoutSession(items, baseUrl, order) {
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) {
+  const secretKey = String(process.env.STRIPE_SECRET_KEY || "")
+    .trim()
+    .replace(/^["']|["']$/g, "");
+  if (!secretKey || secretKey.startsWith("pk_")) {
     return {
       ok: false,
       status: 503,
-      error: "Payments are not configured yet. Please contact us to place your order.",
+      error: "Card payments are not connected yet. Please call us on 01223 656670 to place your order.",
+      code: secretKey.startsWith("pk_") ? "secret_key_required" : "missing_key",
     };
   }
 
