@@ -17,6 +17,44 @@ const COLOUR_LABELS = {
   other: "Other",
 };
 
+function formatUkDate(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ""))) return "";
+  const parts = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])));
+}
+
+function formatClock(value) {
+  const match = String(value || "").match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return "";
+  let hour = Number(match[1]);
+  const minute = match[2];
+  const suffix = hour >= 12 ? "pm" : "am";
+  hour = hour % 12 || 12;
+  return hour + ":" + minute + suffix;
+}
+
+function detailLine(name, description) {
+  const line = {
+    price_data: {
+      currency: "gbp",
+      unit_amount: 0,
+      product_data: {
+        name: cleanLine(name, 250),
+      },
+    },
+    quantity: 1,
+  };
+  const detail = cleanLine(description, 500);
+  if (detail) line.price_data.product_data.description = detail;
+  return line;
+}
+
 function colourLabel(item) {
   if (item.colour === "other" && item.colourOther) {
     return "Other — " + String(item.colourOther).slice(0, 120);
@@ -311,23 +349,54 @@ async function createCheckoutSession(items, baseUrl, order) {
 
   const checkoutLineItems = validation.lineItems.slice();
 
+  const orderDetails = [];
+
+  if (fulfilment === "collection") {
+    const when = formatUkDate(collectionDate) + " at " + formatClock(collectionTime);
+    orderDetails.push("Collection: " + when);
+    checkoutLineItems.push(
+      detailLine(
+        "Collection: " + when,
+        "Collect from the shop, 11 High Street, Histon"
+      )
+    );
+  }
+
+  if (fulfilment === "delivery") {
+    const when = formatUkDate(deliveryDate);
+    const who = [deliveryName, deliveryAddress].filter(Boolean).join(", ");
+    const title = "Delivery: " + when + (who ? " — " + who : "");
+    orderDetails.push(title);
+    checkoutLineItems.push(detailLine(title, who || "Local delivery from Histon"));
+  }
+
   if ((fulfilment === "delivery" && deliveryFeeGbp > 0) || fulfilment === "postage") {
+    const area = isLocalDelivery
+      ? "Local delivery (Histon, Cottenham, Impington, Oakington or Girton). "
+      : fulfilment === "postage"
+        ? ""
+        : "Delivery within 10 miles of our Histon shop. ";
+    const deliveryDetail =
+      fulfilment === "postage"
+        ? "Posted anywhere in the UK"
+        : area + [deliveryName, deliveryAddress].filter(Boolean).join(", ");
     checkoutLineItems.push({
       price_data: {
         currency: "gbp",
         unit_amount: fulfilment === "postage" ? UK_POSTAGE_PENCE : deliveryFeeGbp * 100,
         product_data: {
           name: fulfilment === "postage" ? "UK delivery" : "Delivery charge",
-          description:
-            fulfilment === "postage"
-              ? "Posted anywhere in the UK"
-              : isLocalDelivery
-                ? "Local delivery (Histon, Cottenham, Impington, Oakington or Girton)"
-                : "Delivery within 10 miles of our Histon shop",
+          description: cleanLine(deliveryDetail, 500),
         },
       },
       quantity: 1,
     });
+  }
+
+  if (orderIncludesFlowers(items, stock)) {
+    const note = cardMessage ? "Flower note: " + cardMessage : "Flower note: none";
+    orderDetails.push(note);
+    checkoutLineItems.push(detailLine(note, ""));
   }
 
   const sessionConfig = {
@@ -352,6 +421,11 @@ async function createCheckoutSession(items, baseUrl, order) {
   };
 
   if (cardMessage) sessionConfig.metadata.card_message = cardMessage;
+  if (orderDetails.length) {
+    sessionConfig.payment_intent_data = {
+      description: orderDetails.join("\n").slice(0, 1000),
+    };
+  }
 
   if (fulfilment === "postage") {
     sessionConfig.shipping_address_collection = { allowed_countries: ["GB"] };
