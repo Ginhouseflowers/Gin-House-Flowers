@@ -290,7 +290,6 @@
 (function () {
   var shopLink = document.querySelector(".nav-shop");
   if (!shopLink || !shopLink.parentElement) return;
-  if (document.body.getAttribute("data-shop-closed") !== "no") return;
 
   var item = shopLink.parentElement;
   item.classList.add("nav-shop-item");

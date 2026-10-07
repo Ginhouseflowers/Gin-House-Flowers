@@ -102,26 +102,8 @@ function serveStatic(req, res) {
   });
 }
 
-const CLOSED_SHOP = new Set([
-  "/online-shop.html",
-  "/cards.html",
-  "/gifts.html",
-  "/range.html",
-  "/basket.html",
-  "/view-all.html",
-  "/chocolate.html",
-  "/shop-checkout-success.html",
-  "/shop-checkout-cancelled.html",
-]);
-
 const server = http.createServer(async function (req, res) {
   const urlPath = req.url.split("?")[0];
-
-  if ((req.method === "GET" || req.method === "HEAD") && CLOSED_SHOP.has(urlPath)) {
-    res.writeHead(302, { Location: "/shop-online.html" });
-    res.end();
-    return;
-  }
 
   if (req.method === "GET" && urlPath === "/api/stock") {
     const result = await stockGet();
