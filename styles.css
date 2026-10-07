@@ -5187,6 +5187,52 @@ a.service-card:focus-visible h3 {
   overscroll-behavior: contain;
 }
 
+@media (max-width: 800px) {
+  .stock-panel {
+    padding: 0;
+    place-items: stretch;
+  }
+
+  .stock-sheet {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 0 1rem calc(1.25rem + env(safe-area-inset-bottom));
+  }
+
+  .stock-sheet-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin: 0 -1rem;
+    padding: calc(0.85rem + env(safe-area-inset-top)) 1rem 0.65rem;
+    background: #fff;
+  }
+
+  .stock-editor,
+  .stock-browse,
+  .stock-add,
+  .stock-list {
+    display: block;
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+
+  .stock-sheet input,
+  .stock-sheet textarea,
+  .stock-sheet select,
+  .stock-sheet button,
+  .stock-sheet label {
+    touch-action: pan-y;
+  }
+}
+
 .stock-row {
   padding: 0.75rem 0;
   border-top: 1px solid var(--line);
