@@ -31,13 +31,17 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: "Invalid signature" };
   }
 
+  let emailError = "";
+
   if (stripeEvent.type === "checkout.session.completed") {
     const sessionId = stripeEvent.data.object.id;
 
     try {
-      await sendOrderNotificationEmail(stripe, sessionId);
+      const emailResult = await sendOrderNotificationEmail(stripe, sessionId);
+      if (!emailResult.ok) emailError = emailResult.error || "Order email was not sent.";
     } catch (err) {
-      console.error("Order notification email error:", err.message);
+      emailError = err.message || "Order email was not sent.";
+      console.error("Order notification email error:", emailError);
     }
 
     console.log("Order paid:", sessionId);
@@ -59,6 +63,13 @@ exports.handler = async function (event) {
     } catch (err) {
       console.error("Stock update error:", err.message);
     }
+  }
+
+  if (emailError) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ received: true, email: emailError }),
+    };
   }
 
   return { statusCode: 200, body: JSON.stringify({ received: true }) };

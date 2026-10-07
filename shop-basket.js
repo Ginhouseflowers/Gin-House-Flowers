@@ -923,6 +923,24 @@
 
   function startStripeCheckout() {
     var items = loadBasket();
+    fetch("/api/shop-status", { cache: "no-store" })
+      .then(function (response) {
+        return response.ok ? response.json() : { open: true };
+      })
+      .then(function (data) {
+        if (data && data.open === false) {
+          showCheckoutError("Online ordering is coming soon. Please call us on 01223 656670.");
+          return;
+        }
+        startStripeCheckoutNow();
+      })
+      .catch(function () {
+        startStripeCheckoutNow();
+      });
+  }
+
+  function startStripeCheckoutNow() {
+    var items = loadBasket();
     if (items.length === 0) {
       announce("Your basket is empty.");
       showCheckoutError("Your basket is empty.");

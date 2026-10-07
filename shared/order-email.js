@@ -274,32 +274,32 @@ async function sendOrderNotificationEmail(stripe, sessionId) {
   });
 
   const content = buildOrderEmailContent(session, lineItems);
-  const result = await sendViaResend(content);
+  const shopResult = await sendViaResend(content);
   const customerEmail = session.customer_details && session.customer_details.email;
+  let customerResult = { ok: true, skipped: true };
   if (customerEmail) {
     const copy = buildOrderEmailContent(session, lineItems, true);
-    const customerResult = await sendViaResend({
+    customerResult = await sendViaResend({
       ...copy,
       to: customerEmail,
       replyTo: process.env.ORDER_NOTIFY_EMAIL || "info@ginhouseflowers.co.uk",
     });
-    if (!customerResult.ok && !customerResult.skipped) {
-      console.error("Customer order email failed:", customerResult.error);
-    }
   }
 
-  if (result.skipped) {
-    console.warn(result.error);
-    return result;
+  const problems = [];
+  if (!shopResult.ok) problems.push("Shop email: " + (shopResult.error || "not sent"));
+  if (customerEmail && !customerResult.ok) {
+    problems.push("Customer email: " + (customerResult.error || "not sent"));
+  }
+  if (!customerEmail) problems.push("Customer email: no email address on the payment");
+
+  if (problems.length) {
+    console.error(problems.join(" "));
+    return { ok: false, error: problems.join(" "), id: shopResult.id || customerResult.id };
   }
 
-  if (!result.ok) {
-    console.error("Order notification email failed:", result.error);
-    return result;
-  }
-
-  console.log("Order notification email sent:", result.id, "for session", sessionId);
-  return result;
+  console.log("Order emails sent for session", sessionId);
+  return { ok: true, id: shopResult.id };
 }
 
 module.exports = {

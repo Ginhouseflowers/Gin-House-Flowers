@@ -289,6 +289,31 @@
 
 (function () {
   var shopLink = document.querySelector(".nav-shop");
+  var page = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+  var orderPages = {
+    "online-shop.html": true,
+    "cards.html": true,
+    "gifts.html": true,
+    "range.html": true,
+    "basket.html": true,
+    "view-all.html": true,
+    "chocolate.html": true,
+  };
+
+  function showComingSoon() {
+    var main = document.getElementById("main");
+    if (!main) return;
+    main.className = "page-main";
+    main.innerHTML =
+      '<header class="page-hero"><div class="page-hero-inner">' +
+      '<p class="eyebrow">Histon High Street · Cambridge</p>' +
+      "<h1>Coming soon</h1>" +
+      '<p class="lede">Online ordering is not open yet. Call <a href="tel:+441223656670">01223 656670</a>, email <a href="mailto:info@ginhouseflowers.co.uk">info@ginhouseflowers.co.uk</a>, or visit us at 11 High Street, Histon.</p>' +
+      '<p class="hero-actions"><a class="btn btn-primary" href="index.html">Back to home</a></p>' +
+      "</div></header>";
+  }
+
+  function buildShopMenu() {
   if (!shopLink || !shopLink.parentElement) return;
 
   var item = shopLink.parentElement;
@@ -361,6 +386,26 @@
   });
 
   setExpanded(false);
+  }
+
+  fetch("/api/shop-status", { cache: "no-store" })
+    .then(function (response) {
+      return response.ok ? response.json() : { open: true };
+    })
+    .then(function (data) {
+      if (data && data.open === false) {
+        if (orderPages[page]) {
+          location.replace("shop-online.html");
+          return;
+        }
+        if (page === "shop-online.html") showComingSoon();
+        return;
+      }
+      buildShopMenu();
+    })
+    .catch(function () {
+      buildShopMenu();
+    });
 })();
 
 (function () {

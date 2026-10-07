@@ -9,6 +9,7 @@ const {
   saveNotice,
   passwordMatches,
 } = require("./stock-store");
+const { getShopOpen, setShopOpen } = require("./shop-status");
 
 const MAX_BODY_BYTES = 5 * 1024 * 1024;
 
@@ -20,6 +21,7 @@ async function stockGet() {
       products: stock.products || {},
       customProducts: customList(stock),
       notice: stock.notice || null,
+      shopOpen: await getShopOpen(true),
     },
   };
 }
@@ -49,6 +51,11 @@ async function stockPost(rawBody) {
     const removed = await removeProduct(payload.id);
     if (!removed.ok) return { status: 400, body: { error: removed.error } };
     return { status: 200, body: { ok: true } };
+  }
+  if (payload.action === "shop") {
+    const saved = await setShopOpen(payload.open !== false);
+    if (!saved.ok) return { status: 400, body: { error: saved.error } };
+    return { status: 200, body: { shopOpen: saved.open } };
   }
   if (payload.action === "notice") {
     const saved = await saveNotice(payload);

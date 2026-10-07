@@ -158,6 +158,8 @@
       })
       .then(function (data) {
         stock.notice = data.notice || null;
+        shopOpen = data.shopOpen !== false;
+        renderShopSwitch();
         publish(data.products || {});
       })
       .catch(function () {
@@ -237,6 +239,10 @@
     '<p class="stock-login-error" role="alert" hidden></p>' +
     "</form>" +
     '<div class="stock-editor" hidden>' +
+    '<div class="stock-shop-switch" data-shop-switch-wrap>' +
+    '<p class="stock-shop-switch-state" data-shop-switch-state>Online shop is on. Customers can order.</p>' +
+    '<button type="button" class="stock-unlock" data-shop-switch>Take the shop offline</button>' +
+    "</div>" +
     '<div class="stock-browse">' +
     '<p class="stock-intro">Changes save automatically and go live in the shop straight away. Set how many are available online (blank for no limit), tick out of stock to stop sales, change the price or put an item on sale. Deleted products are hidden from the shop and can be restored from Deleted.</p>' +
     '<div class="stock-toolbar">' +
@@ -366,6 +372,19 @@
   var group = "all";
   var saveTimers = {};
   var stockPassword = "";
+  var shopOpen = true;
+  var shopSwitchWrap = panel.querySelector("[data-shop-switch-wrap]");
+  var shopSwitchState = panel.querySelector("[data-shop-switch-state]");
+  var shopSwitchBtn = panel.querySelector("[data-shop-switch]");
+
+  function renderShopSwitch() {
+    if (!shopSwitchWrap || !shopSwitchState || !shopSwitchBtn) return;
+    shopSwitchWrap.classList.toggle("is-offline", !shopOpen);
+    shopSwitchState.textContent = shopOpen
+      ? "Online shop is on. Customers can order."
+      : "Online shop is offline. Customers see Coming soon and cannot pay.";
+    shopSwitchBtn.textContent = shopOpen ? "Take the shop offline" : "Put the shop online";
+  }
   var PASSWORD_KEY = "ginhouseflowers-stock-password";
 
   function setStatus(message) {
@@ -671,6 +690,29 @@
     addForm.hidden = true;
     noticeForm.hidden = true;
     browseView.hidden = false;
+  }
+
+  if (shopSwitchBtn) {
+    shopSwitchBtn.addEventListener("click", function () {
+      var next = !shopOpen;
+      var question = next
+        ? "Put the online shop back on?"
+        : "Take the online shop offline? Customers will see Coming soon and cannot pay.";
+      if (!window.confirm(question)) return;
+      shopSwitchBtn.disabled = true;
+      postStock({ action: "shop", open: next })
+        .then(function (data) {
+          shopSwitchBtn.disabled = false;
+          if (!data) return;
+          shopOpen = data.shopOpen !== false;
+          renderShopSwitch();
+          setStatus(shopOpen ? "The online shop is on." : "The online shop is offline.");
+        })
+        .catch(function (err) {
+          shopSwitchBtn.disabled = false;
+          setStatus(err.message || "Could not save the shop switch.");
+        });
+    });
   }
 
   panel.querySelector("[data-stock-notice-open]").addEventListener("click", function () {

@@ -4,6 +4,7 @@ const { validateCollectionDateTime } = require("./collection-schedule");
 const { validateColourOther } = require("./shop-colour");
 const { validateProductValue } = require("./shop-products");
 const { readStock, checkLines, effectivePricePence, productFor } = require("./stock-store");
+const { getShopOpen } = require("./shop-status");
 
 const WATER_BUBBLE_BAG_GBP = 5;
 const UK_POSTAGE_PENCE = 399;
@@ -241,6 +242,14 @@ async function createCheckoutSession(items, baseUrl, order) {
       status: 503,
       error: "Card payments are not connected yet. Please call us on 01223 656670 to place your order.",
       code: secretKey.startsWith("pk_") ? "secret_key_required" : "missing_key",
+    };
+  }
+
+  if (!(await getShopOpen(true))) {
+    return {
+      ok: false,
+      status: 503,
+      error: "Online ordering is coming soon. Please call us on 01223 656670.",
     };
   }
 

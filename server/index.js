@@ -8,6 +8,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const { createCheckoutSession } = require("../shared/stripe-checkout");
+const { getShopOpen } = require("../shared/shop-status");
 const { sendContactEnquiryEmail } = require("../shared/contact-email");
 const { subscribeNewsletter } = require("../shared/newsletter");
 const {
@@ -117,6 +118,11 @@ const server = http.createServer(async function (req, res) {
       "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
     });
     res.end(await catalogueScript());
+    return;
+  }
+
+  if (req.method === "GET" && urlPath === "/api/shop-status") {
+    sendJson(res, 200, { open: await getShopOpen(false) });
     return;
   }
 

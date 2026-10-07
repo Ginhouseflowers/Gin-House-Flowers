@@ -4945,6 +4945,34 @@ a.service-card:focus-visible h3 {
   color: #8b2e2e;
 }
 
+.stock-shop-switch {
+  margin: 0.85rem 0 0.25rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line);
+  background: #f7f6f2;
+}
+
+.stock-shop-switch.is-offline {
+  border-color: #8b2e2e;
+  background: #fbf4f4;
+}
+
+.stock-shop-switch-state {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.stock-shop-switch .stock-unlock {
+  margin-top: 0.7rem;
+}
+
+.stock-shop-switch.is-offline .stock-unlock {
+  background: #8b2e2e;
+  color: #fff;
+}
+
 .stock-panel {
   position: fixed;
   inset: 0;
