@@ -243,8 +243,7 @@
   });
 
   button.addEventListener("click", function () {
-    cancelClose();
-    setOpen(panel.hidden);
+    window.location.href = "basket.html";
   });
 
   listEl.addEventListener("click", function (event) {
