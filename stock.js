@@ -7,10 +7,10 @@
     },
     available: function (id) {
       var record = this.products[id];
-      if (!record) return null;
-      if (record.outOfStock || record.available === 0) return 0;
-      if (record.available == null) return null;
-      return record.available;
+      if (record && (record.outOfStock || record.available === 0)) return 0;
+      if (record && record.available != null) return record.available;
+      if (isCard(id)) return 2;
+      return null;
     },
     blocked: function (id) {
       return this.available(id) === 0;
@@ -189,6 +189,14 @@
       .concat(window.GinCustomProducts || []);
   }
 
+  function isCard(id) {
+    var items = catalogue();
+    for (var i = 0; i < items.length; i += 1) {
+      if (items[i].id === id) return items[i].group === "cards";
+    }
+    return false;
+  }
+
   function isCustom(id) {
     return (window.GinCustomProducts || []).some(function (item) {
       return item.id === id;
@@ -244,7 +252,7 @@
     '<button type="button" class="stock-unlock" data-shop-switch>Take the shop offline</button>' +
     "</div>" +
     '<div class="stock-browse">' +
-    '<p class="stock-intro">Changes save automatically and go live in the shop straight away. Set how many are available online (blank for no limit), tick out of stock to stop sales, change the price or put an item on sale. Deleted products are hidden from the shop and can be restored from Deleted.</p>' +
+    '<p class="stock-intro">Changes save automatically and go live in the shop straight away. Greeting cards start with 2 available, and show as out of stock once those have sold. For anything else, leave available blank for no limit. Tick out of stock to stop sales, change the price or put an item on sale. Deleted products are hidden from the shop and can be restored from Deleted.</p>' +
     '<div class="stock-toolbar">' +
     '<label class="stock-tick stock-save-live">' +
     '<input type="checkbox" data-stock-save-live> Save password on this browser' +

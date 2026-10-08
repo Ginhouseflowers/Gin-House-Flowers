@@ -13,6 +13,9 @@ const { getProduct } = require("./shop-products");
 const FILE = path.join(__dirname, "..", "data", "stock.json");
 const UPLOADS = path.join(__dirname, "..", "data", "uploads");
 const GROUPS = ["cards", "gifts", "chocolate"];
+const CARD_STOCK = 2;
+const STOCK_EMAIL = "stock-levels@ginhouseflowers.co.uk";
+const STOCK_CHUNK = 450;
 const IMAGE_TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
 
@@ -139,6 +142,140 @@ function effectivePricePence(product, record) {
   return product.fixedPricePence;
 }
 
+function blankRecord(available) {
+  return {
+    available: available,
+    outOfStock: available === 0,
+    deleted: false,
+    pricePence: null,
+    onSale: false,
+    salePricePence: null,
+  };
+}
+
+function cardLimit(product) {
+  return product && product.group === "cards" ? CARD_STOCK : null;
+}
+
+function remaining(record, product) {
+  if (record && record.deleted) return 0;
+  if (record && (record.outOfStock || record.available === 0)) return 0;
+  if (record && record.available != null) return record.available;
+  return cardLimit(product);
+}
+
+function presentProducts(stock) {
+  const products = {};
+  const source = (stock && stock.products) || {};
+  Object.keys(source).forEach(function (id) {
+    products[id] = Object.assign({}, source[id]);
+  });
+  const { SHOP_PRODUCTS } = require("./shop-products");
+  Object.keys(SHOP_PRODUCTS).forEach(function (id) {
+    ensurePresented(products, id, SHOP_PRODUCTS[id]);
+  });
+  Object.keys((stock && stock.customProducts) || {}).forEach(function (id) {
+    ensurePresented(products, id, stock.customProducts[id]);
+  });
+  return products;
+}
+
+function ensurePresented(products, id, product) {
+  if (!product || product.group !== "cards") return;
+  const record = products[id];
+  if (!record) {
+    products[id] = blankRecord(CARD_STOCK);
+    return;
+  }
+  if (record.deleted) return;
+  if (record.outOfStock || record.available === 0) {
+    record.available = 0;
+    record.outOfStock = true;
+    return;
+  }
+  if (record.available == null) record.available = CARD_STOCK;
+}
+
+function useStripeStock() {
+  return process.env.VERCEL === "1" && !useBlobs();
+}
+
+function stripeClient() {
+  const secretKey = String(process.env.STRIPE_SECRET_KEY || "")
+    .trim()
+    .replace(/^["']|["']$/g, "");
+  if (!secretKey || secretKey.startsWith("pk_")) return null;
+  return require("stripe")(secretKey);
+}
+
+function packStock(payload) {
+  const json = JSON.stringify(payload);
+  const parts = Math.ceil(json.length / STOCK_CHUNK) || 1;
+  if (parts > 47) {
+    throw new Error("Stock record is too large to save.");
+  }
+  const metadata = { gin_house_stock: "yes", stock_parts: String(parts) };
+  for (let i = 0; i < parts; i += 1) {
+    metadata["s" + i] = json.slice(i * STOCK_CHUNK, (i + 1) * STOCK_CHUNK);
+  }
+  return metadata;
+}
+
+function unpackStock(metadata) {
+  if (!metadata || metadata.gin_house_stock !== "yes") return null;
+  const parts = Number(metadata.stock_parts || 0);
+  if (!Number.isInteger(parts) || parts < 1) return null;
+  let json = "";
+  for (let i = 0; i < parts; i += 1) {
+    json += metadata["s" + i] || "";
+  }
+  return tidyStock(JSON.parse(json));
+}
+
+async function findStockCustomer(stripe) {
+  const listed = await stripe.customers.list({ email: STOCK_EMAIL, limit: 1 });
+  return listed.data && listed.data[0] ? listed.data[0] : null;
+}
+
+async function readStripeStock() {
+  const stripe = stripeClient();
+  if (!stripe) return null;
+  const customer = await findStockCustomer(stripe);
+  if (!customer) return null;
+  return unpackStock(customer.metadata);
+}
+
+async function writeStripeStock(payload) {
+  const stripe = stripeClient();
+  if (!stripe) throw new Error("Card payments are not connected, so stock cannot be saved.");
+  const stored = Object.assign({}, payload, {
+    consumedSessions: (payload.consumedSessions || []).slice(-25),
+  });
+  const metadata = packStock(stored);
+  const customer = await findStockCustomer(stripe);
+  if (!customer) {
+    await stripe.customers.create({
+      email: STOCK_EMAIL,
+      name: "Online stock levels",
+      description: "How many of each card are left on ginhouseflowers.co.uk. Do not delete.",
+      metadata: metadata,
+    });
+    return;
+  }
+  const previous = Number((customer.metadata && customer.metadata.stock_parts) || 0);
+  const next = Number(metadata.stock_parts);
+  for (let i = next; i < previous; i += 1) metadata["s" + i] = "";
+  await stripe.customers.update(customer.id, { metadata: metadata });
+}
+
+function readStockFile() {
+  try {
+    return tidyStock(JSON.parse(fs.readFileSync(FILE, "utf8")));
+  } catch (err) {
+    return emptyStock();
+  }
+}
+
 async function readStock() {
   if (useBlobs()) {
     try {
@@ -151,11 +288,16 @@ async function readStock() {
     return emptyStock();
   }
 
-  try {
-    return tidyStock(JSON.parse(fs.readFileSync(FILE, "utf8")));
-  } catch (err) {
-    return emptyStock();
+  if (useStripeStock()) {
+    try {
+      const remote = await readStripeStock();
+      if (remote) return remote;
+    } catch (err) {
+      console.error("Stock read failed:", err.message);
+    }
   }
+
+  return readStockFile();
 }
 
 async function writeStock(data) {
@@ -169,6 +311,10 @@ async function writeStock(data) {
     const { getStore } = require("@netlify/blobs");
     const store = getStore("gin-house-stock");
     await store.setJSON("products", payload);
+    return;
+  }
+  if (useStripeStock()) {
+    await writeStripeStock(payload);
     return;
   }
   fs.mkdirSync(path.dirname(FILE), { recursive: true });
@@ -215,16 +361,17 @@ function checkLines(items, stock) {
     const product = productFor(id, stock);
     const name = product ? product.name : "An item";
     const qty = totals[id];
+    const left = remaining(record, product);
     if (record && record.deleted) {
       return { ok: false, error: name + " is no longer available online." };
     }
-    if (record && (record.outOfStock || record.available === 0)) {
+    if (left === 0) {
       return { ok: false, error: name + " is out of stock online." };
     }
-    if (record && record.available != null && qty > record.available) {
+    if (left != null && qty > left) {
       return {
         ok: false,
-        error: name + " has " + record.available + " available online.",
+        error: name + " has " + left + " available online.",
       };
     }
   }
@@ -236,11 +383,21 @@ async function consumePaidOrder(sessionId, lines) {
   const stock = await readStock();
   if (stock.consumedSessions.indexOf(sessionId) !== -1) return;
   (lines || []).forEach(function (line) {
-    const record = stock.products[line.productId];
-    if (!record || record.available == null) return;
+    const product = productFor(line.productId, stock);
+    let record = stock.products[line.productId];
+    const limit = cardLimit(product);
+    if (!record && limit == null) return;
+    if (!record) record = blankRecord(limit);
+    if (record.deleted) return;
+    if (record.available == null) {
+      if (record.outOfStock) record.available = 0;
+      else if (limit == null) return;
+      else record.available = limit;
+    }
     const next = Math.max(0, record.available - Number(line.quantity || 0));
     record.available = next;
     if (next === 0) record.outOfStock = true;
+    stock.products[line.productId] = record;
   });
   stock.consumedSessions.push(sessionId);
   await writeStock(stock);
@@ -449,6 +606,9 @@ module.exports = {
   productFor,
   checkLines,
   consumePaidOrder,
+  presentProducts,
+  packStock,
+  unpackStock,
   passwordMatches,
   effectivePricePence,
 };

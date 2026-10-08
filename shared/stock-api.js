@@ -1,5 +1,6 @@
 const {
   readStock,
+  presentProducts,
   saveProduct,
   addProduct,
   removeProduct,
@@ -18,7 +19,7 @@ async function stockGet() {
   return {
     status: 200,
     body: {
-      products: stock.products || {},
+      products: presentProducts(stock),
       customProducts: customList(stock),
       notice: stock.notice || null,
       shopOpen: await getShopOpen(true),
