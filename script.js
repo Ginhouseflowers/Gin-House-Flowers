@@ -681,7 +681,7 @@
     });
   });
 
-  var desktopNav = window.matchMedia("(min-width: 941px)");
+  var desktopNav = window.matchMedia("(min-width: 1024px)");
   function closeOnDesktop(event) {
     if (event.matches) setOpen(false);
   }
