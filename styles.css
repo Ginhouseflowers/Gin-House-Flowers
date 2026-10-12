@@ -31,7 +31,9 @@
 }
 
 html {
+  overflow-y: scroll;
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -202,20 +204,12 @@ a.site-notice-text:hover {
 .site-nav a {
   text-decoration: none;
   color: #f3ead0;
-  font-family: var(--font-label);
-  font-size: 0.6875rem;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.75rem;
   font-weight: 400;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: color 0.2s var(--ease);
-}
-
-@media (min-width: 960px) {
-  .site-nav a {
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-  }
 }
 
 .site-nav a:hover,
@@ -252,54 +246,36 @@ a.site-notice-text:hover {
   color: var(--forest) !important;
 }
 
-.site-nav a.nav-shop,
-.site-nav a.nav-cta {
-  transition:
-    color 0.2s var(--ease),
-    background-color 0.25s var(--ease),
-    border-color 0.25s var(--ease);
-}
-
 .nav-shop-item {
   position: relative;
 }
 
-.nav-shop-caret {
+.nav-shop::after {
+  content: "";
   display: inline-block;
-  width: 0.7rem;
-  height: 0.7rem;
-  margin-left: 0.35rem;
-  vertical-align: -0.05rem;
-  transition: transform 0.2s var(--ease);
-}
-
-.nav-shop-item:hover .nav-shop-caret,
-.nav-shop-item:focus-within .nav-shop-caret,
-.nav-shop-item.is-open .nav-shop-caret {
-  transform: rotate(180deg);
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-left: 0.45rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  vertical-align: 0.15rem;
 }
 
 .nav-shop-menu {
+  display: none;
   position: absolute;
   top: 100%;
   left: 0;
   z-index: 70;
   min-width: 11.5rem;
   padding-top: 0.45rem;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition:
-    opacity 0.18s var(--ease),
-    visibility 0.18s;
 }
 
 .nav-shop-item:hover .nav-shop-menu,
 .nav-shop-item:focus-within .nav-shop-menu,
 .nav-shop-item.is-open .nav-shop-menu {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+  display: block;
 }
 
 .nav-shop-menu-inner {
@@ -345,7 +321,6 @@ a.site-notice-text:hover {
   height: 1px;
   background: #f3ead0;
   position: relative;
-  transition: transform 0.25s var(--ease), opacity 0.2s;
 }
 
 .nav-toggle-bar::before,
@@ -713,22 +688,12 @@ a.site-notice-text:hover {
     background: var(--forest);
     padding: 2rem 1.5rem;
     border-top: 1px solid rgba(243, 234, 208, 0.16);
-    transform: translateX(100%);
-    visibility: hidden;
-    pointer-events: none;
+    display: none;
     overflow: auto;
   }
 
-  .site-nav.is-ready {
-    transition:
-      transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
-      visibility 0.4s;
-  }
-
   .site-nav.is-open {
-    transform: translateX(0);
-    visibility: visible;
-    pointer-events: auto;
+    display: block;
   }
 
   .site-nav ul {
@@ -741,13 +706,10 @@ a.site-notice-text:hover {
 
   .nav-shop-menu {
     position: static;
+    display: block;
     min-width: 0;
     padding-top: 0.75rem;
     text-align: right;
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transition: none;
   }
 
   .nav-shop-menu-inner {
@@ -765,10 +727,6 @@ a.site-notice-text:hover {
     background: transparent;
   }
 
-  .nav-shop-item:hover .nav-shop-caret,
-  .nav-shop-item:focus-within .nav-shop-caret {
-    transform: none;
-  }
 }
 
 /* Typography blocks */
@@ -5620,15 +5578,6 @@ a.service-card:focus-visible h3 {
   box-shadow: 0 12px 32px -18px rgba(0, 0, 0, 0.55);
 }
 
-.logo-img {
-  transform-origin: left center;
-  transition: transform 0.35s var(--ease);
-}
-
-.site-header.is-scrolled .logo-img {
-  transform: scale(0.9);
-}
-
 .scroll-progress {
   position: absolute;
   left: 0;
@@ -5644,6 +5593,7 @@ a.service-card:focus-visible h3 {
 @media (min-width: 1100px) {
   .site-nav {
     position: static;
+    display: block;
     top: auto;
     right: auto;
     left: auto;
@@ -5652,26 +5602,7 @@ a.service-card:focus-visible h3 {
     padding: 0;
     background: transparent;
     border: 0;
-    transform: none;
-    visibility: visible;
-    pointer-events: auto;
     overflow: visible;
-    transition: none;
-  }
-
-  .site-nav a:not(.nav-shop):not(.nav-cta) {
-    padding-bottom: 3px;
-    background: linear-gradient(var(--gold), var(--gold)) no-repeat 50% 100% / 0 1px;
-    transition:
-      color 0.2s var(--ease),
-      background-size 0.35s var(--ease);
-  }
-
-  .site-nav a:not(.nav-shop):not(.nav-cta):hover,
-  .site-nav a:not(.nav-shop):not(.nav-cta):focus-visible,
-  .site-nav a:not(.nav-shop):not(.nav-cta)[aria-current="page"] {
-    background-size: 100% 1px;
-    color: var(--gold);
   }
 }
 

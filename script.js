@@ -318,10 +318,6 @@
   var item = shopLink.parentElement;
   item.classList.add("nav-shop-item");
   shopLink.setAttribute("aria-haspopup", "true");
-  shopLink.insertAdjacentHTML(
-    "beforeend",
-    '<svg class="nav-shop-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-  );
 
   var menu = document.createElement("div");
   menu.className = "nav-shop-menu";
@@ -677,22 +673,14 @@
   nav.querySelectorAll("a").forEach(function (link) {
     link.addEventListener("click", function () {
       if (link.classList.contains("nav-shop")) return;
-      nav.style.transition = "none";
       setOpen(false);
     });
   });
 
   var desktopNav = window.matchMedia("(min-width: 1100px)");
   function closeOnDesktop(event) {
-    nav.style.transition = "none";
     if (event.matches) setOpen(false);
-    requestAnimationFrame(function () {
-      nav.style.transition = "";
-    });
   }
-  requestAnimationFrame(function () {
-    nav.classList.add("is-ready");
-  });
   if (desktopNav.addEventListener) desktopNav.addEventListener("change", closeOnDesktop);
   else if (desktopNav.addListener) desktopNav.addListener(closeOnDesktop);
 })();
