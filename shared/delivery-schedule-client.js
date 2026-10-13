@@ -1,5 +1,7 @@
 /**
- * Browser-side delivery day validation (Tuesday–Saturday; same-day by enquiry).
+ * Browser-side delivery day validation.
+ * Tuesday–Saturday. Next-day delivery only until 1pm UK time the day before.
+ * Same-day delivery is by enquiry.
  */
 (function (global) {
   var DELIVERY_DAY_ERROR =
@@ -7,6 +9,11 @@
 
   var SAME_DAY_DELIVERY_ERROR =
     "If you would like to enquire about same day delivery, please contact us on 01223 656670 and we will see what we can do!";
+
+  var NEXT_DAY_CUTOFF_ERROR =
+    "Next-day delivery is only available if you order by 1pm the day before. Please choose a later delivery date.";
+
+  var NEXT_DAY_CUTOFF_MINUTES = 13 * 60;
 
   function parseIsoDate(dateStr) {
     if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
@@ -31,10 +38,26 @@
     return y + "-" + m + "-" + d;
   }
 
-  function startOfToday() {
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
+  function londonNow(now) {
+    var fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    });
+    var parts = {};
+    fmt.formatToParts(now || new Date()).forEach(function (part) {
+      if (part.type !== "literal") parts[part.type] = part.value;
+    });
+    var hour = Number(parts.hour);
+    if (hour === 24) hour = 0;
+    return {
+      today: new Date(Number(parts.year), Number(parts.month) - 1, Number(parts.day)),
+      minutes: hour * 60 + Number(parts.minute),
+    };
   }
 
   function isDeliveryWeekday(date) {
@@ -42,9 +65,10 @@
     return day >= 2 && day <= 6;
   }
 
-  function getEarliestDeliveryDate() {
-    var date = startOfToday();
-    date.setDate(date.getDate() + 1);
+  function getEarliestDeliveryDate(now) {
+    var london = londonNow(now);
+    var date = new Date(london.today.getTime());
+    date.setDate(date.getDate() + (london.minutes <= NEXT_DAY_CUTOFF_MINUTES ? 1 : 2));
     while (!isDeliveryWeekday(date)) {
       date.setDate(date.getDate() + 1);
     }
@@ -74,13 +98,13 @@
     }).format(date);
   }
 
-  function validateDeliveryDate(dateStr) {
+  function validateDeliveryDate(dateStr, now) {
     var date = parseIsoDate(dateStr);
     if (!date) {
       return { ok: false, error: "Please choose a delivery date." };
     }
 
-    var today = startOfToday();
+    var today = londonNow(now).today;
     if (date <= today) {
       return { ok: false, error: SAME_DAY_DELIVERY_ERROR, sameDay: true };
     }
@@ -89,12 +113,18 @@
       return { ok: false, error: DELIVERY_DAY_ERROR };
     }
 
+    var earliest = parseIsoDate(getEarliestDeliveryDate(now));
+    if (earliest && date < earliest) {
+      return { ok: false, error: NEXT_DAY_CUTOFF_ERROR };
+    }
+
     return { ok: true, date: dateStr };
   }
 
   global.GinDeliverySchedule = {
     DELIVERY_DAY_ERROR: DELIVERY_DAY_ERROR,
     SAME_DAY_DELIVERY_ERROR: SAME_DAY_DELIVERY_ERROR,
+    NEXT_DAY_CUTOFF_ERROR: NEXT_DAY_CUTOFF_ERROR,
     getEarliestDeliveryDate: getEarliestDeliveryDate,
     listDeliveryDates: listDeliveryDates,
     formatDeliveryLabel: formatDeliveryLabel,
