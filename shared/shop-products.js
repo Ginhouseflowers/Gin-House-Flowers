@@ -1,8 +1,3 @@
-const { OHH_DEER_CARDS } = require("./ohh-deer-cards");
-const { MUSEUMS_GALLERIES } = require("./museums-galleries");
-const { PAPER_SALAD } = require("./paper-salad");
-const { CAMBRIDGE_CONFECTIONERY } = require("./cambridge-confectionery");
-
 const SHOP_PRODUCTS = {
   "florists-choice-bouquet": {
     id: "florists-choice-bouquet",
@@ -23,27 +18,6 @@ const SHOP_PRODUCTS = {
     addonDescription: "",
   },
 };
-
-function registerFixedPrice(card) {
-  const pence = card.pricePence || Math.round(Number(card.price) * 100);
-  SHOP_PRODUCTS[card.id] = {
-    id: card.id,
-    name: card.name,
-    minValue: pence / 100,
-    maxValue: pence / 100,
-    valueStep: 1,
-    waterBubbleBagAddon: false,
-    fixedPrice: true,
-    fixedPricePence: pence,
-    saleLabel: card.product,
-    group: card.group,
-  };
-}
-
-OHH_DEER_CARDS.forEach(registerFixedPrice);
-MUSEUMS_GALLERIES.forEach(registerFixedPrice);
-PAPER_SALAD.forEach(registerFixedPrice);
-CAMBRIDGE_CONFECTIONERY.forEach(registerFixedPrice);
 
 function getProduct(productId) {
   return SHOP_PRODUCTS[productId] || null;

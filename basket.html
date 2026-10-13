@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Your basket at Gin House Flowers. Review flowers, cards, gifts and chocolate, then pay securely." />
+    <meta name="description" content="Your basket at Gin House Flowers. Review your flowers, then pay securely." />
     <title>Basket — Gin House Flowers</title>
     <meta name="robots" content="noindex, follow" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Gin House Flowers" />
     <meta property="og:title" content="Basket — Gin House Flowers" />
-    <meta property="og:description" content="Your basket at Gin House Flowers. Review flowers, cards, gifts and chocolate, then pay securely." />
+    <meta property="og:description" content="Your basket at Gin House Flowers. Review your flowers, then pay securely." />
     <meta property="og:image" content="https://www.ginhouseflowers.co.uk/images/home/hero-feature.jpg" />
     <meta property="og:locale" content="en_GB" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -78,24 +78,21 @@
             <p class="basket-status" data-basket-status aria-live="polite"></p>
             <p class="basket-empty" data-basket-empty>
               Your basket is empty.
-              <a href="online-shop.html">Shop flowers</a>,
-              <a href="cards.html">cards</a>,
-              <a href="gifts.html">gifts</a> or
-              <a href="range.html?brand=cambridge-confectionery&from=chocolate">chocolate</a>.
+              <a href="online-shop.html">Shop flowers</a>.
             </p>
             <div data-basket-items-wrap hidden>
               <ul class="basket-list" data-basket-list></ul>
               <section class="basket-addons" data-basket-addons hidden aria-labelledby="basket-addons-heading">
                 <div class="basket-addons-head">
                   <h3 id="basket-addons-heading">Add a little extra</h3>
-                  <p>Hand-finished chocolates from Cambridge, or a card to go with your flowers.</p>
+                  <p>A little extra to go with your flowers.</p>
                 </div>
                 <ul class="basket-addons-list" data-basket-addons-list></ul>
               </section>
               <p class="basket-delivery-fee" data-basket-delivery-fee hidden></p>
               <p class="basket-total" data-basket-total></p>
               <fieldset class="basket-fulfilment" data-basket-fulfilment>
-                <legend class="basket-fulfilment-legend">Collection or delivery</legend>
+                <legend class="basket-fulfilment-legend" data-fulfilment-legend>Collection</legend>
                 <label class="basket-fulfilment-option">
                   <input
                     type="radio"
@@ -126,6 +123,7 @@
                     <p class="basket-collection-error" data-collection-error role="alert" hidden></p>
                   </div>
                 </div>
+                <div data-local-delivery-option hidden>
                 <label class="basket-fulfilment-option">
                   <input
                     type="radio"
@@ -174,17 +172,6 @@
                     <p class="basket-delivery-date-error" data-delivery-date-error role="alert" hidden></p>
                   </div>
                 </div>
-                <div data-uk-postage-option hidden>
-                  <label class="basket-fulfilment-option">
-                    <input
-                      type="radio"
-                      name="basket-fulfilment"
-                      value="postage"
-                      data-basket-fulfilment-input
-                    />
-                    Delivery anywhere — £3.99
-                  </label>
-                  <p class="field-hint">Posted anywhere in the UK. Cards and gifts only.</p>
                 </div>
               </fieldset>
               <fieldset class="basket-flower-note" data-basket-note hidden>
@@ -251,9 +238,6 @@
             <h2>Shop</h2>
             <ul>
               <li><a href="online-shop.html">Flowers</a></li>
-              <li><a href="cards.html">Cards</a></li>
-              <li><a href="gifts.html">Gifts</a></li>
-              <li><a href="range.html?brand=cambridge-confectionery&from=chocolate">Chocolate</a></li>
               <li><a href="online-shop.html#florists-choice-bouquet">Hand tied bouquets</a></li>
               <li><a href="online-shop.html#florists-choice-hatbox">Hat boxes</a></li>
               <li><a href="basket.html">Basket</a></li>

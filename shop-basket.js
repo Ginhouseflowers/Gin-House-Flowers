@@ -35,8 +35,8 @@
   var deliveryDateError = root.querySelector("[data-delivery-date-error]");
   var deliveryDateField = deliveryDateInput && deliveryDateInput.closest(".basket-delivery-date");
   var WATER_BUBBLE_BAG_GBP = 5;
-  var UK_POSTAGE_GBP = 3.99;
-  var postageOption = root.querySelector("[data-uk-postage-option]");
+  var localDeliveryOption = root.querySelector("[data-local-delivery-option]");
+  var fulfilmentLegend = root.querySelector("[data-fulfilment-legend]");
   var noteField = root.querySelector("[data-basket-note]");
   var noteMessageWrap = root.querySelector("[data-basket-note-message]");
   var noteMessageInput = root.querySelector("[data-basket-card-message]");
@@ -139,18 +139,13 @@
     return selected ? selected.value : "collection";
   }
 
-  function isCardsAndGiftsOnly(items) {
-    if (!items.length) return false;
-    return items.every(function (item) {
-      var product = getProductConfig(item.productId);
-      return product && (product.group === "cards" || product.group === "gifts");
-    });
-  }
-
-  function syncPostageOption() {
-    var allowed = isCardsAndGiftsOnly(loadBasket());
-    if (postageOption) postageOption.hidden = !allowed;
-    if (!allowed && selectedFulfilment() === "postage") {
+  function syncDeliveryOption() {
+    var allowed = hasFlowers(loadBasket());
+    if (localDeliveryOption) localDeliveryOption.hidden = !allowed;
+    if (fulfilmentLegend) {
+      fulfilmentLegend.textContent = allowed ? "Collection or delivery" : "Collection";
+    }
+    if (!allowed && selectedFulfilment() === "delivery") {
       var collectionInput = root.querySelector(
         '[data-basket-fulfilment-input][value="collection"]'
       );
@@ -500,11 +495,9 @@
   function updateBasketTotals() {
     var items = loadBasket();
     var subtotal = basketTotal(items);
-    var postageSelected = selectedFulfilment() === "postage";
-    var feeGbp = postageSelected ? UK_POSTAGE_GBP : deliveryFeeGbp;
+    var feeGbp = deliveryFeeGbp;
     var showDeliveryFee =
-      postageSelected ||
-      (selectedFulfilment() === "delivery" && deliveryPostcodeValid && deliveryFeeGbp > 0);
+      selectedFulfilment() === "delivery" && deliveryPostcodeValid && deliveryFeeGbp > 0;
 
     if (deliveryFeeEl) {
       if (showDeliveryFee) {
@@ -534,7 +527,7 @@
     });
     var ids = Object.keys(totals);
     for (var i = 0; i < ids.length; i += 1) {
-      if (window.GinStock && window.GinStock.deleted(ids[i])) {
+      if (!getProductConfig(ids[i]) || (window.GinStock && window.GinStock.deleted(ids[i]))) {
         return "An item in your basket is no longer available online.";
       }
       if (window.GinStock && !window.GinStock.allows(ids[i], totals[ids[i]])) {
@@ -723,6 +716,15 @@
     var items = loadBasket();
     if (!listEl) return;
 
+    var kept = items.filter(function (item) {
+      var product = getProductConfig(item.productId);
+      return Boolean(product && !product.fixedPrice && !(window.GinStock && window.GinStock.deleted(item.productId)));
+    });
+    if (kept.length !== items.length) {
+      saveBasket(kept, "prune");
+      return;
+    }
+
     listEl.innerHTML = "";
 
     if (items.length === 0) {
@@ -733,7 +735,7 @@
       if (clearBtn) clearBtn.hidden = true;
       if (checkoutBtn) checkoutBtn.hidden = true;
       if (emailFallback) emailFallback.hidden = true;
-      syncPostageOption();
+      syncDeliveryOption();
       syncCardNote();
       return;
     }
@@ -830,7 +832,7 @@
     }
 
     updateBasketTotals();
-    syncPostageOption();
+    syncDeliveryOption();
     syncCardNote();
     syncCheckoutAvailability();
   }
@@ -1103,13 +1105,11 @@
     var fulfilment = selectedFulfilment();
     var deliveryPostcode = deliveryPostcodeValue();
 
-    if (fulfilment === "postage") {
-      if (!isCardsAndGiftsOnly(items)) {
-        announce("Delivery anywhere for £3.99 is only available when the basket is cards and gifts.");
-        showCheckoutError("Delivery anywhere for £3.99 is only available when the basket is cards and gifts.");
-        syncPostageOption();
-        return;
-      }
+    if (fulfilment === "delivery" && !hasFlowers(items)) {
+      announce("Delivery is only available when your basket includes flowers.");
+      showCheckoutError("Delivery is only available when your basket includes flowers.");
+      syncDeliveryOption();
+      return;
     }
 
     if (fulfilment === "collection") {

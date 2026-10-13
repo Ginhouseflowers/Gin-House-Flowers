@@ -7,7 +7,6 @@ const { readStock, checkLines, effectivePricePence, productFor } = require("./st
 const { getShopOpen } = require("./shop-status");
 
 const WATER_BUBBLE_BAG_GBP = 5;
-const UK_POSTAGE_PENCE = 399;
 
 const COLOUR_LABELS = {
   bright: "Bright",
@@ -79,6 +78,10 @@ function validateItems(items, stock) {
 
     if (!product) {
       return { ok: false, error: "Unrecognised product in basket." };
+    }
+
+    if (product.fixedPrice) {
+      return { ok: false, error: product.name + " is no longer available online." };
     }
 
     const pricePence = effectivePricePence(product, records[product.id]);
@@ -162,17 +165,6 @@ function validateItems(items, stock) {
   return { ok: true, lineItems };
 }
 
-function isCardsAndGiftsOnly(items, stock) {
-  return (
-    Array.isArray(items) &&
-    items.length > 0 &&
-    items.every(function (item) {
-      const product = productFor(item.productId, stock);
-      return product && (product.group === "cards" || product.group === "gifts");
-    })
-  );
-}
-
 function cleanLine(value, max) {
   return String(value || "")
     .replace(/[\u0000-\u001f\u007f]/g, " ")
@@ -190,20 +182,18 @@ function postcodeFromAddress(address) {
 
 function validateOrder(order, items, stock) {
   const requested = order && order.fulfilment;
-  const fulfilment =
-    requested === "delivery" || requested === "postage" ? requested : "collection";
-
-  if (fulfilment === "postage") {
-    if (!isCardsAndGiftsOnly(items, stock)) {
-      return {
-        ok: false,
-        error: "Delivery anywhere for £3.99 is only available when the basket is cards and gifts.",
-      };
-    }
-    return { ok: true, fulfilment, cardMessage: "" };
+  if (requested === "postage") {
+    return { ok: false, error: "We don't offer delivery outside our local area." };
   }
+  const fulfilment = requested === "delivery" ? "delivery" : "collection";
 
   if (fulfilment === "delivery") {
+    if (!orderIncludesFlowers(items, stock)) {
+      return {
+        ok: false,
+        error: "Delivery is only available when your basket includes flowers.",
+      };
+    }
     if (!cleanLine(order.deliveryName, 80)) {
       return { ok: false, error: "Please enter the recipient’s name." };
     }
@@ -342,10 +332,6 @@ async function createCheckoutSession(items, baseUrl, order) {
     isLocalDelivery = Boolean(radiusCheck.isLocalDelivery);
   }
 
-  if (fulfilment === "postage") {
-    deliveryFeeGbp = UK_POSTAGE_PENCE / 100;
-  }
-
   const stripe = require("stripe")(secretKey);
   const base = String(baseUrl || process.env.URL || "https://www.ginhouseflowers.co.uk").replace(
     /\/$/,
@@ -375,22 +361,17 @@ async function createCheckoutSession(items, baseUrl, order) {
     checkoutLineItems.push(detailLine(title, who || "Local delivery from Histon"));
   }
 
-  if ((fulfilment === "delivery" && deliveryFeeGbp > 0) || fulfilment === "postage") {
+  if (fulfilment === "delivery" && deliveryFeeGbp > 0) {
     const area = isLocalDelivery
       ? "Local delivery (Histon, Cottenham, Impington, Oakington or Girton). "
-      : fulfilment === "postage"
-        ? ""
-        : "Delivery within 10 miles of our Histon shop. ";
-    const deliveryDetail =
-      fulfilment === "postage"
-        ? "Posted anywhere in the UK"
-        : area + [deliveryName, deliveryAddress].filter(Boolean).join(", ");
+      : "Delivery within 10 miles of our Histon shop. ";
+    const deliveryDetail = area + [deliveryName, deliveryAddress].filter(Boolean).join(", ");
     checkoutLineItems.push({
       price_data: {
         currency: "gbp",
-        unit_amount: fulfilment === "postage" ? UK_POSTAGE_PENCE : deliveryFeeGbp * 100,
+        unit_amount: deliveryFeeGbp * 100,
         product_data: {
-          name: fulfilment === "postage" ? "UK delivery" : "Delivery charge",
+          name: "Delivery charge",
           description: cleanLine(deliveryDetail, 500),
         },
       },
@@ -430,10 +411,6 @@ async function createCheckoutSession(items, baseUrl, order) {
     sessionConfig.payment_intent_data = {
       description: orderDetails.join("\n").slice(0, 1000),
     };
-  }
-
-  if (fulfilment === "postage") {
-    sessionConfig.shipping_address_collection = { allowed_countries: ["GB"] };
   }
 
   try {

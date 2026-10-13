@@ -16,7 +16,7 @@
     '<div class="header-basket-panel" id="header-basket-panel" hidden>' +
     '<p class="header-basket-empty">Your basket is empty.</p>' +
     '<ul class="header-basket-list"></ul>' +
-    '<p class="header-basket-suggest" hidden>Make it extra special with a <a href="cards.html">card</a>, a <a href="gifts.html">gift</a> or some <a href="range.html?brand=cambridge-confectionery&from=chocolate">chocolate</a>.</p>' +
+    '<p class="header-basket-suggest" hidden></p>' +
     '<p class="header-basket-total" hidden></p>' +
     '<a class="btn btn-primary" href="basket.html">View basket</a>' +
     "</div>";
@@ -141,7 +141,7 @@
 
     emptyEl.hidden = count > 0;
     listEl.hidden = count === 0;
-    suggestEl.hidden = !hasFlowers;
+    suggestEl.hidden = true;
     totalEl.hidden = count === 0;
     totalEl.textContent = "Total " + formatMoney(goods);
     viewLink.textContent = count ? "View basket" : "Shop online";
@@ -324,9 +324,6 @@
   menu.innerHTML =
     '<div class="nav-shop-menu-inner">' +
     '<a href="online-shop.html" data-shop-choice="flowers">Flowers</a>' +
-    '<a href="cards.html" data-shop-choice="cards">Cards</a>' +
-    '<a href="gifts.html" data-shop-choice="gifts">Gifts</a>' +
-    '<a href="range.html?brand=cambridge-confectionery&from=chocolate" data-shop-choice="chocolate">Chocolate</a>' +
     "</div>";
   item.appendChild(menu);
 
@@ -421,7 +418,7 @@
     '<label class="visually-hidden" for="site-search">Search products</label>' +
     '<input id="site-search" type="search" placeholder="Search products" autocomplete="off" />' +
     "</form>" +
-    '<p class="header-search-hint">Search flowers, cards, gifts and chocolate.</p>' +
+    '<p class="header-search-hint">Search flowers.</p>' +
     '<ul class="header-search-results" hidden></ul>' +
     '<p class="header-search-empty" hidden>No products match that search.</p>' +
     "</div>";
@@ -462,9 +459,9 @@
       },
       {
         name: "Shop online",
-        meta: "Flowers, cards, gifts and chocolate",
+        meta: "Flowers",
         href: "shop-online.html",
-        text: "shop online store flowers cards gifts chocolate",
+        text: "shop online store flowers",
       },
       {
         name: "Flowers",
@@ -472,79 +469,7 @@
         href: "online-shop.html",
         text: "flowers bouquet hat box shop online",
       },
-      {
-        name: "Cards",
-        meta: "Shop online",
-        href: "cards.html",
-        text: "cards greeting",
-      },
-      {
-        name: "Gifts",
-        meta: "Shop online",
-        href: "gifts.html",
-        text: "gifts presents",
-      },
-      {
-        name: "Chocolate",
-        meta: "Shop online",
-        href: "range.html?brand=cambridge-confectionery&from=chocolate",
-        text: "chocolate confectionery cambridge",
-      },
     ];
-    function pushCatalogue(list) {
-      (list || []).forEach(function (card) {
-        if (window.GinStock && window.GinStock.deleted(card.id)) return;
-        var group = card.group === "gifts" || card.group === "chocolate" ? card.group : "cards";
-        var label = group === "gifts" ? "Gifts" : group === "chocolate" ? "Chocolate" : "Cards";
-        var pricing = window.GinStock && window.GinStock.pricing(card.id);
-        var pence = pricing
-          ? pricing.pence
-          : card.pricePence || Math.round(Number(card.price) * 100);
-        var price =
-          pence % 100 === 0 ? "£" + pence / 100 : "£" + (pence / 100).toFixed(2);
-        items.push({
-          name: card.name,
-          meta: price + " · " + label,
-          href: "view-all.html?group=" + group + "#" + encodeURIComponent(card.id),
-          text: [card.name, card.blurb, card.occasion, card.product, card.brand, card.sku, label]
-            .join(" ")
-            .toLowerCase(),
-        });
-      });
-    }
-    pushCatalogue(window.GinOhhDeerCards);
-    pushCatalogue(window.GinMandGProducts);
-    pushCatalogue(window.GinPaperSalad);
-    pushCatalogue(window.GinCambridgeConfectionery);
-    pushCatalogue(window.GinCustomProducts);
-    var ranges = window.GinRanges;
-    if (!ranges) return items;
-    ranges.brands.forEach(function (brand) {
-      var group = brand.groups[0] || "gifts";
-      var groupTitle = brand.groups
-        .map(function (id) {
-          return ranges[id] ? ranges[id].title : id;
-        })
-        .join(" and ");
-      var extraCopy = brand.byGroup
-        ? Object.keys(brand.byGroup)
-            .map(function (id) {
-              var copy = brand.byGroup[id];
-              return [copy.note, copy.blurb].join(" ");
-            })
-            .join(" ")
-        : "";
-      items.push({
-        name: brand.name,
-        meta: groupTitle,
-        href:
-          "range.html?brand=" +
-          encodeURIComponent(brand.id) +
-          "&from=" +
-          encodeURIComponent(group),
-        text: [brand.name, brand.note, brand.blurb, extraCopy, groupTitle].join(" ").toLowerCase(),
-      });
-    });
     return items;
   }
 

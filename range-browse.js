@@ -515,8 +515,8 @@
     }
 
     function deliveryNote(card) {
-      if (card.group === "cards" || card.group === "gifts") {
-        return "Collect from our shop at 11 High Street, Histon, choose local delivery, or have it posted anywhere in the UK for £3.99.";
+      if (card.group === "cards" || card.group === "gifts" || card.group === "chocolate") {
+        return "Collect from our shop at 11 High Street, Histon.";
       }
       return "Collect from our shop at 11 High Street, Histon, or choose local delivery within 10 miles.";
     }
@@ -765,13 +765,13 @@
           noun +
           "s, " +
           formatPrice(catalogue[0].price) +
-          " each. Add one to your basket for collection from Histon or local delivery.";
+          " each. Add one to your basket for collection from Histon.";
       } else {
         lede =
           productGroup.title +
           " from " +
           brands.join(" and ") +
-          ". Add one to your basket for collection from Histon or local delivery.";
+          ". Add one to your basket for collection from Histon.";
       }
       if (productHero) {
         productHero.innerHTML =

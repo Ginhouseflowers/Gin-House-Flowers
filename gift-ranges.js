@@ -4,19 +4,19 @@
       id: "cards",
       title: "Cards",
       lede:
-        "Greeting cards from the brands on our Histon shelves. Choose a range, then call the shop and we will put a piece aside for collection or local delivery.",
+        "Greeting cards from the brands on our Histon shelves. Choose a range, then call the shop and we will put a piece aside for collection.",
     },
     gifts: {
       id: "gifts",
       title: "Gifts",
       lede:
-        "Gifts from the brands we stock beside the flowers. Choose a range, then call the shop and we will put a piece aside for collection or local delivery.",
+        "Gifts from the brands we stock beside the flowers. Choose a range, then call the shop and we will put a piece aside for collection.",
     },
     chocolate: {
       id: "chocolate",
       title: "Chocolate",
       lede:
-        "Handmade chocolate from The Cambridge Confectionery Company, for collection from Histon or local delivery.",
+        "Handmade chocolate from The Cambridge Confectionery Company, for collection from Histon.",
     },
     brands: [
       {
