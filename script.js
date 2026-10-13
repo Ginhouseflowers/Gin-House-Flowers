@@ -536,17 +536,27 @@
     var header = document.querySelector(".site-header");
     var bottom = header ? header.getBoundingClientRect().bottom : 0;
     panel.style.top = Math.round(bottom + 6) + "px";
+    if (mobileSearch.matches) {
+      panel.style.right = "";
+      panel.classList.add("is-full-width");
+      return;
+    }
+    var rootRect = root.getBoundingClientRect();
+    var right = Math.max(12, document.documentElement.clientWidth - rootRect.right);
+    panel.style.right = Math.round(right) + "px";
+    panel.classList.remove("is-full-width");
   }
 
   function floatPanel(open) {
-    if (open && mobileSearch.matches) {
-      document.body.appendChild(panel);
+    if (open) {
+      if (panel.parentElement !== document.body) document.body.appendChild(panel);
       panel.classList.add("is-overlay");
       placeOverlay();
       return;
     }
-    panel.classList.remove("is-overlay");
+    panel.classList.remove("is-overlay", "is-full-width");
     panel.style.top = "";
+    panel.style.right = "";
     if (panel.parentElement !== root) root.appendChild(panel);
   }
 

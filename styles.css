@@ -632,6 +632,10 @@ a.site-notice-text:hover {
 .header-search-panel.is-overlay {
   position: fixed;
   z-index: 80;
+  left: auto;
+}
+
+.header-search-panel.is-overlay.is-full-width {
   right: 0.75rem;
   left: 0.75rem;
   width: auto;
