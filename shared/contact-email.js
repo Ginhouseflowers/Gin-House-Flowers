@@ -14,9 +14,17 @@ const ALLOWED_TOPICS = [
 const EMAIL_RE =
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const PHONE_REQUIRED_TOPICS = ["Flower School"];
+
+function validPhone(phone) {
+  const digits = phone.replace(/\D/g, "");
+  return /^[0-9+()\s.-]+$/.test(phone) && digits.length >= 10 && digits.length <= 15;
+}
+
 function validateContactEnquiry(data) {
   const name = String(data.name || "").trim();
   const email = String(data.email || "").trim().toLowerCase();
+  const phone = String(data.phone || "").trim();
   const topic = String(data.topic || "").trim();
   const message = String(data.message || "").trim();
   const honeypot = String(data.website || "").trim();
@@ -33,6 +41,9 @@ function validateContactEnquiry(data) {
   if (!ALLOWED_TOPICS.includes(topic)) {
     return { ok: false, error: "Please select a topic." };
   }
+  if (phone ? !validPhone(phone) : PHONE_REQUIRED_TOPICS.includes(topic)) {
+    return { ok: false, error: "Please enter a valid phone number." };
+  }
   if (!message || message.length < 10) {
     return { ok: false, error: "Please enter a message of at least 10 characters." };
   }
@@ -42,12 +53,12 @@ function validateContactEnquiry(data) {
 
   return {
     ok: true,
-    enquiry: { name, email, topic, message },
+    enquiry: { name, email, phone, topic, message },
   };
 }
 
 function buildContactEmailContent(enquiry) {
-  const { name, email, topic, message } = enquiry;
+  const { name, email, phone, topic, message } = enquiry;
   const subject = "Website enquiry: " + topic + " — " + name;
 
   const text = [
@@ -55,6 +66,7 @@ function buildContactEmailContent(enquiry) {
     "",
     "Name: " + name,
     "Email: " + email,
+    ...(phone ? ["Phone: " + phone] : []),
     "Topic: " + topic,
     "",
     "Message:",
@@ -72,6 +84,7 @@ function buildContactEmailContent(enquiry) {
     "<p><strong>Email:</strong> " +
     escapeHtml(email) +
     "</p>" +
+    (phone ? "<p><strong>Phone:</strong> " + escapeHtml(phone) + "</p>" : "") +
     "<p><strong>Topic:</strong> " +
     escapeHtml(topic) +
     "</p>" +

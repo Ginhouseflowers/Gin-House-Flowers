@@ -18,6 +18,7 @@
   function buildMessage(form) {
     var lines = [];
     form.querySelectorAll("[data-enquiry-label]").forEach(function (field) {
+      if (field.disabled) return;
       var value = formatValue(field);
       if (value) lines.push(field.getAttribute("data-enquiry-label") + ": " + value);
     });
@@ -30,6 +31,24 @@
     var statusEl = form.querySelector("[data-contact-status]");
     var submitBtn = form.querySelector("[type=submit]");
     var submitLabel = submitBtn ? submitBtn.textContent : "";
+    var conditionalFields = form.querySelectorAll("[data-hide-when-value]");
+
+    function syncConditionalFields() {
+      conditionalFields.forEach(function (wrap) {
+        var control = form.elements[wrap.getAttribute("data-hide-when-field")];
+        var hide = Boolean(control) && control.value === wrap.getAttribute("data-hide-when-value");
+        wrap.hidden = hide;
+        wrap.querySelectorAll("input, select, textarea").forEach(function (input) {
+          input.disabled = hide;
+        });
+      });
+    }
+
+    conditionalFields.forEach(function (wrap) {
+      var control = form.elements[wrap.getAttribute("data-hide-when-field")];
+      if (control) control.addEventListener("change", syncConditionalFields);
+    });
+    syncConditionalFields();
 
     function setStatus(message, type) {
       if (!statusEl) return;
@@ -60,6 +79,7 @@
       var payload = {
         name: form.elements.name.value,
         email: form.elements.email.value,
+        phone: form.elements.phone ? form.elements.phone.value : "",
         topic: form.elements.topic.value,
         message: buildMessage(form),
         website: form.elements.website ? form.elements.website.value : "",
@@ -80,6 +100,7 @@
         .then(function (result) {
           if (result.ok) {
             form.reset();
+            syncConditionalFields();
             setStatus(
               result.data.message ||
                 "Thank you — your enquiry has been sent. We will get back to you soon.",

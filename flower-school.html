@@ -357,8 +357,8 @@
             <p class="eyebrow">Book a workshop</p>
             <h2 id="school-enquire-heading">Reserve your place</h2>
             <p>
-              Tell us which workshop you are interested in and we will be in touch with
-              dates and availability.
+              Choose one of our Christmas wreath class dates, or send us a general
+              enquiry about private classes and other workshops.
             </p>
             <ul class="sv-contact-list">
               <li><span class="label">Call</span><a href="tel:+441223656670">01223 656670</a></li>
@@ -384,25 +384,20 @@
                 <input id="school-email" name="email" type="email" autocomplete="email" required />
               </div>
               <div class="field">
-                <label for="school-class">Workshop</label>
-                <select id="school-class" name="workshop" data-enquiry-label="Workshop">
-                  <option>Christmas wreath</option>
-                  <option>Hand tied bouquet</option>
-                  <option>Vase arrangement</option>
-                  <option>Spring &amp; Easter wreath</option>
-                  <option>Autumn wreath</option>
-                  <option>Insight into Floristry</option>
-                  <option>Private or group workshop</option>
-                  <option>Demonstration for a club or group</option>
-                </select>
+                <label for="school-phone">Phone number</label>
+                <input id="school-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" required />
               </div>
               <div class="field">
+                <label for="school-class">Workshop</label>
+                <select id="school-class" name="workshop" data-enquiry-label="Workshop">
+                  <option>Christmas wreath – Monday 30 November, 7pm (Red Lion, Histon)</option>
+                  <option>Christmas wreath – Wednesday 2 December, 7pm (Red Lion, Histon)</option>
+                  <option>General enquiry</option>
+                </select>
+              </div>
+              <div class="field" data-hide-when-field="workshop" data-hide-when-value="General enquiry">
                 <label for="school-people">Number of people</label>
                 <input id="school-people" name="people" type="number" min="1" max="40" inputmode="numeric" data-enquiry-label="Number of people" />
-              </div>
-              <div class="field field-full">
-                <label for="school-dates">Preferred dates <span>(optional)</span></label>
-                <input id="school-dates" name="dates" type="text" maxlength="200" data-enquiry-label="Preferred dates" />
               </div>
               <div class="field field-full">
                 <label for="school-message">Message</label>
