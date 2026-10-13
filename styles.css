@@ -1529,6 +1529,13 @@ p {
   color: #8b2e2e;
 }
 
+.contact-form-status a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .field {
   margin-bottom: 1.1rem;
 }

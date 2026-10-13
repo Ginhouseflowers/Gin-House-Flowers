@@ -1,6 +1,6 @@
 /**
  * Order notification email when Stripe Checkout completes.
- * Uses Resend (https://resend.com) — set RESEND_API_KEY and ORDER_NOTIFY_EMAIL in Netlify.
+ * Sent through the shop's own mailbox (SMTP_* settings), or Resend as a fallback.
  */
 
 const COLOUR_LABELS = {
@@ -15,7 +15,7 @@ function formatMoneyFromPence(pence) {
   return "£" + (Number(pence) / 100).toFixed(2);
 }
 
-const { escapeHtml, sendResendEmail } = require("./resend-mail");
+const { escapeHtml, sendEmail } = require("./mailer");
 
 function getCustomFieldValue(field) {
   if (!field) return "";
@@ -253,8 +253,8 @@ function buildOrderEmailContent(session, lineItems, forCustomer) {
   };
 }
 
-async function sendViaResend({ subject, text, html, to, replyTo }) {
-  return sendResendEmail({
+async function sendOrderEmail({ subject, text, html, to, replyTo }) {
+  return sendEmail({
     to: to || process.env.ORDER_NOTIFY_EMAIL || "info@ginhouseflowers.co.uk",
     subject,
     text,
@@ -334,12 +334,12 @@ async function sendOrderNotificationEmail(stripe, sessionId) {
   }
 
   const content = buildOrderEmailContent(session, lineItems);
-  const shopResult = await sendViaResend(content);
+  const shopResult = await sendOrderEmail(content);
   const customerEmail = session.customer_details && session.customer_details.email;
   let customerResult = { ok: true, skipped: true };
   if (customerEmail) {
     const copy = buildOrderEmailContent(session, lineItems, true);
-    customerResult = await sendViaResend({
+    customerResult = await sendOrderEmail({
       ...copy,
       to: customerEmail,
       replyTo: process.env.ORDER_NOTIFY_EMAIL || "info@ginhouseflowers.co.uk",

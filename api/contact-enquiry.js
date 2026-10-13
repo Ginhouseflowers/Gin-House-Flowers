@@ -55,7 +55,7 @@ module.exports = async function (req, res) {
     console.error(err);
     res.status(500).send(
       JSON.stringify({
-        error: "Unable to send your enquiry. Please try again or email info@ginhouseflowers.co.uk.",
+        error: "Unable to send your enquiry. Please try again, email info@ginhouseflowers.co.uk or call 01223 656670.",
       })
     );
   }

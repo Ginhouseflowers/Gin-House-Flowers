@@ -62,7 +62,7 @@ Payments only work when the site is hosted with the API — not when opening HTM
    | `STRIPE_SECRET_KEY` | Your `sk_test_…` key (later `sk_live_…` when live) |
    | `URL` | `https://www.ginhouseflowers.co.uk` (your real domain, no trailing slash) |
    | `STRIPE_WEBHOOK_SECRET` | From Stripe webhook setup (see below) |
-   | `RESEND_API_KEY` | From [resend.com](https://resend.com) → API Keys |
+   | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | Your mailbox's outgoing (SMTP) settings — see "Email setup" below |
    | `ORDER_NOTIFY_EMAIL` | Where order emails go, e.g. `info@ginhouseflowers.co.uk` |
 
 4. Click **Deploy** / trigger a new deploy
@@ -86,17 +86,21 @@ When Stripe has verified your business and you are ready for real cards:
 
 When someone pays, an email is sent to your shop inbox with the full order details.
 
-### 1 — Resend (sends the emails)
+### 1 — Email setup (sends the emails from your own mailbox)
 
-1. Sign up at [resend.com](https://resend.com) (free tier is enough to start)
-2. Go to **API Keys** → create a key → copy it (`re_…`)
-3. In Netlify environment variables, add:
-   - `RESEND_API_KEY` = your Resend key
+Emails are sent through an ordinary mailbox on your domain — no extra service needed.
+
+1. In your email host's control panel (e.g. cPanel → **Email Accounts**), create a mailbox just for the website, e.g. `website@ginhouseflowers.co.uk`, with a strong password
+2. Find its **outgoing (SMTP) server** settings (cPanel: **Connect Devices** / "Mail Client Manual Settings") — usually server `mail.ginhouseflowers.co.uk`, port `465`, SSL
+3. In Vercel → **Settings** → **Environment Variables**, add:
+   - `SMTP_HOST` = `mail.ginhouseflowers.co.uk`
+   - `SMTP_PORT` = `465`
+   - `SMTP_USER` = `website@ginhouseflowers.co.uk`
+   - `SMTP_PASS` = that mailbox's password
    - `ORDER_NOTIFY_EMAIL` = `info@ginhouseflowers.co.uk` (or your preferred inbox)
+4. Redeploy
 
-**Testing:** Resend’s default sender (`onboarding@resend.dev`) can only email the address you signed up with. For production, verify your domain in Resend and set:
-
-`ORDER_FROM_EMAIL=Gin House Flowers <orders@ginhouseflowers.co.uk>`
+If sending fails with a connection or login error, ask your host whether outgoing SMTP from external servers is allowed for that mailbox (some hosts block it by default). Resend can still be used instead by setting `RESEND_API_KEY` and leaving the `SMTP_` settings blank.
 
 ### 2 — Stripe webhook (triggers the email)
 
@@ -114,19 +118,19 @@ After a test order, check your inbox and **Netlify → Functions → stripe-webh
 
 ## Contact page enquiries
 
-The contact form sends enquiries to **info@ginhouseflowers.co.uk** using the same Resend setup:
+The contact and Flower School forms send enquiries to **info@ginhouseflowers.co.uk** using the same email setup:
 
-1. Add `RESEND_API_KEY` to `.env` (local) or Netlify (live) — see above
+1. Add the `SMTP_` settings to `.env` (local) or Vercel (live) — see above
 2. Optionally set `CONTACT_NOTIFY_EMAIL=info@ginhouseflowers.co.uk` (defaults to `ORDER_NOTIFY_EMAIL`)
 3. Test at `/contact.html` — submissions go to your inbox; **Reply** uses the customer’s email address
 
-Without `RESEND_API_KEY`, the form shows a message asking visitors to email or call you instead.
+Without email settings, the form shows a message asking visitors to email or call you instead.
 
 ---
 
 ## Where orders appear
 
-- **Your email inbox** — notification sent to `ORDER_NOTIFY_EMAIL` (when Resend + webhook are configured)
+- **Your email inbox** — notification sent to `ORDER_NOTIFY_EMAIL` (when email + webhook are configured)
 - **Stripe Dashboard** → **Payments** — every successful checkout  
 - Customer details, address, metadata (collection/delivery, dates), and card message are on the payment record  
 
@@ -140,7 +144,7 @@ Without `RESEND_API_KEY`, the form shows a message asking visitors to email or c
 | Checkout button does nothing | Use `npm start` or Netlify — not `file://` |
 | Invalid API key | Check you copied the full secret key with no spaces |
 | Wrong URL after payment | Set `URL` in Netlify to your exact public site address |
-| No order email received | Add `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, and `ORDER_NOTIFY_EMAIL` in Netlify; check webhook logs |
+| No order email received | Add `STRIPE_WEBHOOK_SECRET`, the `SMTP_` settings, and `ORDER_NOTIFY_EMAIL`; check webhook logs |
 
 ---
 

@@ -50,9 +50,27 @@
     });
     syncConditionalFields();
 
+    function renderStatusText(message) {
+      statusEl.textContent = "";
+      String(message || "")
+        .split(/(info@ginhouseflowers\.co\.uk|01223 656670)/)
+        .forEach(function (part) {
+          if (!part) return;
+          if (part === "info@ginhouseflowers.co.uk" || part === "01223 656670") {
+            var link = document.createElement("a");
+            link.href =
+              part === "01223 656670" ? "tel:+441223656670" : "mailto:info@ginhouseflowers.co.uk";
+            link.textContent = part;
+            statusEl.appendChild(link);
+          } else {
+            statusEl.appendChild(document.createTextNode(part));
+          }
+        });
+    }
+
     function setStatus(message, type) {
       if (!statusEl) return;
-      statusEl.textContent = message;
+      renderStatusText(message);
       statusEl.hidden = !message;
       statusEl.classList.remove(
         "contact-form-status--success",
@@ -110,13 +128,13 @@
           }
           setStatus(
             (result.data && result.data.error) ||
-              "Unable to send your enquiry. Please try again or email info@ginhouseflowers.co.uk.",
+              "Unable to send your enquiry. Please try again, email info@ginhouseflowers.co.uk or call 01223 656670.",
             "error"
           );
         })
         .catch(function () {
           setStatus(
-            "Unable to send your enquiry. Please check your connection or email info@ginhouseflowers.co.uk.",
+            "Unable to send your enquiry. Please check your connection, email info@ginhouseflowers.co.uk or call 01223 656670.",
             "error"
           );
         })

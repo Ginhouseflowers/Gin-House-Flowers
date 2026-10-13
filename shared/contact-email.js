@@ -1,4 +1,4 @@
-const { escapeHtml, sendResendEmail } = require("./resend-mail");
+const { escapeHtml, sendEmail } = require("./mailer");
 
 const ALLOWED_TOPICS = [
   "General enquiry",
@@ -109,7 +109,7 @@ async function sendContactEnquiryEmail(data) {
     process.env.ORDER_NOTIFY_EMAIL ||
     "info@ginhouseflowers.co.uk";
 
-  const result = await sendResendEmail({
+  const result = await sendEmail({
     to,
     subject: content.subject,
     text: content.text,
@@ -122,7 +122,7 @@ async function sendContactEnquiryEmail(data) {
       ok: false,
       status: 503,
       error:
-        "Enquiry emails are not configured yet. Please email us at info@ginhouseflowers.co.uk or call 01223 656670.",
+        "Online enquiries are coming soon. In the meantime, please email us at info@ginhouseflowers.co.uk or call 01223 656670.",
     };
   }
 
@@ -131,7 +131,7 @@ async function sendContactEnquiryEmail(data) {
     return {
       ok: false,
       status: 500,
-      error: "Unable to send your enquiry. Please try again or email info@ginhouseflowers.co.uk.",
+      error: "Unable to send your enquiry. Please try again, email info@ginhouseflowers.co.uk or call 01223 656670.",
     };
   }
 

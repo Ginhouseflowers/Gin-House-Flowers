@@ -286,6 +286,7 @@ const server = http.createServer(async function (req, res) {
 
 server.listen(PORT, function () {
   const hasKey = Boolean(process.env.STRIPE_SECRET_KEY);
+  const hasSmtp = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
   const hasResend = Boolean(process.env.RESEND_API_KEY);
   console.log("Gin House Flowers — local server http://localhost:" + PORT);
   console.log(
@@ -294,9 +295,11 @@ server.listen(PORT, function () {
       : "Stripe: NOT configured — add STRIPE_SECRET_KEY to .env (see STRIPE_SETUP.md)"
   );
   console.log(
-    hasResend
-      ? "Contact form: Resend API key loaded"
-      : "Contact form: NOT configured — add RESEND_API_KEY to .env for enquiry emails"
+    hasSmtp
+      ? "Email: sending through mailbox " + process.env.SMTP_USER
+      : hasResend
+        ? "Email: sending through Resend"
+        : "Email: NOT configured — add SMTP_HOST, SMTP_USER and SMTP_PASS to .env for enquiry emails"
   );
   console.log("Online shop: http://localhost:" + PORT + "/online-shop.html");
 });
