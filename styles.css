@@ -629,6 +629,14 @@ a.site-notice-text:hover {
   display: none;
 }
 
+.header-search-panel.is-overlay {
+  position: fixed;
+  z-index: 80;
+  right: 0.75rem;
+  left: 0.75rem;
+  width: auto;
+}
+
 .header-search-form input {
   width: 100%;
   padding: 0.7rem 0.8rem;
