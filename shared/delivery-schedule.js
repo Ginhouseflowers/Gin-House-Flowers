@@ -13,6 +13,9 @@ const SAME_DAY_DELIVERY_ERROR =
 const NEXT_DAY_CUTOFF_ERROR =
   "Next-day delivery is only available if you order by 1pm the day before. Please choose a later delivery date.";
 
+const CLOSED_DATE_ERROR =
+  "We are closed for delivery on that date. Please choose another delivery date.";
+
 const NEXT_DAY_CUTOFF_MINUTES = 13 * 60;
 
 function parseIsoDate(dateStr) {
@@ -65,29 +68,39 @@ function formatIsoDate(date) {
   return `${y}-${m}-${d}`;
 }
 
-function getEarliestDeliveryDate(now) {
+function closedDateList(closedDates) {
+  return Array.isArray(closedDates) ? closedDates : [];
+}
+
+function isExtraClosed(date, closedDates) {
+  return closedDateList(closedDates).indexOf(formatIsoDate(date)) !== -1;
+}
+
+function getEarliestDeliveryDate(now, closedDates) {
   const london = londonNow(now);
   const date = new Date(london.today.getTime());
   date.setDate(date.getDate() + (london.minutes <= NEXT_DAY_CUTOFF_MINUTES ? 1 : 2));
-  while (!isDeliveryWeekday(date)) {
+  let guard = 0;
+  while ((!isDeliveryWeekday(date) || isExtraClosed(date, closedDates)) && guard < 120) {
     date.setDate(date.getDate() + 1);
+    guard += 1;
   }
   return formatIsoDate(date);
 }
 
-function listDeliveryDates(weeks) {
+function listDeliveryDates(weeks, now, closedDates) {
   const limit = (Number(weeks) || 8) * 5;
   const dates = [];
-  const cursor = parseIsoDate(getEarliestDeliveryDate());
+  const cursor = parseIsoDate(getEarliestDeliveryDate(now, closedDates));
   if (!cursor) return dates;
   while (dates.length < limit) {
-    if (isDeliveryWeekday(cursor)) dates.push(formatIsoDate(cursor));
+    if (isDeliveryWeekday(cursor) && !isExtraClosed(cursor, closedDates)) dates.push(formatIsoDate(cursor));
     cursor.setDate(cursor.getDate() + 1);
   }
   return dates;
 }
 
-function validateDeliveryDate(dateStr, now) {
+function validateDeliveryDate(dateStr, now, closedDates) {
   const date = parseIsoDate(dateStr);
   if (!date) {
     return { ok: false, error: "Please choose a valid delivery date." };
@@ -102,7 +115,11 @@ function validateDeliveryDate(dateStr, now) {
     return { ok: false, error: DELIVERY_DAY_ERROR };
   }
 
-  const earliest = parseIsoDate(getEarliestDeliveryDate(now));
+  if (isExtraClosed(date, closedDates)) {
+    return { ok: false, error: CLOSED_DATE_ERROR };
+  }
+
+  const earliest = parseIsoDate(getEarliestDeliveryDate(now, closedDates));
   if (earliest && date < earliest) {
     return { ok: false, error: NEXT_DAY_CUTOFF_ERROR };
   }
@@ -114,6 +131,7 @@ module.exports = {
   DELIVERY_DAY_ERROR,
   SAME_DAY_DELIVERY_ERROR,
   NEXT_DAY_CUTOFF_ERROR,
+  CLOSED_DATE_ERROR,
   parseIsoDate,
   isDeliveryWeekday,
   getEarliestDeliveryDate,

@@ -364,7 +364,9 @@
       dayAvailable: function (date) {
         if (date < earliest || date > latest) return false;
         var day = date.getDay();
-        return day >= 2 && day <= 6;
+        if (day < 2 || day > 6) return false;
+        var closed = window.GinClosedDates || [];
+        return closed.indexOf(calendarIso(date)) === -1;
       },
     };
   }
@@ -377,6 +379,12 @@
     if (calendar._shopCal) calendar._shopCal.bounds = weekdayBounds(earliest);
     else calendar._shopCal = { view: null, bounds: weekdayBounds(earliest) };
     renderDeliveryCalendar = mountShopCalendar(calendar, deliveryDateInput);
+    if (
+      deliveryDateInput.value &&
+      !calendar._shopCal.bounds.dayAvailable(parseCalendarIso(deliveryDateInput.value))
+    ) {
+      deliveryDateInput.value = "";
+    }
     renderDeliveryCalendar();
   }
 
@@ -390,9 +398,20 @@
     if (calendar._shopCal) calendar._shopCal.bounds = weekdayBounds(earliest);
     else calendar._shopCal = { view: null, bounds: weekdayBounds(earliest) };
     renderCollectionCalendar = mountShopCalendar(calendar, collectionDateInput);
+    if (
+      collectionDateInput.value &&
+      !calendar._shopCal.bounds.dayAvailable(parseCalendarIso(collectionDateInput.value))
+    ) {
+      collectionDateInput.value = earliestIso;
+    }
     renderCollectionCalendar();
     populateCollectionTimes();
   }
+
+  window.addEventListener("ginhouse:closed-dates", function () {
+    setupDeliveryDateInput();
+    setupCollectionDateInput();
+  });
 
   function showCollectionError(message) {
     if (!collectionError) return;

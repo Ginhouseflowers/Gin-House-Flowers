@@ -13,6 +13,9 @@
   var NEXT_DAY_CUTOFF_ERROR =
     "Next-day delivery is only available if you order by 1pm the day before. Please choose a later delivery date.";
 
+  var CLOSED_DATE_ERROR =
+    "We are closed for delivery on that date. Please choose another delivery date.";
+
   var NEXT_DAY_CUTOFF_MINUTES = 13 * 60;
 
   function parseIsoDate(dateStr) {
@@ -65,12 +68,22 @@
     return day >= 2 && day <= 6;
   }
 
+  function closedDateList() {
+    return global.GinClosedDates && global.GinClosedDates.length ? global.GinClosedDates : [];
+  }
+
+  function isExtraClosed(date) {
+    return closedDateList().indexOf(formatIsoDate(date)) !== -1;
+  }
+
   function getEarliestDeliveryDate(now) {
     var london = londonNow(now);
     var date = new Date(london.today.getTime());
     date.setDate(date.getDate() + (london.minutes <= NEXT_DAY_CUTOFF_MINUTES ? 1 : 2));
-    while (!isDeliveryWeekday(date)) {
+    var guard = 0;
+    while ((!isDeliveryWeekday(date) || isExtraClosed(date)) && guard < 120) {
       date.setDate(date.getDate() + 1);
+      guard += 1;
     }
     return formatIsoDate(date);
   }
@@ -81,7 +94,7 @@
     var cursor = parseIsoDate(getEarliestDeliveryDate());
     if (!cursor) return dates;
     while (dates.length < limit) {
-      if (isDeliveryWeekday(cursor)) dates.push(formatIsoDate(cursor));
+      if (isDeliveryWeekday(cursor) && !isExtraClosed(cursor)) dates.push(formatIsoDate(cursor));
       cursor.setDate(cursor.getDate() + 1);
     }
     return dates;
@@ -113,6 +126,10 @@
       return { ok: false, error: DELIVERY_DAY_ERROR };
     }
 
+    if (isExtraClosed(date)) {
+      return { ok: false, error: CLOSED_DATE_ERROR };
+    }
+
     var earliest = parseIsoDate(getEarliestDeliveryDate(now));
     if (earliest && date < earliest) {
       return { ok: false, error: NEXT_DAY_CUTOFF_ERROR };
@@ -125,6 +142,7 @@
     DELIVERY_DAY_ERROR: DELIVERY_DAY_ERROR,
     SAME_DAY_DELIVERY_ERROR: SAME_DAY_DELIVERY_ERROR,
     NEXT_DAY_CUTOFF_ERROR: NEXT_DAY_CUTOFF_ERROR,
+    CLOSED_DATE_ERROR: CLOSED_DATE_ERROR,
     getEarliestDeliveryDate: getEarliestDeliveryDate,
     listDeliveryDates: listDeliveryDates,
     formatDeliveryLabel: formatDeliveryLabel,

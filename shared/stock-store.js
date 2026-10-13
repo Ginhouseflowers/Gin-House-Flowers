@@ -30,7 +30,29 @@ function passwordMatches(given) {
 }
 
 function emptyStock() {
-  return { products: {}, customProducts: {}, consumedSessions: [] };
+  return { products: {}, customProducts: {}, consumedSessions: [], closedDates: [] };
+}
+
+function normaliseClosedDates(list) {
+  const seen = {};
+  const dates = [];
+  (Array.isArray(list) ? list : []).forEach(function (value) {
+    const iso = String(value || "").trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso) || seen[iso]) return;
+    const parts = iso.split("-").map(Number);
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+    if (
+      date.getFullYear() !== parts[0] ||
+      date.getMonth() !== parts[1] - 1 ||
+      date.getDate() !== parts[2]
+    ) {
+      return;
+    }
+    seen[iso] = true;
+    dates.push(iso);
+  });
+  dates.sort();
+  return dates;
 }
 
 function tidyStock(data) {
@@ -39,6 +61,7 @@ function tidyStock(data) {
   data.customProducts =
     data.customProducts && typeof data.customProducts === "object" ? data.customProducts : {};
   data.notice = data.notice && typeof data.notice === "object" ? data.notice : null;
+  data.closedDates = normaliseClosedDates(data.closedDates);
   return data;
 }
 
@@ -305,6 +328,7 @@ async function writeStock(data) {
     products: data.products || {},
     customProducts: data.customProducts || {},
     notice: data.notice || null,
+    closedDates: normaliseClosedDates(data.closedDates),
     consumedSessions: Array.isArray(data.consumedSessions) ? data.consumedSessions.slice(-200) : [],
   };
   if (useBlobs()) {
@@ -588,6 +612,23 @@ async function saveNotice(raw) {
   return { ok: true, notice: stock.notice };
 }
 
+async function saveClosedDates(raw) {
+  const today = ukToday();
+  const horizon = new Date();
+  horizon.setMonth(horizon.getMonth() + 18);
+  const horizonIso = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(horizon);
+  const dates = normaliseClosedDates(raw && raw.dates).filter(function (iso) {
+    return iso >= today && iso <= horizonIso;
+  });
+  if (dates.length > 60) {
+    return { ok: false, error: "You can close up to 60 dates." };
+  }
+  const stock = await readStock();
+  stock.closedDates = dates;
+  await writeStock(stock);
+  return { ok: true, closedDates: dates };
+}
+
 function customList(stock) {
   return Object.keys((stock && stock.customProducts) || {}).map(function (id) {
     return stock.customProducts[id];
@@ -603,6 +644,8 @@ module.exports = {
   customList,
   noticeFor,
   saveNotice,
+  saveClosedDates,
+  normaliseClosedDates,
   productFor,
   checkLines,
   consumePaidOrder,

@@ -72,9 +72,13 @@ function startOfToday() {
   return today;
 }
 
-function getSlotsForDate(date, onlyFutureOnToday) {
+function isExtraClosed(date, closedDates) {
+  return Array.isArray(closedDates) && closedDates.indexOf(formatIsoDate(date)) !== -1;
+}
+
+function getSlotsForDate(date, onlyFutureOnToday, closedDates) {
   const hours = OPENING_MINUTES[date.getDay()];
-  if (!hours) {
+  if (!hours || isExtraClosed(date, closedDates)) {
     return [];
   }
 
@@ -108,19 +112,19 @@ function formatTimeLabel(totalMinutes) {
   return `${hour12}:${String(m).padStart(2, "0")}${ampm}`;
 }
 
-function getEarliestCollectionDate() {
+function getEarliestCollectionDate(closedDates) {
   const date = startOfToday();
-  for (let i = 0; i < 14; i += 1) {
+  for (let i = 0; i < 21; i += 1) {
     const check = new Date(date);
     check.setDate(date.getDate() + i);
-    if (getSlotsForDate(check, true).length > 0) {
+    if (getSlotsForDate(check, true, closedDates).length > 0) {
       return formatIsoDate(check);
     }
   }
   return formatIsoDate(date);
 }
 
-function validateCollectionDateTime(dateStr, timeStr) {
+function validateCollectionDateTime(dateStr, timeStr, closedDates) {
   const date = parseIsoDate(dateStr);
   if (!date) {
     return { ok: false, error: "Please choose a valid collection date." };
@@ -135,12 +139,19 @@ function validateCollectionDateTime(dateStr, timeStr) {
     return { ok: false, error: CLOSED_DAY_ERROR };
   }
 
+  if (isExtraClosed(date, closedDates)) {
+    return {
+      ok: false,
+      error: "The shop is closed for collection on that date. Please choose another day.",
+    };
+  }
+
   const timeMinutes = parseTimeValue(timeStr);
   if (timeMinutes === null) {
     return { ok: false, error: "Please choose a collection time." };
   }
 
-  const slots = getSlotsForDate(date, true);
+  const slots = getSlotsForDate(date, true, closedDates);
   const valid = slots.some((slot) => slot.value === timeStr);
   if (!valid) {
     return { ok: false, error: OUTSIDE_HOURS_ERROR };

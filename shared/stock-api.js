@@ -8,6 +8,7 @@ const {
   customList,
   noticeFor,
   saveNotice,
+  saveClosedDates,
   passwordMatches,
 } = require("./stock-store");
 const { getShopOpen, setShopOpen } = require("./shop-status");
@@ -22,6 +23,7 @@ async function stockGet() {
       products: presentProducts(stock),
       customProducts: customList(stock),
       notice: stock.notice || null,
+      closedDates: stock.closedDates || [],
       shopOpen: await getShopOpen(true),
     },
   };
@@ -63,6 +65,11 @@ async function stockPost(rawBody) {
     if (!saved.ok) return { status: 400, body: { error: saved.error } };
     return { status: 200, body: { notice: saved.notice } };
   }
+  if (payload.action === "closed-dates") {
+    const saved = await saveClosedDates(payload);
+    if (!saved.ok) return { status: 400, body: { error: saved.error } };
+    return { status: 200, body: { closedDates: saved.closedDates } };
+  }
   const result = await saveProduct(payload.id, payload);
   if (!result.ok) return { status: 400, body: { error: result.error } };
   return { status: 200, body: { product: result.product } };
@@ -84,6 +91,8 @@ async function catalogueScript() {
     scriptJson(customList(stock)) +
     ";\nwindow.GinNotice = " +
     scriptJson(noticeFor(stock)) +
+    ";\nwindow.GinClosedDates = " +
+    scriptJson(stock.closedDates || []) +
     ";\nwindow.GinAnalyticsId = " +
     scriptJson(analyticsId()) +
     ";\n"

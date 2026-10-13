@@ -4077,9 +4077,25 @@ a.service-card:focus-visible h3 {
   background: #f3ead0;
 }
 
-.delivery-calendar-day[aria-pressed="true"] {
+.delivery-calendar-day[aria-pressed="true"],
+.stock-closed-calendar .delivery-calendar-day.is-picked {
   background: var(--forest);
   color: #f3ead0;
+}
+
+.stock-closed-calendar {
+  width: 100%;
+  max-width: 18rem;
+  padding: 0.55rem 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.stock-closed-list {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ink-muted);
 }
 
 .delivery-calendar-day:disabled {

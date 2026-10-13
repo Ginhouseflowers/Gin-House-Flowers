@@ -69,7 +69,8 @@
     }
 
     var hours = OPENING_MINUTES[date.getDay()];
-    if (!hours) {
+    var closed = global.GinClosedDates || [];
+    if (!hours || closed.indexOf(dateStr) !== -1) {
       return [];
     }
 
@@ -98,7 +99,7 @@
 
   function getEarliestCollectionDate() {
     var date = startOfToday();
-    for (var i = 0; i < 14; i += 1) {
+    for (var i = 0; i < 21; i += 1) {
       var check = new Date(date);
       check.setDate(date.getDate() + i);
       if (getSlotsForDateString(formatIsoDate(check)).length > 0) {
@@ -126,6 +127,13 @@
           "The shop is closed on Sundays and Mondays. Collection is available " +
           OPENING_HOURS_LABEL +
           ".",
+      };
+    }
+
+    if ((global.GinClosedDates || []).indexOf(dateStr) !== -1) {
+      return {
+        ok: false,
+        error: "The shop is closed for collection on that date. Please choose another day.",
       };
     }
 

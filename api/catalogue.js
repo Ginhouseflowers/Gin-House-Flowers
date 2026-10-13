@@ -11,6 +11,6 @@ module.exports = async function (req, res) {
     res.status(200).send(await catalogueScript());
   } catch (err) {
     console.error(err);
-    res.status(200).send('window.GinCustomProducts = [];\nwindow.GinNotice = null;\nwindow.GinAnalyticsId = "";\n');
+    res.status(200).send('window.GinCustomProducts = [];\nwindow.GinNotice = null;\nwindow.GinClosedDates = [];\nwindow.GinAnalyticsId = "";\n');
   }
 };

@@ -158,6 +158,9 @@
       })
       .then(function (data) {
         stock.notice = data.notice || null;
+        stock.closedDates = data.closedDates || [];
+        window.GinClosedDates = stock.closedDates.slice();
+        window.dispatchEvent(new CustomEvent("ginhouse:closed-dates"));
         shopOpen = data.shopOpen !== false;
         renderShopSwitch();
         publish(data.products || {});
@@ -259,6 +262,7 @@
     "</label>" +
     '<span class="stock-toolbar-actions">' +
     '<button type="button" class="stock-close" data-stock-notice-open>Shop banner</button>' +
+    '<button type="button" class="stock-close" data-stock-closed-open>Closed dates</button>' +
     '<button type="button" class="stock-unlock" data-stock-add-open>Add product</button>' +
     "</span>" +
     "</div>" +
@@ -352,6 +356,17 @@
     '<button type="button" class="stock-close" data-stock-notice-cancel>Back</button>' +
     "</div>" +
     "</form>" +
+    '<form class="stock-add stock-closed" hidden novalidate>' +
+    '<h3 class="stock-add-title">Closed dates</h3>' +
+    '<p class="stock-intro">Click a date to close the shop for delivery and collection, for example a bank holiday. Click it again to reopen that date. Sundays and Mondays are already closed.</p>' +
+    '<div class="stock-closed-calendar" data-stock-closed-calendar></div>' +
+    '<p class="stock-closed-list" data-stock-closed-list>No extra dates are closed.</p>' +
+    '<p class="stock-login-error stock-closed-error" role="alert" hidden></p>' +
+    '<div class="stock-add-actions">' +
+    '<button type="submit" class="stock-unlock">Save closed dates</button>' +
+    '<button type="button" class="stock-close" data-stock-closed-cancel>Back</button>' +
+    "</div>" +
+    "</form>" +
     "</div>" +
     "</div>";
   document.body.appendChild(panel);
@@ -370,6 +385,10 @@
   var browseView = panel.querySelector(".stock-browse");
   var addForm = panel.querySelector(".stock-add:not(.stock-notice)");
   var noticeForm = panel.querySelector(".stock-notice");
+  var closedForm = panel.querySelector(".stock-closed");
+  var closedCalendar = panel.querySelector("[data-stock-closed-calendar]");
+  var closedList = panel.querySelector("[data-stock-closed-list]");
+  var closedError = panel.querySelector(".stock-closed-error");
   var noticeError = panel.querySelector(".stock-notice-error");
   var addError = panel.querySelector(".stock-add-error");
   var addPreview = panel.querySelector(".stock-add-preview");
@@ -694,6 +713,7 @@
   function showBrowse() {
     addForm.hidden = true;
     noticeForm.hidden = true;
+    closedForm.hidden = true;
     browseView.hidden = false;
   }
 
@@ -728,6 +748,7 @@
     noticeForm.elements.enabled.checked = Boolean(notice.enabled);
     noticeError.hidden = true;
     browseView.hidden = true;
+    closedForm.hidden = true;
     noticeForm.hidden = false;
     noticeForm.elements.message.focus();
   });
@@ -768,6 +789,196 @@
       });
   });
 
+  var closedPicks = [];
+  var closedView = null;
+
+  function isoFromDate(date) {
+    var m = String(date.getMonth() + 1).padStart(2, "0");
+    var d = String(date.getDate()).padStart(2, "0");
+    return date.getFullYear() + "-" + m + "-" + d;
+  }
+
+  function todayIso() {
+    var now = new Date();
+    return isoFromDate(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+  }
+
+  function horizonIso() {
+    var now = new Date();
+    return isoFromDate(new Date(now.getFullYear(), now.getMonth() + 18, now.getDate()));
+  }
+
+  function formatClosedLabel(iso) {
+    var parts = iso.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(new Date(parts[0], parts[1] - 1, parts[2]));
+  }
+
+  function renderClosedList() {
+    if (!closedList) return;
+    if (!closedPicks.length) {
+      closedList.textContent = "No extra dates are closed.";
+      return;
+    }
+    closedList.textContent = "Closed: " + closedPicks.map(formatClosedLabel).join(", ") + ".";
+  }
+
+  function renderClosedCalendar() {
+    if (!closedCalendar) return;
+    if (!closedView) {
+      var start = new Date();
+      closedView = new Date(start.getFullYear(), start.getMonth(), 1);
+    }
+    var today = todayIso();
+    var horizon = horizonIso();
+    var earliestMonth = new Date();
+    earliestMonth = new Date(earliestMonth.getFullYear(), earliestMonth.getMonth(), 1);
+    var horizonDate = new Date();
+    horizonDate.setMonth(horizonDate.getMonth() + 18);
+    var latestMonth = new Date(horizonDate.getFullYear(), horizonDate.getMonth(), 1);
+    var monthName = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(closedView);
+    var prevDisabled = closedView <= earliestMonth;
+    var nextDisabled = closedView >= latestMonth;
+    var html =
+      '<div class="delivery-calendar-head">' +
+      '<button type="button" class="delivery-calendar-nav" data-closed-prev' +
+      (prevDisabled ? " disabled" : "") +
+      ' aria-label="Previous month">‹</button>' +
+      '<p class="delivery-calendar-month">' +
+      monthName +
+      "</p>" +
+      '<button type="button" class="delivery-calendar-nav" data-closed-next' +
+      (nextDisabled ? " disabled" : "") +
+      ' aria-label="Next month">›</button>' +
+      "</div>" +
+      '<div class="delivery-calendar-grid" role="grid">' +
+      ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+        .map(function (label) {
+          return '<span class="delivery-calendar-dow">' + label + "</span>";
+        })
+        .join("");
+    var first = new Date(closedView.getFullYear(), closedView.getMonth(), 1);
+    var lead = (first.getDay() + 6) % 7;
+    var i;
+    for (i = 0; i < lead; i += 1) html += '<span class="delivery-calendar-empty"></span>';
+    var daysInMonth = new Date(closedView.getFullYear(), closedView.getMonth() + 1, 0).getDate();
+    for (i = 1; i <= daysInMonth; i += 1) {
+      var date = new Date(closedView.getFullYear(), closedView.getMonth(), i);
+      var iso = isoFromDate(date);
+      var weekday = date.getDay();
+      var usualClosed = weekday === 0 || weekday === 1;
+      var outOfRange = iso < today || iso > horizon;
+      var picked = closedPicks.indexOf(iso) !== -1;
+      var label = formatClosedLabel(iso);
+      if (usualClosed || outOfRange) {
+        html +=
+          '<button type="button" class="delivery-calendar-day is-closed" disabled aria-label="' +
+          label +
+          (usualClosed ? ", already closed" : ", unavailable") +
+          '">' +
+          i +
+          "</button>";
+      } else {
+        html +=
+          '<button type="button" class="delivery-calendar-day' +
+          (picked ? " is-picked" : "") +
+          '" data-closed-day="' +
+          iso +
+          '" aria-pressed="' +
+          (picked ? "true" : "false") +
+          '" aria-label="' +
+          label +
+          (picked ? ", closed" : "") +
+          '">' +
+          i +
+          "</button>";
+      }
+    }
+    html += "</div>";
+    closedCalendar.innerHTML = html;
+    renderClosedList();
+  }
+
+  if (closedCalendar) {
+    closedCalendar.addEventListener("click", function (event) {
+      var prev = event.target.closest("[data-closed-prev]");
+      var next = event.target.closest("[data-closed-next]");
+      var day = event.target.closest("[data-closed-day]");
+      if (prev && !prev.disabled) {
+        closedView = new Date(closedView.getFullYear(), closedView.getMonth() - 1, 1);
+        renderClosedCalendar();
+        return;
+      }
+      if (next && !next.disabled) {
+        closedView = new Date(closedView.getFullYear(), closedView.getMonth() + 1, 1);
+        renderClosedCalendar();
+        return;
+      }
+      if (!day) return;
+      var iso = day.getAttribute("data-closed-day");
+      var index = closedPicks.indexOf(iso);
+      if (index === -1) {
+        if (closedPicks.length >= 60) {
+          closedError.textContent = "You can close up to 60 dates.";
+          closedError.hidden = false;
+          return;
+        }
+        closedPicks.push(iso);
+        closedPicks.sort();
+      } else {
+        closedPicks.splice(index, 1);
+      }
+      closedError.hidden = true;
+      renderClosedCalendar();
+    });
+  }
+
+  panel.querySelector("[data-stock-closed-open]").addEventListener("click", function () {
+    closedPicks = (stock.closedDates || []).slice();
+    closedView = null;
+    closedError.hidden = true;
+    renderClosedCalendar();
+    browseView.hidden = true;
+    noticeForm.hidden = true;
+    addForm.hidden = true;
+    closedForm.hidden = false;
+  });
+
+  panel.querySelector("[data-stock-closed-cancel]").addEventListener("click", showBrowse);
+
+  closedForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var submit = closedForm.querySelector("[type='submit']");
+    closedError.hidden = true;
+    submit.disabled = true;
+    submit.textContent = "Saving…";
+    postStock({ action: "closed-dates", dates: closedPicks })
+      .then(function (data) {
+        if (!data) return;
+        stock.closedDates = data.closedDates || [];
+        window.GinClosedDates = stock.closedDates.slice();
+        window.dispatchEvent(new CustomEvent("ginhouse:closed-dates"));
+        showBrowse();
+        setStatus(
+          stock.closedDates.length
+            ? "Closed dates are saved. Customers cannot choose those days."
+            : "No extra dates are closed."
+        );
+      })
+      .catch(function (err) {
+        closedError.textContent = err.message || "Could not save the closed dates.";
+        closedError.hidden = false;
+      })
+      .then(function () {
+        submit.disabled = false;
+        submit.textContent = "Save closed dates";
+      });
+  });
+
   function resetAddForm() {
     addForm.reset();
     addPhoto = null;
@@ -788,6 +999,8 @@
     panel.querySelector("#stock-types").innerHTML = optionsHtml(uniqueValues("product"));
     panel.querySelector("#stock-occasions").innerHTML = optionsHtml(uniqueValues("occasion"));
     browseView.hidden = true;
+    noticeForm.hidden = true;
+    closedForm.hidden = true;
     addForm.hidden = false;
     addForm.scrollTop = 0;
     addForm.elements.name.focus();

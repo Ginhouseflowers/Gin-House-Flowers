@@ -207,7 +207,7 @@ function validateOrder(order, items, stock) {
       };
     }
 
-    const dateCheck = validateDeliveryDate(order.deliveryDate);
+    const dateCheck = validateDeliveryDate(order.deliveryDate, undefined, stock && stock.closedDates);
     if (!dateCheck.ok) {
       return { ok: false, error: dateCheck.error };
     }
@@ -216,7 +216,8 @@ function validateOrder(order, items, stock) {
   if (fulfilment === "collection") {
     const collectionCheck = validateCollectionDateTime(
       order.collectionDate,
-      order.collectionTime
+      order.collectionTime,
+      stock && stock.closedDates
     );
     if (!collectionCheck.ok) {
       return { ok: false, error: collectionCheck.error };
