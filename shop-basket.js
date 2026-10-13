@@ -1047,6 +1047,30 @@
     }
   }
 
+  function showAddedConfirmation(form) {
+    var button = form.querySelector("button[type='submit']");
+    var note = form.querySelector("[data-added-note]");
+    if (!note) {
+      note = document.createElement("p");
+      note.className = "shop-added-note";
+      note.setAttribute("data-added-note", "");
+      note.setAttribute("role", "status");
+      var link = document.createElement("a");
+      link.href = "basket.html";
+      link.textContent = "View basket";
+      note.appendChild(document.createTextNode("Added to your basket. "));
+      note.appendChild(link);
+      form.appendChild(note);
+    }
+    note.hidden = false;
+    if (button) {
+      button.textContent = "Added to basket";
+      window.setTimeout(function () {
+        if (button.isConnected) button.textContent = "Add to basket";
+      }, 2500);
+    }
+  }
+
   function addToBasket(data) {
     var product = getProductConfig(data.productId);
     if (!product) {
@@ -1067,6 +1091,7 @@
     saveBasket(items, "add");
     renderBasket();
     announce("Added to your basket.");
+    if (data.form) showAddedConfirmation(data.form);
   }
 
   function startStripeCheckout() {
@@ -1396,6 +1421,7 @@
         colourOther: colourOther,
         quantity: quantity,
         waterBubbleBag: waterBubbleBag,
+        form: form,
       });
 
       form.elements.quantity.value = "1";

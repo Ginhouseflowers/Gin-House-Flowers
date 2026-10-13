@@ -3492,6 +3492,24 @@ a.service-card:focus-visible h3 {
   color: var(--forest);
 }
 
+.shop-example-note {
+  margin: 0.85rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.shop-added-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--forest);
+}
+
+.shop-added-note a {
+  font-weight: 600;
+}
+
 .shop-gallery-frame {
   position: relative;
   aspect-ratio: 4 / 5;
