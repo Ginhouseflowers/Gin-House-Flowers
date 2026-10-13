@@ -1,5 +1,7 @@
 (function () {
   var apiUrl = "/api/contact-enquiry";
+  // Set to false once enquiry emails are set up.
+  var showComingSoonNotice = true;
 
   function formatValue(field) {
     if (field.type === "date" && field.value) {
@@ -50,8 +52,8 @@
     });
     syncConditionalFields();
 
-    function renderStatusText(message) {
-      statusEl.textContent = "";
+    function renderStatusText(message, target) {
+      target.textContent = "";
       String(message || "")
         .split(/(info@ginhouseflowers\.co\.uk|01223 656670)/)
         .forEach(function (part) {
@@ -61,16 +63,28 @@
             link.href =
               part === "01223 656670" ? "tel:+441223656670" : "mailto:info@ginhouseflowers.co.uk";
             link.textContent = part;
-            statusEl.appendChild(link);
+            target.appendChild(link);
           } else {
-            statusEl.appendChild(document.createTextNode(part));
+            target.appendChild(document.createTextNode(part));
           }
         });
     }
 
+    if (showComingSoonNotice) {
+      var notice = document.createElement("p");
+      notice.className = "contact-form-notice";
+      var noticeHeading = form.querySelector("h3");
+      var noticeAnchor = noticeHeading ? noticeHeading.nextElementSibling : null;
+      form.insertBefore(notice, noticeAnchor ? noticeAnchor.nextSibling : form.firstChild);
+      renderStatusText(
+        "Online enquiries are coming soon. In the meantime, please email us at info@ginhouseflowers.co.uk or call 01223 656670.",
+        notice
+      );
+    }
+
     function setStatus(message, type) {
       if (!statusEl) return;
-      renderStatusText(message);
+      renderStatusText(message, statusEl);
       statusEl.hidden = !message;
       statusEl.classList.remove(
         "contact-form-status--success",

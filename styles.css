@@ -1529,6 +1529,17 @@ p {
   color: #8b2e2e;
 }
 
+.contact-form-notice {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  border-left: 3px solid var(--gold);
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--teal-deep);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.contact-form-notice a,
 .contact-form-status a {
   color: inherit;
   font-weight: 600;
