@@ -10,6 +10,32 @@
   var brand = "The Cambridge Confectionery Company";
   return [
     {
+      id: "ccc-cp000435",
+      sku: "CP000435",
+      name: "9 Luxury Solid Chocolate Domes",
+      pricePence: 999,
+      product: "Chocolate domes",
+      occasion: "Christmas",
+      styles: ["Milk", "Dark", "White"],
+      blurb:
+        "Nine solid chocolate domes in a 160g red gift box: dark raspberry, milk honeycomb, dark salted caramel, Eton mess, salted caramel, mocha, cookies and cream, hazelnut praline and rocky road.",
+      image: "images/chocolate/ccc-cp000435.jpg",
+      imageAlt: "Red gift box of nine solid chocolate domes",
+    },
+    {
+      id: "ccc-cp000498",
+      sku: "CP000498",
+      name: "Christmas Selection Box, 24 Chocolates",
+      pricePence: 1699,
+      product: "Selection box",
+      occasion: "Christmas",
+      styles: ["Milk", "Dark", "White"],
+      blurb:
+        "Twenty-four solid chocolates, 250g, in milk, dark and white. The box includes reindeer, Christmas trees, domes and small bars, finished with honeycomb, raspberry, caramel, fudge and cookie pieces.",
+      image: "images/chocolate/ccc-cp000498.jpg",
+      imageAlt: "Christmas selection box of 24 solid chocolates",
+    },
+    {
       id: "ccc-cp000103",
       sku: "CP000103",
       name: "Dark Chocolate Barrel Bar",
@@ -268,32 +294,6 @@
       blurb: "Solid salted caramel chocolate reindeers, packed as a Christmas gift.",
       image: "images/chocolate/ccc-chocreindeersc.jpg",
       imageAlt: "Salted caramel chocolate reindeers",
-    },
-    {
-      id: "ccc-cp000435",
-      sku: "CP000435",
-      name: "9 Luxury Solid Chocolate Domes",
-      pricePence: 999,
-      product: "Chocolate domes",
-      occasion: "Christmas",
-      styles: ["Milk", "Dark", "White"],
-      blurb:
-        "Nine solid chocolate domes in a 160g red gift box: dark raspberry, milk honeycomb, dark salted caramel, Eton mess, salted caramel, mocha, cookies and cream, hazelnut praline and rocky road.",
-      image: "images/chocolate/ccc-cp000435.jpg",
-      imageAlt: "Red gift box of nine solid chocolate domes",
-    },
-    {
-      id: "ccc-cp000498",
-      sku: "CP000498",
-      name: "Christmas Selection Box, 24 Chocolates",
-      pricePence: 1699,
-      product: "Selection box",
-      occasion: "Christmas",
-      styles: ["Milk", "Dark", "White"],
-      blurb:
-        "Twenty-four solid chocolates, 250g, in milk, dark and white. The box includes reindeer, Christmas trees, domes and small bars, finished with honeycomb, raspberry, caramel, fudge and cookie pieces.",
-      image: "images/chocolate/ccc-cp000498.jpg",
-      imageAlt: "Christmas selection box of 24 solid chocolates",
     },
   ].map(function (item) {
     item.brand = brand;
