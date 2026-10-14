@@ -2631,6 +2631,18 @@ a.service-card:focus-visible h3 {
   align-items: center;
 }
 
+.sv-quote-feature + .sv-quote-feature {
+  margin-top: clamp(3.5rem, 8vw, 6rem);
+}
+
+.sv-quote-feature--flip {
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+}
+
+.sv-quote-feature--flip figure {
+  order: 2;
+}
+
 .sv-quote-feature figure {
   margin: 0;
 }
@@ -3192,8 +3204,13 @@ a.service-card:focus-visible h3 {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .sv-row--flip .sv-row-media {
+  .sv-row--flip .sv-row-media,
+  .sv-quote-feature--flip figure {
     order: 0;
+  }
+
+  .sv-quote-feature--flip {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .sv-row-media img,
