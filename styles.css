@@ -1919,7 +1919,7 @@ p {
   justify-self: start;
 }
 
-.page-hero--about .page-hero-media img {
+.sv-hero--about .sv-hero-media img {
   object-position: center 62%;
 }
 
@@ -2086,7 +2086,6 @@ p {
     order: 0;
   }
 
-  .page-hero--about .page-hero-media,
   .about-story-figure,
   .about-how-figure {
     order: -1;
