@@ -2070,7 +2070,8 @@ p {
 }
 
 @media (max-width: 900px) {
-  .page-hero--split .page-hero-inner--split {
+  .page-hero--split .page-hero-inner--split,
+  .page-hero--split.page-hero--media-left .page-hero-inner--split {
     grid-template-columns: 1fr;
   }
 
@@ -2083,6 +2084,12 @@ p {
 
   .page-hero--split .page-hero-copy {
     order: 0;
+  }
+
+  .page-hero--about .page-hero-media,
+  .about-story-figure,
+  .about-how-figure {
+    order: -1;
   }
 }
 
