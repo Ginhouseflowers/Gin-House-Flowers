@@ -175,6 +175,9 @@ function buildOrderEmailContent(session, lineItems, forCustomer) {
       ? "Thank you for your order from Gin House Flowers."
       : "New online shop order — Gin House Flowers",
     "",
+    ...(forCustomer
+      ? []
+      : ["Ordered by", "Name: " + name, "Phone: " + phone, "Email: " + email, ""]),
     whenText,
     "",
     cardLine,
@@ -184,9 +187,6 @@ function buildOrderEmailContent(session, lineItems, forCustomer) {
     ...(forCustomer ? [] : ["Stripe payment ID: " + session.payment_intent]),
     "Order reference: " + session.id,
     "",
-    ...(forCustomer
-      ? []
-      : ["Customer", "Name: " + name, "Email: " + email, "Phone: " + phone, ""]),
     "Deliver to",
     addressText,
     "",
@@ -211,6 +211,15 @@ function buildOrderEmailContent(session, lineItems, forCustomer) {
       (forCustomer ? "Your Gin House Flowers order" : "New online shop order") +
       "</h1>",
     forCustomer ? "<p>Thank you. Here is what we have for your order.</p>" : "",
+    forCustomer
+      ? ""
+      : "<h2 style=\"font-size:16px;\">Ordered by</h2><ul><li><strong>Name:</strong> " +
+        escapeHtml(name) +
+        "</li><li><strong>Phone:</strong> " +
+        escapeHtml(phone) +
+        "</li><li><strong>Email:</strong> " +
+        escapeHtml(email) +
+        "</li></ul>",
     "<h2 style=\"font-size:16px;\">When</h2>",
     "<pre style=\"font-family:Georgia,serif;font-size:16px;white-space:pre-wrap;\">" +
       escapeHtml(whenText) +
@@ -218,15 +227,6 @@ function buildOrderEmailContent(session, lineItems, forCustomer) {
     flowers
       ? "<p><strong>Note with the flowers:</strong> " + escapeHtml(cardMessage || "(none)") + "</p>"
       : "",
-    forCustomer
-      ? ""
-      : "<h2 style=\"font-size:16px;\">Customer</h2><ul><li><strong>Name:</strong> " +
-        escapeHtml(name) +
-        "</li><li><strong>Email:</strong> " +
-        escapeHtml(email) +
-        "</li><li><strong>Phone:</strong> " +
-        escapeHtml(phone) +
-        "</li></ul>",
     "<p><strong>Total paid:</strong> " + escapeHtml(formatMoneyFromPence(session.amount_total || 0)) + "</p>",
     discountText ? "<p>" + escapeHtml(discountText) + "</p>" : "",
     "<h2 style=\"font-size:16px;\">Deliver to</h2>",
