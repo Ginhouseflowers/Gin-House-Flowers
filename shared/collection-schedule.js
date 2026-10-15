@@ -12,6 +12,9 @@ const OPENING_MINUTES = {
 };
 
 const SLOT_INTERVAL_MINS = 30;
+const LATE_ORDER_FROM_MINS = 17 * 60;
+const LATE_ORDER_UNTIL_MINS = 9 * 60;
+const LATE_ORDER_EARLIEST_MINS = 10 * 60 + 30;
 const OPENING_HOURS_LABEL =
   "Tuesday 10:30am–5pm, Wednesday–Friday 9:30am–5pm, Saturday 9am–1pm";
 
@@ -21,6 +24,9 @@ const CLOSED_DAY_ERROR =
 
 const OUTSIDE_HOURS_ERROR =
   "Please choose a collection time within our opening hours (Tue 10:30am–5pm, Wed–Fri 9:30am–5pm, Sat 9am–1pm).";
+
+const LATE_ORDER_ERROR =
+  "Orders placed after 5pm can be collected from 10:30am on the next day we are open.";
 
 function parseIsoDate(dateStr) {
   if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
@@ -63,7 +69,21 @@ function parseTimeValue(timeStr) {
 }
 
 function nowLocal() {
-  return new Date();
+  const parts = {};
+  new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  })
+    .formatToParts(new Date())
+    .forEach((part) => {
+      parts[part.type] = Number(part.value);
+    });
+  return new Date(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute);
 }
 
 function startOfToday() {
@@ -74,6 +94,26 @@ function startOfToday() {
 
 function isExtraClosed(date, closedDates) {
   return Array.isArray(closedDates) && closedDates.indexOf(formatIsoDate(date)) !== -1;
+}
+
+function isOpenDay(date, closedDates) {
+  return Boolean(OPENING_MINUTES[date.getDay()]) && !isExtraClosed(date, closedDates);
+}
+
+/** Orders placed from 5pm until the next morning can't be collected before 10:30am on the next open day. */
+function lateOrderCollectionDay(closedDates) {
+  const now = nowLocal();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  if (nowMinutes < LATE_ORDER_FROM_MINS && nowMinutes >= LATE_ORDER_UNTIL_MINS) {
+    return null;
+  }
+  const day = startOfToday();
+  if (nowMinutes >= LATE_ORDER_FROM_MINS) day.setDate(day.getDate() + 1);
+  for (let i = 0; i < 21; i += 1) {
+    if (isOpenDay(day, closedDates)) return day.getTime();
+    day.setDate(day.getDate() + 1);
+  }
+  return null;
 }
 
 function getSlotsForDate(date, onlyFutureOnToday, closedDates) {
@@ -87,9 +127,13 @@ function getSlotsForDate(date, onlyFutureOnToday, closedDates) {
   const isToday = date.getTime() === today.getTime();
   const now = nowLocal();
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const isLateOrderDay = onlyFutureOnToday && date.getTime() === lateOrderCollectionDay(closedDates);
 
   for (let mins = hours.open; mins + SLOT_INTERVAL_MINS <= hours.close; mins += SLOT_INTERVAL_MINS) {
     if (isToday && onlyFutureOnToday && mins <= nowMinutes) {
+      continue;
+    }
+    if (isLateOrderDay && mins < LATE_ORDER_EARLIEST_MINS) {
       continue;
     }
     slots.push({
@@ -154,6 +198,12 @@ function validateCollectionDateTime(dateStr, timeStr, closedDates) {
   const slots = getSlotsForDate(date, true, closedDates);
   const valid = slots.some((slot) => slot.value === timeStr);
   if (!valid) {
+    if (
+      date.getTime() === lateOrderCollectionDay(closedDates) &&
+      timeMinutes < LATE_ORDER_EARLIEST_MINS
+    ) {
+      return { ok: false, error: LATE_ORDER_ERROR };
+    }
     return { ok: false, error: OUTSIDE_HOURS_ERROR };
   }
 

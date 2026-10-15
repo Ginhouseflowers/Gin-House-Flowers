@@ -13,6 +13,9 @@
   };
 
   var SLOT_INTERVAL_MINS = 30;
+  var LATE_ORDER_FROM_MINS = 17 * 60;
+  var LATE_ORDER_UNTIL_MINS = 9 * 60;
+  var LATE_ORDER_EARLIEST_MINS = 10 * 60 + 30;
   var OPENING_HOURS_LABEL =
     "Tuesday 10:30am–5pm, Wednesday–Friday 9:30am–5pm, Saturday 9am–1pm";
 
@@ -56,10 +59,53 @@
     return hour12 + ":" + String(m).padStart(2, "0") + ampm;
   }
 
+  function nowInShop() {
+    try {
+      var parts = {};
+      new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/London",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      })
+        .formatToParts(new Date())
+        .forEach(function (part) {
+          parts[part.type] = Number(part.value);
+        });
+      return new Date(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute);
+    } catch (e) {
+      return new Date();
+    }
+  }
+
   function startOfToday() {
-    var today = new Date();
+    var today = nowInShop();
     today.setHours(0, 0, 0, 0);
     return today;
+  }
+
+  function isOpenDay(date) {
+    var closed = global.GinClosedDates || [];
+    return Boolean(OPENING_MINUTES[date.getDay()]) && closed.indexOf(formatIsoDate(date)) === -1;
+  }
+
+  /** Orders placed from 5pm until the next morning can't be collected before 10:30am on the next open day. */
+  function lateOrderCollectionDay() {
+    var now = nowInShop();
+    var nowMinutes = now.getHours() * 60 + now.getMinutes();
+    if (nowMinutes < LATE_ORDER_FROM_MINS && nowMinutes >= LATE_ORDER_UNTIL_MINS) {
+      return null;
+    }
+    var day = startOfToday();
+    if (nowMinutes >= LATE_ORDER_FROM_MINS) day.setDate(day.getDate() + 1);
+    for (var i = 0; i < 21; i += 1) {
+      if (isOpenDay(day)) return day.getTime();
+      day.setDate(day.getDate() + 1);
+    }
+    return null;
   }
 
   function getSlotsForDateString(dateStr) {
@@ -77,8 +123,9 @@
     var slots = [];
     var today = startOfToday();
     var isToday = date.getTime() === today.getTime();
-    var now = new Date();
+    var now = nowInShop();
     var nowMinutes = now.getHours() * 60 + now.getMinutes();
+    var isLateOrderDay = date.getTime() === lateOrderCollectionDay();
 
     for (
       var mins = hours.open;
@@ -86,6 +133,9 @@
       mins += SLOT_INTERVAL_MINS
     ) {
       if (isToday && mins <= nowMinutes) {
+        continue;
+      }
+      if (isLateOrderDay && mins < LATE_ORDER_EARLIEST_MINS) {
         continue;
       }
       slots.push({
@@ -147,6 +197,12 @@
     });
 
     if (!valid) {
+      if (date.getTime() === lateOrderCollectionDay() && timeStr < "10:30") {
+        return {
+          ok: false,
+          error: "Orders placed after 5pm can be collected from 10:30am on the next day we are open.",
+        };
+      }
       return {
         ok: false,
         error:
