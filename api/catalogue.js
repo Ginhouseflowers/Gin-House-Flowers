@@ -2,7 +2,7 @@ const { catalogueScript } = require("../shared/stock-api");
 
 module.exports = async function (req, res) {
   res.setHeader("Content-Type", "application/javascript; charset=utf-8");
-  res.setHeader("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=600");
+  res.setHeader("Cache-Control", "public, max-age=0, s-maxage=30, stale-while-revalidate=30");
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.status(405).send("");
     return;

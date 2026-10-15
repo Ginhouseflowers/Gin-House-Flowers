@@ -148,7 +148,7 @@ const server = http.createServer(async function (req, res) {
   if (req.method === "GET" && urlPath === "/api/catalogue.js") {
     res.writeHead(200, {
       "Content-Type": "application/javascript; charset=utf-8",
-      "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
+      "Cache-Control": "public, max-age=0, s-maxage=30, stale-while-revalidate=30",
     });
     res.end(await catalogueScript());
     return;
