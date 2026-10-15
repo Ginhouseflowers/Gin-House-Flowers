@@ -16,6 +16,7 @@
   var LATE_ORDER_FROM_MINS = 17 * 60;
   var LATE_ORDER_UNTIL_MINS = 9 * 60;
   var LATE_ORDER_EARLIEST_MINS = 10 * 60 + 30;
+  var SAME_DAY_LEAD_MINS = 120;
   var OPENING_HOURS_LABEL =
     "Tuesday 10:30am–5pm, Wednesday–Friday 9:30am–5pm, Saturday 9am–1pm";
 
@@ -132,7 +133,7 @@
       mins + SLOT_INTERVAL_MINS <= hours.close;
       mins += SLOT_INTERVAL_MINS
     ) {
-      if (isToday && mins <= nowMinutes) {
+      if (isToday && mins < nowMinutes + SAME_DAY_LEAD_MINS) {
         continue;
       }
       if (isLateOrderDay && mins < LATE_ORDER_EARLIEST_MINS) {

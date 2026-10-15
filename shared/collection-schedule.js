@@ -15,6 +15,9 @@ const SLOT_INTERVAL_MINS = 30;
 const LATE_ORDER_FROM_MINS = 17 * 60;
 const LATE_ORDER_UNTIL_MINS = 9 * 60;
 const LATE_ORDER_EARLIEST_MINS = 10 * 60 + 30;
+const SAME_DAY_LEAD_MINS = 120;
+/** Allows for the time a customer spends between choosing a slot and reaching checkout. */
+const SAME_DAY_CHECKOUT_GRACE_MINS = 15;
 const OPENING_HOURS_LABEL =
   "Tuesday 10:30am–5pm, Wednesday–Friday 9:30am–5pm, Saturday 9am–1pm";
 
@@ -130,7 +133,7 @@ function getSlotsForDate(date, onlyFutureOnToday, closedDates) {
   const isLateOrderDay = onlyFutureOnToday && date.getTime() === lateOrderCollectionDay(closedDates);
 
   for (let mins = hours.open; mins + SLOT_INTERVAL_MINS <= hours.close; mins += SLOT_INTERVAL_MINS) {
-    if (isToday && onlyFutureOnToday && mins <= nowMinutes) {
+    if (isToday && onlyFutureOnToday && mins < nowMinutes + SAME_DAY_LEAD_MINS - SAME_DAY_CHECKOUT_GRACE_MINS) {
       continue;
     }
     if (isLateOrderDay && mins < LATE_ORDER_EARLIEST_MINS) {
