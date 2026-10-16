@@ -263,6 +263,7 @@
     '<span class="stock-toolbar-actions">' +
     '<button type="button" class="stock-close" data-stock-notice-open>Shop banner</button>' +
     '<button type="button" class="stock-close" data-stock-closed-open>Closed dates</button>' +
+    '<button type="button" class="stock-close" data-stock-seo-open>SEO tips</button>' +
     '<button type="button" class="stock-unlock" data-stock-add-open>Add product</button>' +
     "</span>" +
     "</div>" +
@@ -367,6 +368,20 @@
     '<button type="button" class="stock-close" data-stock-closed-cancel>Back</button>' +
     "</div>" +
     "</form>" +
+    '<div class="stock-add stock-seo" hidden>' +
+    '<h3 class="stock-add-title">SEO tips</h3>' +
+    '<p class="stock-intro">These steps help ginhouseflowers.co.uk appear higher when people search for a florist near Histon or Cambridge. The website already has the technical side covered; most of the gain comes from Google Business and reviews.</p>' +
+    '<ol class="stock-seo-list">' +
+    "<li><strong>Google Business Profile</strong> — Claim or open <a href=\"https://business.google.com\" target=\"_blank\" rel=\"noopener noreferrer\">business.google.com</a>. Keep the name, address, phone, hours, website and photos matching the website. Categories should include Florist.</li>" +
+    "<li><strong>Ask for Google reviews</strong> — After a happy sale, ask customers to leave a Google review. Reply to reviews when you can. This is usually the biggest local ranking boost.</li>" +
+    "<li><strong>Same details everywhere</strong> — Use the same shop name, 11 High Street, Histon, CB24 9JD, and 01223 656670 on Google, Facebook, Instagram and any directories.</li>" +
+    "<li><strong>Google Search Console</strong> — Add the site at <a href=\"https://search.google.com/search-console\" target=\"_blank\" rel=\"noopener noreferrer\">search.google.com/search-console</a> and submit the sitemap <code>https://www.ginhouseflowers.co.uk/sitemap.xml</code>.</li>" +
+    "<li><strong>Keep the site fresh</strong> — Use the shop banner for Mother’s Day, Valentine’s and Christmas order-by dates, keep closed dates up to date, and add product photos when you can.</li>" +
+    "</ol>" +
+    '<div class="stock-add-actions">' +
+    '<button type="button" class="stock-close" data-stock-seo-cancel>Back</button>' +
+    "</div>" +
+    "</div>" +
     "</div>" +
     "</div>";
   document.body.appendChild(panel);
@@ -383,9 +398,10 @@
   var loginError = panel.querySelector(".stock-login-error");
   var editor = panel.querySelector(".stock-editor");
   var browseView = panel.querySelector(".stock-browse");
-  var addForm = panel.querySelector(".stock-add:not(.stock-notice)");
+  var addForm = panel.querySelector(".stock-add:not(.stock-notice):not(.stock-closed):not(.stock-seo)");
   var noticeForm = panel.querySelector(".stock-notice");
   var closedForm = panel.querySelector(".stock-closed");
+  var seoPanel = panel.querySelector(".stock-seo");
   var closedCalendar = panel.querySelector("[data-stock-closed-calendar]");
   var closedList = panel.querySelector("[data-stock-closed-list]");
   var closedError = panel.querySelector(".stock-closed-error");
@@ -714,6 +730,7 @@
     addForm.hidden = true;
     noticeForm.hidden = true;
     closedForm.hidden = true;
+    seoPanel.hidden = true;
     browseView.hidden = false;
   }
 
@@ -749,11 +766,22 @@
     noticeError.hidden = true;
     browseView.hidden = true;
     closedForm.hidden = true;
+    seoPanel.hidden = true;
     noticeForm.hidden = false;
     noticeForm.elements.message.focus();
   });
 
   panel.querySelector("[data-stock-notice-cancel]").addEventListener("click", showBrowse);
+
+  panel.querySelector("[data-stock-seo-open]").addEventListener("click", function () {
+    browseView.hidden = true;
+    addForm.hidden = true;
+    noticeForm.hidden = true;
+    closedForm.hidden = true;
+    seoPanel.hidden = false;
+  });
+
+  panel.querySelector("[data-stock-seo-cancel]").addEventListener("click", showBrowse);
 
   noticeForm.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -945,6 +973,7 @@
     browseView.hidden = true;
     noticeForm.hidden = true;
     addForm.hidden = true;
+    seoPanel.hidden = true;
     closedForm.hidden = false;
   });
 
@@ -1001,6 +1030,7 @@
     browseView.hidden = true;
     noticeForm.hidden = true;
     closedForm.hidden = true;
+    seoPanel.hidden = true;
     addForm.hidden = false;
     addForm.scrollTop = 0;
     addForm.elements.name.focus();

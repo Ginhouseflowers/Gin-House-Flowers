@@ -5346,6 +5346,28 @@ a.service-card:focus-visible h3 {
   color: var(--ink-muted);
 }
 
+.stock-seo-list {
+  margin: 1rem 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.stock-seo-list li + li {
+  margin-top: 0.75rem;
+}
+
+.stock-seo-list a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.stock-seo-list code {
+  font-size: 0.8125rem;
+  word-break: break-all;
+}
+
 .stock-search {
   width: 100%;
   margin-top: 0.85rem;

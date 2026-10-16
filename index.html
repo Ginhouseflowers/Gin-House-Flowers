@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Florist and gift shop on Histon High Street, Cambridge. Order flowers online for local delivery or collection, plus wedding and funeral flowers, cards, gifts and workshops." />
+    <meta name="description" content="Independent florist and gift shop on Histon High Street, Cambridge. Order flowers online for local delivery or collection across Histon, Impington and nearby villages — plus wedding flowers, funeral tributes and workshops." />
     <title>Gin House Flowers | Florist in Histon, Cambridge</title>
     <link rel="canonical" href="https://www.ginhouseflowers.co.uk/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Gin House Flowers" />
     <meta property="og:title" content="Gin House Flowers | Florist in Histon, Cambridge" />
-    <meta property="og:description" content="Florist and gift shop on Histon High Street, Cambridge. Order flowers online for local delivery or collection, plus wedding and funeral flowers, cards, gifts and workshops." />
+    <meta property="og:description" content="Independent florist and gift shop on Histon High Street, Cambridge. Order flowers online for local delivery or collection — plus wedding flowers, funeral tributes and workshops." />
     <meta property="og:url" content="https://www.ginhouseflowers.co.uk/" />
     <meta property="og:image" content="https://www.ginhouseflowers.co.uk/images/home/hero-feature.jpg" />
     <meta property="og:locale" content="en_GB" />
@@ -17,59 +17,111 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Florist",
-        "@id": "https://www.ginhouseflowers.co.uk/#florist",
-        "name": "Gin House Flowers",
-        "legalName": "Gin House Flowers Ltd",
-        "url": "https://www.ginhouseflowers.co.uk/",
-        "telephone": "+441223656670",
-        "email": "info@ginhouseflowers.co.uk",
-        "image": "https://www.ginhouseflowers.co.uk/images/home/hero-feature.jpg",
-        "logo": "https://www.ginhouseflowers.co.uk/images/logo.png",
-        "priceRange": "££",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "11 High Street",
-          "addressLocality": "Histon",
-          "addressRegion": "Cambridgeshire",
-          "postalCode": "CB24 9JD",
-          "addressCountry": "GB"
-        },
-        "geo": {
-          "@type": "GeoCoordinates",
-          "latitude": 52.252278,
-          "longitude": 0.105793
-        },
-        "openingHoursSpecification": [
+        "@graph": [
           {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": [
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday"
+            "@type": "Florist",
+            "@id": "https://www.ginhouseflowers.co.uk/#florist",
+            "name": "Gin House Flowers",
+            "legalName": "Gin House Flowers Ltd",
+            "url": "https://www.ginhouseflowers.co.uk/",
+            "telephone": "+441223656670",
+            "email": "info@ginhouseflowers.co.uk",
+            "image": "https://www.ginhouseflowers.co.uk/images/home/hero-feature.jpg",
+            "logo": "https://www.ginhouseflowers.co.uk/images/logo.png",
+            "priceRange": "££",
+            "currenciesAccepted": "GBP",
+            "paymentAccepted": "Cash, Credit Card, Debit Card",
+            "hasMap": "https://maps.google.com/?q=Gin+House+Flowers,+11+High+Street,+Histon,+CB24+9JD",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "11 High Street",
+              "addressLocality": "Histon",
+              "addressRegion": "Cambridgeshire",
+              "postalCode": "CB24 9JD",
+              "addressCountry": "GB"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 52.252278,
+              "longitude": 0.105793
+            },
+            "openingHoursSpecification": [
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Tuesday", "Wednesday", "Thursday", "Friday"],
+                "opens": "09:30",
+                "closes": "17:00"
+              },
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": "Saturday",
+                "opens": "09:00",
+                "closes": "13:00"
+              }
             ],
-            "opens": "09:30",
-            "closes": "17:00"
+            "areaServed": [
+              {"@type": "Place", "name": "Histon"},
+              {"@type": "Place", "name": "Impington"},
+              {"@type": "Place", "name": "Cottenham"},
+              {"@type": "Place", "name": "Girton"},
+              {"@type": "Place", "name": "Oakington"},
+              {"@type": "Place", "name": "Cambridge"}
+            ],
+            "knowsAbout": [
+              "Wedding flowers",
+              "Funeral flowers",
+              "Flower delivery Cambridge",
+              "Hand tied bouquets",
+              "Flower arranging workshops"
+            ],
+            "makesOffer": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Order flowers online",
+                  "url": "https://www.ginhouseflowers.co.uk/online-shop.html"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Wedding flowers",
+                  "url": "https://www.ginhouseflowers.co.uk/weddings.html"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Funeral flowers",
+                  "url": "https://www.ginhouseflowers.co.uk/funerals.html"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Flower arranging workshops",
+                  "url": "https://www.ginhouseflowers.co.uk/flower-school.html"
+                }
+              }
+            ],
+            "sameAs": [
+              "https://www.facebook.com/Ginhouseflowers/?locale=en_GB",
+              "https://www.instagram.com/ginhouseflowers/",
+              "https://share.google/cvDpNgMsYYmBlyJOs"
+            ]
           },
           {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": "Saturday",
-            "opens": "09:00",
-            "closes": "13:00"
+            "@type": "WebSite",
+            "@id": "https://www.ginhouseflowers.co.uk/#website",
+            "url": "https://www.ginhouseflowers.co.uk/",
+            "name": "Gin House Flowers",
+            "publisher": { "@id": "https://www.ginhouseflowers.co.uk/#florist" },
+            "inLanguage": "en-GB"
           }
-        ],
-        "areaServed": [
-          "Histon",
-          "Impington",
-          "Cottenham",
-          "Girton",
-          "Oakington",
-          "Cambridge"
-        ],
-        "sameAs": [
-          "https://www.facebook.com/Ginhouseflowers/?locale=en_GB",
-          "https://www.instagram.com/ginhouseflowers/"
         ]
       }
     </script>
@@ -133,9 +185,11 @@
               Nestled in the heart of Histon High Street, just outside Cambridge,
               our beautiful flower and gift shop is the home for all your floral
               needs. We have single stem flowers and gift bouquets ready to take
-              away as well as cards and gifts for any occasion. Alongside this, we
-              also specialise in wedding and funeral flowers. Whatever the
-              occasion, our team are on hand to help, support and guide you.
+              away as well as cards and gifts for any occasion. Order online for
+              collection or local flower delivery to Histon, Impington and nearby
+              villages. We also specialise in wedding and funeral flowers.
+              Whatever the occasion, our team are on hand to help, support and
+              guide you.
             </p>
             <div class="sv-hero-actions">
               <a class="btn btn-gold" href="shop-online.html">Shop online</a>
@@ -274,7 +328,10 @@
           <div>
             <p class="eyebrow">Kind words</p>
             <h2 id="reviews-heading">See what our customers say</h2>
-            <p>Read reviews from local customers on Google, or leave one of your own.</p>
+            <p>
+              Read Google reviews from customers around Histon and Cambridge, or
+              leave one of your own — it helps other local people find us.
+            </p>
           </div>
           <a
             class="btn btn-primary"
