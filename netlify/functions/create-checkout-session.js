@@ -50,6 +50,8 @@ exports.handler = async function (event) {
     collectionTime: payload.collectionTime,
     cardNote: payload.cardNote,
     cardMessage: payload.cardMessage,
+    customerName: payload.customerName,
+    customerPhone: payload.customerPhone,
   });
 
   if (!result.ok) {

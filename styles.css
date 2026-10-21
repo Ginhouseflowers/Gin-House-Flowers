@@ -4327,6 +4327,20 @@ a.service-card:focus-visible h3 {
   color: #8b2e2e;
 }
 
+.basket-customer-details {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border: 0;
+}
+
+.basket-customer-details .field-hint {
+  margin: 0 0 0.75rem;
+}
+
+.basket-customer-details .field + .field {
+  margin-top: 0.75rem;
+}
+
 @media (max-width: 800px) {
   .shop-product {
     grid-template-columns: 1fr;

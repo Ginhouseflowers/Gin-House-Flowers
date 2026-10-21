@@ -41,6 +41,8 @@
   var noteMessageWrap = root.querySelector("[data-basket-note-message]");
   var noteMessageInput = root.querySelector("[data-basket-card-message]");
   var noteChoices = root.querySelectorAll("[data-basket-note-choice]");
+  var customerNameInput = root.querySelector("[data-customer-name]");
+  var customerPhoneInput = root.querySelector("[data-customer-phone]");
 
   function getProductConfig(productId) {
     return window.GinShopProducts && window.GinShopProducts[productId];
@@ -588,6 +590,19 @@
 
   function deliveryNameValue() {
     return deliveryNameInput ? deliveryNameInput.value.trim() : "";
+  }
+
+  function customerNameValue() {
+    return customerNameInput ? customerNameInput.value.trim() : "";
+  }
+
+  function customerPhoneValue() {
+    return customerPhoneInput ? customerPhoneInput.value.trim() : "";
+  }
+
+  function validCustomerPhone(phone) {
+    var digits = String(phone || "").replace(/\D/g, "");
+    return /^[0-9+()\s.-]+$/.test(String(phone || "")) && digits.length >= 10 && digits.length <= 15;
   }
 
   function validateDeliveryPostcodeNow(postcode) {
@@ -1221,6 +1236,17 @@
       }
     }
 
+    if (!customerNameValue()) {
+      showCheckoutError("Please enter your name.");
+      if (customerNameInput) customerNameInput.focus();
+      return;
+    }
+    if (!validCustomerPhone(customerPhoneValue())) {
+      showCheckoutError("Please enter a valid phone number.");
+      if (customerPhoneInput) customerPhoneInput.focus();
+      return;
+    }
+
     showCheckoutError("");
 
     if (checkoutBtn) {
@@ -1250,6 +1276,8 @@
         collectionTime: collectionTime,
         cardNote: flowerNote.cardNote,
         cardMessage: flowerNote.cardMessage,
+        customerName: customerNameValue(),
+        customerPhone: customerPhoneValue(),
       }),
     })
       .then(function (response) {

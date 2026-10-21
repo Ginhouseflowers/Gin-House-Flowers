@@ -219,6 +219,8 @@ const server = http.createServer(async function (req, res) {
         collectionTime: payload.collectionTime,
         cardNote: payload.cardNote,
         cardMessage: payload.cardMessage,
+        customerName: payload.customerName,
+        customerPhone: payload.customerPhone,
       });
       if (!result.ok) {
         sendJson(res, result.status, { error: result.error });

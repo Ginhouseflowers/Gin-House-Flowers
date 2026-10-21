@@ -173,6 +173,15 @@ function cleanLine(value, max) {
     .slice(0, max);
 }
 
+function validCustomerPhone(phone) {
+  const digits = String(phone || "").replace(/\D/g, "");
+  return (
+    /^[0-9+()\s.-]+$/.test(String(phone || "").trim()) &&
+    digits.length >= 10 &&
+    digits.length <= 15
+  );
+}
+
 function postcodeFromAddress(address) {
   const matches = String(address || "")
     .toUpperCase()
@@ -227,7 +236,22 @@ function validateOrder(order, items, stock) {
   const noteCheck = validateFlowerNote(order, items, stock);
   if (!noteCheck.ok) return noteCheck;
 
-  return { ok: true, fulfilment, cardMessage: noteCheck.cardMessage };
+  const customerName = cleanLine(order && order.customerName, 80);
+  if (!customerName) {
+    return { ok: false, error: "Please enter your name." };
+  }
+  const customerPhone = cleanLine(order && order.customerPhone, 30);
+  if (!customerPhone || !validCustomerPhone(customerPhone)) {
+    return { ok: false, error: "Please enter a valid phone number." };
+  }
+
+  return {
+    ok: true,
+    fulfilment,
+    cardMessage: noteCheck.cardMessage,
+    customerName,
+    customerPhone,
+  };
 }
 
 function orderIncludesFlowers(items, stock) {
@@ -305,6 +329,8 @@ async function createCheckoutSession(items, baseUrl, order) {
 
   const fulfilment = orderCheck.fulfilment;
   const cardMessage = orderCheck.cardMessage || "";
+  const customerName = orderCheck.customerName || "";
+  const customerPhone = orderCheck.customerPhone || "";
   let deliveryPostcode = "";
   let deliveryAddress = "";
   let deliveryName = "";
@@ -342,6 +368,9 @@ async function createCheckoutSession(items, baseUrl, order) {
   const checkoutLineItems = validation.lineItems.slice();
 
   const orderDetails = [];
+  const orderedByLine = "Ordered by: " + customerName + " · " + customerPhone;
+  orderDetails.push(orderedByLine);
+  checkoutLineItems.push(detailLine(orderedByLine, "Customer contact for this order"));
 
   if (fulfilment === "collection") {
     const when = formatUkDate(collectionDate) + " at " + formatClock(collectionTime);
@@ -397,6 +426,8 @@ async function createCheckoutSession(items, baseUrl, order) {
     metadata: {
       source: "ginhouseflowers-online-shop",
       fulfilment,
+      customer_name: customerName,
+      customer_phone: customerPhone,
       delivery_postcode: deliveryPostcode,
       delivery_name: deliveryName,
       delivery_address: deliveryAddress,

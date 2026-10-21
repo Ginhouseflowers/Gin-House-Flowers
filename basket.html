@@ -197,6 +197,34 @@
                 </div>
                 <p class="basket-flower-note-error" data-basket-note-error role="alert" hidden></p>
               </fieldset>
+              <fieldset class="basket-customer-details" data-basket-customer>
+                <legend class="basket-fulfilment-legend">Your details</legend>
+                <p class="field-hint">So we can contact you about the order.</p>
+                <div class="field basket-customer-name">
+                  <label for="basket-customer-name">Your name</label>
+                  <input
+                    type="text"
+                    id="basket-customer-name"
+                    name="customerName"
+                    data-customer-name
+                    autocomplete="name"
+                    maxlength="80"
+                    required
+                  />
+                </div>
+                <div class="field basket-customer-phone">
+                  <label for="basket-customer-phone">Your phone number</label>
+                  <input
+                    type="tel"
+                    id="basket-customer-phone"
+                    name="customerPhone"
+                    data-customer-phone
+                    autocomplete="tel"
+                    maxlength="30"
+                    required
+                  />
+                </div>
+              </fieldset>
               <div class="basket-actions">
                 <button type="button" class="btn btn-primary" data-basket-checkout hidden>
                   Pay securely

@@ -137,11 +137,13 @@ function buildOrderEmailContent(session, lineItems, forCustomer) {
   const customer = session.customer_details || {};
   const shipping = session.shipping_details || {};
   const address = shipping.address || {};
-  const name = [customer.name, shipping.name].filter(Boolean)[0] || "Not provided";
-  const email = customer.email || "Not provided";
-  const phone = customer.phone || "Not provided";
-
   const metadata = session.metadata || {};
+  const name =
+    metadata.customer_name ||
+    [customer.name, shipping.name].filter(Boolean)[0] ||
+    "Not provided";
+  const email = customer.email || "Not provided";
+  const phone = metadata.customer_phone || customer.phone || "Not provided";
   const addressLines = [];
   if (metadata.delivery_address) {
     if (metadata.delivery_name) addressLines.push(metadata.delivery_name);
@@ -292,21 +294,31 @@ async function sendStripeCustomerReceipt(stripe, session, lineItems) {
   }
 
   if (!shopAlready) {
+    const meta = session.metadata || {};
+    const details = session.customer_details || {};
+    const orderedByName = meta.customer_name || details.name || "Not provided";
+    const orderedByPhone = meta.customer_phone || details.phone || "Not provided";
+    const orderedBy = "Ordered by: " + orderedByName + " · " + orderedByPhone;
     await stripe.paymentIntents.update(paymentIntentId, {
       description: shopText,
+      metadata: {
+        customer_name: meta.customer_name || "",
+        customer_phone: meta.customer_phone || "",
+        shop_receipt_sent: "yes",
+      },
     });
     const chargeId =
       intent && typeof intent.latest_charge === "string"
         ? intent.latest_charge
         : intent && intent.latest_charge && intent.latest_charge.id;
     if (chargeId) {
-      await stripe.charges.update(chargeId, { receipt_email: shopNotifyEmail() });
+      await stripe.charges.update(chargeId, {
+        receipt_email: shopNotifyEmail(),
+        description: String(orderedBy).slice(0, 1000),
+      });
     } else {
       await stripe.paymentIntents.update(paymentIntentId, { receipt_email: shopNotifyEmail() });
     }
-    await stripe.paymentIntents.update(paymentIntentId, {
-      metadata: { shop_receipt_sent: "yes" },
-    });
   }
 
   return {
