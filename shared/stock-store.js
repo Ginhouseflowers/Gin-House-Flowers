@@ -454,16 +454,41 @@ function decodeImage(dataUrl) {
   return { buffer: buffer, contentType: match[1] };
 }
 
+async function writeStripeImage(id, image) {
+  const stripe = stripeClient();
+  if (!stripe) {
+    throw new Error("Card payments are not connected, so photos cannot be saved online.");
+  }
+  const ext = IMAGE_TYPES[image.contentType] || "jpg";
+  const file = await stripe.files.create({
+    purpose: "dispute_evidence",
+    file: {
+      data: image.buffer,
+      name: id + "." + ext,
+      type: image.contentType,
+    },
+  });
+  const link = await stripe.fileLinks.create({ file: file.id });
+  if (!link || !link.url) {
+    throw new Error("The photo was uploaded but could not be linked for the shop.");
+  }
+  return link.url;
+}
+
 async function writeImage(id, image) {
   if (useBlobs()) {
     const { getStore } = require("@netlify/blobs");
     await getStore("gin-house-images").set(id, image.buffer, {
       metadata: { contentType: image.contentType },
     });
-    return;
+    return "";
+  }
+  if (useStripeStock()) {
+    return writeStripeImage(id, image);
   }
   fs.mkdirSync(UPLOADS, { recursive: true });
   fs.writeFileSync(path.join(UPLOADS, id + "." + IMAGE_TYPES[image.contentType]), image.buffer);
+  return "";
 }
 
 async function readImage(id) {
@@ -481,6 +506,7 @@ async function readImage(id) {
       return null;
     }
   }
+  if (useStripeStock()) return null;
   const types = Object.keys(IMAGE_TYPES);
   for (let i = 0; i < types.length; i += 1) {
     const file = path.join(UPLOADS, id + "." + IMAGE_TYPES[types[i]]);
@@ -499,6 +525,7 @@ async function removeImage(id) {
     }
     return;
   }
+  if (useStripeStock()) return;
   Object.keys(IMAGE_TYPES).forEach(function (type) {
     const file = path.join(UPLOADS, id + "." + IMAGE_TYPES[type]);
     if (fs.existsSync(file)) fs.unlinkSync(file);
@@ -541,6 +568,22 @@ async function addProduct(raw) {
     id = "new-" + slug(name) + "-" + crypto.randomBytes(3).toString("hex");
   } while (getProduct(id) || stock.customProducts[id]);
 
+  let imageUrl = "";
+  if (image) {
+    try {
+      imageUrl = (await writeImage(id, image)) || "/api/product-image?id=" + id;
+    } catch (err) {
+      console.error("Stock image save failed:", err.message);
+      return {
+        ok: false,
+        error:
+          err.message && /not connected|too large|could not/i.test(err.message)
+            ? err.message
+            : "The photo could not be saved. Please try a smaller JPEG photo, or add the product without a photo.",
+      };
+    }
+  }
+
   const custom = {
     id: id,
     name: name,
@@ -551,7 +594,7 @@ async function addProduct(raw) {
     occasion: occasion,
     styles: styles,
     blurb: blurb,
-    image: image ? "/api/product-image?id=" + id : "",
+    image: imageUrl,
     imageAlt: name,
     custom: true,
   };
@@ -562,10 +605,20 @@ async function addProduct(raw) {
   );
   if (record.error) return { ok: false, error: record.error };
 
-  if (image) await writeImage(id, image);
   stock.customProducts[id] = custom;
   if (!isDefaultRecord(record)) stock.products[id] = record;
-  await writeStock(stock);
+  try {
+    await writeStock(stock);
+  } catch (err) {
+    console.error("Stock write failed:", err.message);
+    return {
+      ok: false,
+      error:
+        err.message && /too large/i.test(err.message)
+          ? "There are too many products saved. Please delete some unused ones, then try again."
+          : "The stock could not be saved. Please try again.",
+    };
+  }
   return { ok: true, customProduct: custom, product: stock.products[id] || null };
 }
 

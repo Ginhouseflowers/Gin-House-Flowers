@@ -46,9 +46,21 @@ async function stockPost(rawBody) {
     return { status: 200, body: { ok: true } };
   }
   if (payload.action === "add") {
-    const added = await addProduct(payload);
-    if (!added.ok) return { status: 400, body: { error: added.error } };
-    return { status: 200, body: { customProduct: added.customProduct, product: added.product } };
+    try {
+      const added = await addProduct(payload);
+      if (!added.ok) return { status: 400, body: { error: added.error } };
+      return { status: 200, body: { customProduct: added.customProduct, product: added.product } };
+    } catch (err) {
+      console.error("Stock add failed:", err);
+      return {
+        status: 500,
+        body: {
+          error:
+            (err && err.message) ||
+            "The stock service is unavailable. Please try again.",
+        },
+      };
+    }
   }
   if (payload.action === "remove") {
     const removed = await removeProduct(payload.id);
