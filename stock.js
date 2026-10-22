@@ -246,7 +246,7 @@
     '<div class="stock-sheet">' +
     '<div class="stock-sheet-head">' +
     '<h2 id="stock-panel-title">Online stock</h2>' +
-    '<button type="button" class="stock-close">Close</button>' +
+    '<button type="button" class="stock-close" data-stock-close>Close</button>' +
     "</div>" +
     '<form class="stock-login">' +
     '<label class="stock-qty">Password' +
@@ -276,7 +276,7 @@
     '<button type="button" class="stock-unlock" data-stock-add-open>Add product</button>' +
     "</span>" +
     "</div>" +
-    '<input class="stock-search" type="search" placeholder="Search products" aria-label="Search products">' +
+    '<input class="stock-search" type="text" placeholder="Search products" aria-label="Search products" autocomplete="off">' +
     '<div class="stock-filters" role="group" aria-label="Product group">' +
     '<button type="button" class="stock-filter is-active" data-stock-group="all">All</button>' +
     '<button type="button" class="stock-filter" data-stock-group="flowers">Flowers</button>' +
@@ -399,7 +399,7 @@
   var listEl = panel.querySelector(".stock-list");
   var searchEl = panel.querySelector(".stock-search");
   var statusEl = panel.querySelector(".stock-status");
-  var closeBtn = panel.querySelector(".stock-close");
+  var closeBtn = panel.querySelector("[data-stock-close]");
   var loginForm = panel.querySelector(".stock-login");
   var passwordInput = panel.querySelector("[data-stock-password]");
   var saveInput = panel.querySelector("[data-stock-save-password]");
@@ -1258,14 +1258,29 @@
   }
 
   closeBtn.addEventListener("click", closePanel);
+
+  // Only close from a press that starts on the backdrop. A plain click can fire after
+  // the keyboard opens or a field blurs, which made the panel close while typing.
+  var backdropPointer = false;
+  panel.addEventListener("pointerdown", function (event) {
+    backdropPointer = event.target === panel;
+  });
   panel.addEventListener("click", function (event) {
-    if (event.target === panel) closePanel();
+    if (event.target === panel && backdropPointer) closePanel();
+    backdropPointer = false;
+  });
+  sheet.addEventListener("pointerdown", function () {
+    backdropPointer = false;
   });
   sheet.addEventListener("click", function (event) {
     event.stopPropagation();
   });
   document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && !panel.hidden) closePanel();
+    if (event.key !== "Escape" || panel.hidden) return;
+    var tag = event.target && event.target.tagName;
+    // Escape inside a field should not dismiss the whole stock panel.
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    closePanel();
   });
 
   var logo = document.querySelector(".logo");
