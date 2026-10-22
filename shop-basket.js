@@ -920,6 +920,7 @@
       .concat(window.GinOhhDeerCards || [])
       .concat(window.GinMandGProducts || [])
       .concat(window.GinPaperSalad || [])
+      .concat(window.GinCarolineGardnerCards || [])
       .concat(window.GinCustomProducts || [])
       .forEach(function (card) {
         if (card.group !== "cards") return;

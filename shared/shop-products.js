@@ -1,6 +1,7 @@
 const { OHH_DEER_CARDS } = require("./ohh-deer-cards");
 const { MUSEUMS_GALLERIES } = require("./museums-galleries");
 const { PAPER_SALAD } = require("./paper-salad");
+const { CAROLINE_GARDNER_CARDS } = require("./caroline-gardner-cards");
 const { CAMBRIDGE_CONFECTIONERY } = require("./cambridge-confectionery");
 
 const SHOP_PRODUCTS = {
@@ -43,6 +44,7 @@ function registerFixedPrice(card) {
 OHH_DEER_CARDS.forEach(registerFixedPrice);
 MUSEUMS_GALLERIES.forEach(registerFixedPrice);
 PAPER_SALAD.forEach(registerFixedPrice);
+CAROLINE_GARDNER_CARDS.forEach(registerFixedPrice);
 CAMBRIDGE_CONFECTIONERY.forEach(registerFixedPrice);
 
 function getProduct(productId) {

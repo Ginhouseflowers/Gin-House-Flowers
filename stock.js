@@ -189,6 +189,7 @@
       .concat(window.GinOhhDeerCards || [])
       .concat(window.GinMandGProducts || [])
       .concat(window.GinPaperSalad || [])
+      .concat(window.GinCarolineGardnerCards || [])
       .concat(window.GinCambridgeConfectionery || [])
       .concat(window.GinCustomProducts || []);
   }

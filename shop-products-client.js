@@ -37,6 +37,7 @@
   if (window.GinOhhDeerCards) window.GinOhhDeerCards.forEach(registerFixedPrice);
   if (window.GinMandGProducts) window.GinMandGProducts.forEach(registerFixedPrice);
   if (window.GinPaperSalad) window.GinPaperSalad.forEach(registerFixedPrice);
+  if (window.GinCarolineGardnerCards) window.GinCarolineGardnerCards.forEach(registerFixedPrice);
   if (window.GinCambridgeConfectionery) window.GinCambridgeConfectionery.forEach(registerFixedPrice);
   if (window.GinCustomProducts) window.GinCustomProducts.forEach(registerFixedPrice);
 })();

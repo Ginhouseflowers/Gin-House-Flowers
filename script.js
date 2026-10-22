@@ -66,6 +66,7 @@
         window.GinOhhDeerCards,
         window.GinMandGProducts,
         window.GinPaperSalad,
+        window.GinCarolineGardnerCards,
         window.GinCambridgeConfectionery,
         window.GinCustomProducts,
       ].forEach(
