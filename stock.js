@@ -9,7 +9,8 @@
       var record = this.products[id];
       if (record && (record.outOfStock || record.available === 0)) return 0;
       if (record && record.available != null) return record.available;
-      if (isCard(id)) return 2;
+      // Cards and chocolate stay out of stock until switched on in the stock panel.
+      if (isCard(id) || isChocolate(id)) return 0;
       return null;
     },
     blocked: function (id) {
@@ -200,6 +201,14 @@
     return false;
   }
 
+  function isChocolate(id) {
+    var items = catalogue();
+    for (var i = 0; i < items.length; i += 1) {
+      if (items[i].id === id) return items[i].group === "chocolate";
+    }
+    return false;
+  }
+
   function isCustom(id) {
     return (window.GinCustomProducts || []).some(function (item) {
       return item.id === id;
@@ -255,7 +264,7 @@
     '<button type="button" class="stock-unlock" data-shop-switch>Take the shop offline</button>' +
     "</div>" +
     '<div class="stock-browse">' +
-    '<p class="stock-intro">Changes save automatically and go live in the shop straight away. Greeting cards start with 2 available, and show as out of stock once those have sold. For anything else, leave available blank for no limit. Tick out of stock to stop sales, change the price or put an item on sale. Deleted products are hidden from the shop and can be restored from Deleted.</p>' +
+    '<p class="stock-intro">Changes save automatically and go live in the shop straight away. Cards and chocolate start as out of stock — untick out of stock on the ones you want to sell. Greeting cards then use 2 available unless you set a different number. For anything else, leave available blank for no limit. Deleted products are hidden from the shop and can be restored from Deleted.</p>' +
     '<div class="stock-toolbar">' +
     '<label class="stock-tick stock-save-live">' +
     '<input type="checkbox" data-stock-save-live> Save password on this browser' +

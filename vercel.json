@@ -2,13 +2,9 @@
   "redirects": [
     {
       "source": "/chocolate.html",
-      "destination": "/online-shop.html",
+      "destination": "/range.html?brand=cambridge-confectionery&from=chocolate",
       "permanent": true
     },
-    { "source": "/cards.html", "destination": "/online-shop.html", "permanent": true },
-    { "source": "/gifts.html", "destination": "/online-shop.html", "permanent": true },
-    { "source": "/range.html", "destination": "/online-shop.html", "permanent": true },
-    { "source": "/view-all.html", "destination": "/online-shop.html", "permanent": true },
     { "source": "/about", "destination": "/shop.html", "permanent": true },
     { "source": "/about/", "destination": "/shop.html", "permanent": true },
     { "source": "/shop", "destination": "/shop-online.html", "permanent": true },

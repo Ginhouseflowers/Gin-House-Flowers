@@ -184,6 +184,7 @@ function remaining(record, product) {
   if (record && record.deleted) return 0;
   if (record && (record.outOfStock || record.available === 0)) return 0;
   if (record && record.available != null) return record.available;
+  if (product && (product.group === "cards" || product.group === "chocolate")) return 0;
   return cardLimit(product);
 }
 
@@ -204,10 +205,11 @@ function presentProducts(stock) {
 }
 
 function ensurePresented(products, id, product) {
-  if (!product || product.group !== "cards") return;
+  if (!product || (product.group !== "cards" && product.group !== "chocolate")) return;
   const record = products[id];
   if (!record) {
-    products[id] = blankRecord(CARD_STOCK);
+    // Show cards and chocolate as out of stock until you switch them on in the stock panel.
+    products[id] = blankRecord(0);
     return;
   }
   if (record.deleted) return;
@@ -216,7 +218,7 @@ function ensurePresented(products, id, product) {
     record.outOfStock = true;
     return;
   }
-  if (record.available == null) record.available = CARD_STOCK;
+  if (record.available == null && product.group === "cards") record.available = CARD_STOCK;
 }
 
 function useStripeStock() {

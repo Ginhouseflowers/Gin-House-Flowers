@@ -18,4 +18,25 @@
     },
   };
 
+  function registerFixedPrice(card) {
+    var pence = card.pricePence || Math.round(Number(card.price) * 100);
+    window.GinShopProducts[card.id] = {
+      id: card.id,
+      name: card.name,
+      minValue: pence / 100,
+      maxValue: pence / 100,
+      valueStep: 1,
+      waterBubbleBagAddon: false,
+      fixedPrice: true,
+      fixedPricePence: pence,
+      saleLabel: card.product,
+      group: card.group,
+    };
+  }
+
+  if (window.GinOhhDeerCards) window.GinOhhDeerCards.forEach(registerFixedPrice);
+  if (window.GinMandGProducts) window.GinMandGProducts.forEach(registerFixedPrice);
+  if (window.GinPaperSalad) window.GinPaperSalad.forEach(registerFixedPrice);
+  if (window.GinCambridgeConfectionery) window.GinCambridgeConfectionery.forEach(registerFixedPrice);
+  if (window.GinCustomProducts) window.GinCustomProducts.forEach(registerFixedPrice);
 })();

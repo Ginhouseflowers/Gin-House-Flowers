@@ -324,6 +324,8 @@
   menu.innerHTML =
     '<div class="nav-shop-menu-inner">' +
     '<a href="online-shop.html" data-shop-choice="flowers">Flowers</a>' +
+    '<a href="cards.html" data-shop-choice="cards">Cards</a>' +
+    '<a href="range.html?brand=cambridge-confectionery&from=chocolate" data-shop-choice="chocolate">Chocolate</a>' +
     "</div>";
   item.appendChild(menu);
 
@@ -418,7 +420,7 @@
     '<label class="visually-hidden" for="site-search">Search products</label>' +
     '<input id="site-search" type="search" placeholder="Search products" autocomplete="off" />' +
     "</form>" +
-    '<p class="header-search-hint">Search flowers.</p>' +
+    '<p class="header-search-hint">Search flowers, cards and chocolate.</p>' +
     '<ul class="header-search-results" hidden></ul>' +
     '<p class="header-search-empty" hidden>No products match that search.</p>' +
     "</div>";
@@ -459,15 +461,27 @@
       },
       {
         name: "Shop online",
-        meta: "Flowers",
+        meta: "Flowers, cards and chocolate",
         href: "shop-online.html",
-        text: "shop online store flowers",
+        text: "shop online store flowers cards chocolate",
       },
       {
         name: "Flowers",
         meta: "Shop online",
         href: "online-shop.html",
         text: "flowers bouquet hat box shop online",
+      },
+      {
+        name: "Cards",
+        meta: "Shop online",
+        href: "cards.html",
+        text: "cards greeting",
+      },
+      {
+        name: "Chocolate",
+        meta: "Shop online",
+        href: "range.html?brand=cambridge-confectionery&from=chocolate",
+        text: "chocolate confectionery cambridge",
       },
     ];
     return items;

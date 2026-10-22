@@ -80,10 +80,6 @@ function validateItems(items, stock) {
       return { ok: false, error: "Unrecognised product in basket." };
     }
 
-    if (product.fixedPrice) {
-      return { ok: false, error: product.name + " is no longer available online." };
-    }
-
     const pricePence = effectivePricePence(product, records[product.id]);
     let value;
     if (product.fixedPrice) {
