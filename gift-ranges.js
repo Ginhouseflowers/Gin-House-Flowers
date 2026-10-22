@@ -4,7 +4,80 @@
       id: "cards",
       title: "Cards",
       lede:
-        "Greeting cards from the brands on our Histon shelves. Choose a range, then call the shop and we will put a piece aside for collection.",
+        "Greeting cards for every occasion from the brands on our Histon shelves. Choose an occasion and add a card to your basket for collection — delivery is only available when a card is ordered with flowers.",
+      occasions: [
+        {
+          id: "birthday",
+          name: "Birthday",
+          note: "Open, age and family birthdays",
+          match: function (occasion) {
+            return /birthday/i.test(String(occasion || ""));
+          },
+        },
+        {
+          id: "new-baby",
+          name: "New baby",
+          note: "Welcome little one",
+          match: ["New baby"],
+        },
+        {
+          id: "anniversary",
+          name: "Anniversary",
+          note: "For couples",
+          match: ["Anniversary"],
+        },
+        {
+          id: "wedding",
+          name: "Wedding & congratulations",
+          note: "Wedding, engagement and well done",
+          match: ["Wedding", "Engagement", "Congratulations", "Well done"],
+        },
+        {
+          id: "thank-you",
+          name: "Thank you",
+          note: "A note of thanks",
+          match: ["Thank you"],
+        },
+        {
+          id: "blank",
+          name: "Blank & everyday",
+          note: "Write your own message",
+          match: ["Blank", "Everyday"],
+        },
+        {
+          id: "leaving",
+          name: "Leaving & new home",
+          note: "Goodbyes and new chapters",
+          match: ["Leaving", "New home"],
+        },
+        {
+          id: "thinking-of-you",
+          name: "Thinking of you",
+          note: "Care, sympathy and love",
+          match: ["Thinking of you", "Sympathy", "Get well", "Sorry", "Love"],
+        },
+        {
+          id: "children",
+          name: "Children",
+          note: "For little ones",
+          match: ["Children"],
+        },
+        {
+          id: "for-mum",
+          name: "For Mum",
+          note: "Mum and Mother’s Day favourites",
+          match: ["Mum", "Birthday for Mum"],
+        },
+        {
+          id: "for-family",
+          name: "For family & friends",
+          note: "Sister, wife, husband and more",
+          match: ["Sister", "Retirement"],
+          matchExtra: function (occasion) {
+            return /^Birthday for /i.test(String(occasion || ""));
+          },
+        },
+      ],
     },
     gifts: {
       id: "gifts",

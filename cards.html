@@ -70,17 +70,27 @@
           <p class="eyebrow">Shop online</p>
           <h1>Cards</h1>
           <p class="lede">
-            Greeting cards from the brands on our Histon shelves. Choose a range,
-            then call the shop and we will put a piece aside for collection or local
-            delivery.
+            Greeting cards for every occasion from the brands on our Histon shelves.
+            Choose an occasion and add a card to your basket for collection — delivery
+            is only available when a card is ordered with flowers.
           </p>
         </div>
       </header>
 
       <section class="section" aria-labelledby="cards-heading">
         <div class="section-inner">
-          <h2 id="cards-heading" class="visually-hidden">Card ranges</h2>
-          <ul class="browse-grid" data-range-index="cards"></ul>
+          <h2 id="cards-heading" class="visually-hidden">Shop by occasion</h2>
+          <ul class="browse-grid" data-occasion-index="cards"></ul>
+        </div>
+      </section>
+
+      <section class="section browse-brands-section" aria-labelledby="cards-brands-heading">
+        <div class="section-inner">
+          <header class="section-header">
+            <h2 id="cards-brands-heading">Shop by brand</h2>
+            <p>Prefer a favourite maker? Browse one range, or filter by brand on any occasion page.</p>
+          </header>
+          <ul class="browse-grid" data-range-index="cards" data-range-skip-view-all></ul>
         </div>
       </section>
     </main>
@@ -152,13 +162,13 @@
     </footer>
 
     <script src="gift-ranges.js"></script>
-    <script src="range-browse.js"></script>
     <script src="shared/ohh-deer-cards.js"></script>
     <script src="shared/museums-galleries.js"></script>
     <script src="shared/paper-salad.js"></script>
     <script src="shared/caroline-gardner-cards.js"></script>
     <script src="shared/cambridge-confectionery.js"></script>
     <script src="/api/catalogue.js"></script>
+    <script src="range-browse.js"></script>
     <script src="script.js" defer></script>
     <script src="stock.js" defer></script>
   </body>

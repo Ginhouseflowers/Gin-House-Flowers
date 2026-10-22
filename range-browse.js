@@ -105,10 +105,100 @@
     );
   }
 
+  function shopCatalogue() {
+    return []
+      .concat(window.GinOhhDeerCards || [])
+      .concat(window.GinMandGProducts || [])
+      .concat(window.GinPaperSalad || [])
+      .concat(window.GinCarolineGardnerCards || [])
+      .concat(window.GinCambridgeConfectionery || [])
+      .concat(window.GinCustomProducts || []);
+  }
+
+  function occasionMatches(def, occasion) {
+    var value = String(occasion || "");
+    var match = def.match;
+    if (typeof match === "function") return Boolean(match(value));
+    if (Array.isArray(match) && match.indexOf(value) !== -1) return true;
+    if (typeof def.matchExtra === "function" && def.matchExtra(value)) return true;
+    return false;
+  }
+
+  function occasionDef(groupId, occasionId) {
+    var group = ranges[groupId];
+    if (!group || !group.occasions) return null;
+    return (
+      group.occasions.filter(function (item) {
+        return item.id === occasionId;
+      })[0] || null
+    );
+  }
+
+  function cardsForOccasion(groupId, def) {
+    return shopCatalogue().filter(function (card) {
+      return card.group === groupId && occasionMatches(def, card.occasion);
+    });
+  }
+
+  function occasionCard(def, group) {
+    var matches = sortInStockFirst(cardsForOccasion(group, def));
+    var sample = matches.filter(function (card) {
+      return card.image;
+    })[0];
+    var count = matches.length;
+    return (
+      '<li>' +
+      '<a class="browse-card" href="view-all.html?group=' +
+      encodeURIComponent(group) +
+      "&occasionGroup=" +
+      encodeURIComponent(def.id) +
+      '">' +
+      '<span class="browse-card-visual">' +
+      (sample
+        ? '<img src="' +
+          escapeHtml(sample.image) +
+          '" alt="' +
+          escapeHtml(sample.imageAlt || def.name) +
+          '" width="900" height="675" loading="lazy" decoding="async">'
+        : escapeHtml(def.name)) +
+      "</span>" +
+      '<span class="browse-card-body">' +
+      '<span class="browse-card-name">' +
+      escapeHtml(def.name) +
+      "</span>" +
+      '<span class="browse-card-note">' +
+      escapeHtml(def.note || "") +
+      "</span>" +
+      '<span class="browse-card-meta">' +
+      escapeHtml(count + (count === 1 ? " card" : " cards")) +
+      "</span>" +
+      '<span class="browse-card-action">Browse</span>' +
+      "</span>" +
+      "</a>" +
+      "</li>"
+    );
+  }
+
+  document.querySelectorAll("[data-occasion-index]").forEach(function (list) {
+    var group = list.getAttribute("data-occasion-index");
+    var groupDef = ranges[group];
+    if (!groupDef || !groupDef.occasions) return;
+    var tiles = groupDef.occasions
+      .filter(function (def) {
+        return cardsForOccasion(group, def).length > 0;
+      })
+      .map(function (def) {
+        return occasionCard(def, group);
+      })
+      .join("");
+    list.innerHTML = viewAllCard(group) + tiles;
+  });
+
   document.querySelectorAll("[data-range-index]").forEach(function (list) {
     var group = list.getAttribute("data-range-index");
+    var skipViewAll = list.hasAttribute("data-range-skip-view-all");
     list.innerHTML =
-      viewAllCard(group) +
+      (skipViewAll ? "" : viewAllCard(group)) +
       brandsIn(group)
         .map(function (brand) {
           return brandCard(brand, group);
@@ -186,22 +276,33 @@
 
     if (filterRoot) {
       var brandPage = scope.matches("[data-brand-products]");
-      filterRoot.innerHTML =
-        filterGroup("Brand", "brand", brandPage ? [] : uniqueField("brand")) +
-        filterGroup("Product", "product", uniqueField("product")) +
-        filterGroup(
-          catalogue.some(function (card) {
-            return card.group === "cards";
-          })
-            ? "Card Occasion"
-            : "Occasion",
-          "occasion",
-          uniqueField("occasion")
-        ) +
-        filterGroup("Style", "styles", uniqueField("styles"));
+      var isCards = catalogue.some(function (card) {
+        return card.group === "cards";
+      });
+      var brandFilters = filterGroup("Brand", "brand", brandPage ? [] : uniqueField("brand"));
+      var productFilters = filterGroup("Product", "product", uniqueField("product"));
+      var occasionFilters = filterGroup(
+        isCards ? "Card Occasion" : "Occasion",
+        "occasion",
+        uniqueField("occasion")
+      );
+      var styleFilters = filterGroup("Style", "styles", uniqueField("styles"));
+      filterRoot.innerHTML = isCards
+        ? occasionFilters + brandFilters + productFilters + styleFilters
+        : brandFilters + productFilters + occasionFilters + styleFilters;
+      var openBrandOnLoad =
+        isCards &&
+        !brandPage &&
+        Boolean(new URLSearchParams(location.search).get("occasionGroup"));
       filterRoot.querySelectorAll(".filter-toggle").forEach(function (button) {
         var panel = button.nextElementSibling;
         var plus = button.querySelector(".filter-plus");
+        var label = (button.querySelector("span") || {}).textContent || "";
+        if (openBrandOnLoad && label === "Brand") {
+          button.setAttribute("aria-expanded", "true");
+          panel.hidden = false;
+          if (plus) plus.textContent = "−";
+        }
         button.addEventListener("click", function () {
           var open = button.getAttribute("aria-expanded") === "true";
           button.setAttribute("aria-expanded", open ? "false" : "true");
@@ -722,33 +823,33 @@
     openFromHash();
   }
 
-  function shopCatalogue() {
-    return []
-      .concat(window.GinOhhDeerCards || [])
-      .concat(window.GinMandGProducts || [])
-      .concat(window.GinPaperSalad || [])
-      .concat(window.GinCarolineGardnerCards || [])
-      .concat(window.GinCambridgeConfectionery || [])
-      .concat(window.GinCustomProducts || []);
-  }
-
   var productsPage = document.querySelector("[data-products]");
   if (productsPage) {
-    var productGroupId = new URLSearchParams(location.search).get("group");
+    var productParams = new URLSearchParams(location.search);
+    var productGroupId = productParams.get("group");
     var productGroup = ranges[productGroupId] || ranges.cards;
+    var occasionGroupId = productParams.get("occasionGroup");
+    var occasionGroup = occasionGroupId
+      ? occasionDef(productGroup.id, occasionGroupId)
+      : null;
     var productHero = productsPage.querySelector("[data-products-hero]");
     var backHref = groupHref(productGroup.id);
     var catalogue = shopCatalogue().filter(function (card) {
-      return card.group === productGroup.id;
+      if (card.group !== productGroup.id) return false;
+      if (!occasionGroup) return true;
+      return occasionMatches(occasionGroup, card.occasion);
     });
-    document.title = productGroup.title + " — Gin House Flowers";
+    var pageTitle = occasionGroup ? occasionGroup.name : productGroup.title;
+    document.title = pageTitle + " — Gin House Flowers";
 
     if (!catalogue.length) {
       if (productHero) {
         productHero.innerHTML =
-          '<p class="eyebrow">Shop online</p>' +
+          '<p class="eyebrow">Shop online' +
+          (occasionGroup ? " · " + escapeHtml(productGroup.title) : "") +
+          "</p>" +
           "<h1>" +
-          escapeHtml(productGroup.title) +
+          escapeHtml(pageTitle) +
           "</h1>" +
           '<p class="lede">No products for now.</p>' +
           '<p class="browse-back"><a href="' +
@@ -767,7 +868,11 @@
         return card.price === catalogue[0].price;
       });
       var lede;
-      if (brands.length === 1 && samePrice) {
+      if (occasionGroup) {
+        lede =
+          (occasionGroup.note ? occasionGroup.note + ". " : "") +
+          "Filter by brand if you have a favourite, then add a card to your basket for collection from Histon.";
+      } else if (brands.length === 1 && samePrice) {
         lede =
           brands[0] +
           " " +
@@ -784,9 +889,11 @@
       }
       if (productHero) {
         productHero.innerHTML =
-          '<p class="eyebrow">Shop online</p>' +
+          '<p class="eyebrow">Shop online' +
+          (occasionGroup ? " · " + escapeHtml(productGroup.title) : "") +
+          "</p>" +
           "<h1>" +
-          escapeHtml(productGroup.title) +
+          escapeHtml(pageTitle) +
           "</h1>" +
           '<p class="lede">' +
           escapeHtml(lede) +
@@ -797,7 +904,12 @@
           escapeHtml(productGroup.title.toLowerCase()) +
           "</a></p>";
       }
-      bindProductShop(productsPage, catalogue, noun, "Search " + productGroup.title.toLowerCase());
+      bindProductShop(
+        productsPage,
+        catalogue,
+        noun,
+        "Search " + (occasionGroup ? occasionGroup.name.toLowerCase() : productGroup.title.toLowerCase())
+      );
     }
   }
 
