@@ -463,7 +463,11 @@
   }
 
   function renderList() {
-    var items = filteredProducts();
+    var items = filteredProducts().slice().sort(function (a, b) {
+      var aOut = stock.blocked(a.id) ? 1 : 0;
+      var bOut = stock.blocked(b.id) ? 1 : 0;
+      return aOut - bOut;
+    });
     if (!items.length) {
       listEl.innerHTML =
         '<li class="stock-empty">' +

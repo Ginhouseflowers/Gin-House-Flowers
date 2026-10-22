@@ -16,6 +16,14 @@
     return "£" + (pence / 100).toFixed(2);
   }
 
+  function sortInStockFirst(items) {
+    return items.slice().sort(function (a, b) {
+      var aOut = window.GinStock && window.GinStock.blocked(a.id) ? 1 : 0;
+      var bOut = window.GinStock && window.GinStock.blocked(b.id) ? 1 : 0;
+      return aOut - bOut;
+    });
+  }
+
   function brandsIn(group) {
     return ranges.brands.filter(function (brand) {
       return brand.groups.indexOf(group) !== -1;
@@ -348,7 +356,7 @@
       );
     }
 
-    var gridMarkup = catalogue.map(cardMarkup).join("");
+    var gridMarkup = sortInStockFirst(catalogue).map(cardMarkup).join("");
     if (grid) {
       grid.innerHTML = gridMarkup;
       grid.addEventListener("click", function (event) {
@@ -683,7 +691,7 @@
 
     window.addEventListener("ginhouse:stock", function () {
       if (!grid) return;
-      var nextMarkup = catalogue.map(cardMarkup).join("");
+      var nextMarkup = sortInStockFirst(catalogue).map(cardMarkup).join("");
       if (nextMarkup !== gridMarkup) {
         gridMarkup = nextMarkup;
         grid.innerHTML = gridMarkup;
