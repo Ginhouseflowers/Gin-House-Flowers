@@ -5621,8 +5621,8 @@ a.service-card:focus-visible h3 {
 
 .is-out-of-stock .browse-card-visual img,
 .is-out-of-stock .shop-gallery-photo {
+  /* Opacity only — Safari can blank images that use filter: grayscale. */
   opacity: 0.55;
-  filter: grayscale(0.6);
 }
 
 .browse-card-price--sale {

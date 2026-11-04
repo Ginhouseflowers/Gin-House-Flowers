@@ -30,6 +30,12 @@
     });
   }
 
+  function brandHasProducts(brand, group) {
+    return shopCatalogue().some(function (card) {
+      return card.brand === brand.name && card.group === group;
+    });
+  }
+
   function groupHref(id) {
     if (id === "chocolate") return "range.html?brand=cambridge-confectionery&from=chocolate";
     if (ranges[id]) return id + ".html";
@@ -145,6 +151,11 @@
     var sample = matches.filter(function (card) {
       return card.image;
     })[0];
+    if (!sample) {
+      sample = cardsForOccasion(group, def).filter(function (card) {
+        return card.image;
+      })[0];
+    }
     var count = matches.length;
     return (
       '<li>' +
@@ -179,7 +190,7 @@
     );
   }
 
-  document.querySelectorAll("[data-occasion-index]").forEach(function (list) {
+  function renderOccasionIndex(list) {
     var group = list.getAttribute("data-occasion-index");
     var groupDef = ranges[group];
     if (!groupDef || !groupDef.occasions) return;
@@ -192,18 +203,33 @@
       })
       .join("");
     list.innerHTML = viewAllCard(group) + tiles;
-  });
+  }
 
-  document.querySelectorAll("[data-range-index]").forEach(function (list) {
+  function renderBrandIndex(list) {
     var group = list.getAttribute("data-range-index");
     var skipViewAll = list.hasAttribute("data-range-skip-view-all");
+    var requireProducts = list.hasAttribute("data-range-require-products");
+    var brands = brandsIn(group);
+    if (requireProducts) {
+      // Cards online: hide brands with no catalogue yet (e.g. Art File, Rachel Ellen).
+      brands = brands.filter(function (brand) {
+        return brandHasProducts(brand, group);
+      });
+    }
     list.innerHTML =
       (skipViewAll ? "" : viewAllCard(group)) +
-      brandsIn(group)
+      brands
         .map(function (brand) {
           return brandCard(brand, group);
         })
         .join("");
+  }
+
+  document.querySelectorAll("[data-occasion-index]").forEach(renderOccasionIndex);
+  document.querySelectorAll("[data-range-index]").forEach(renderBrandIndex);
+
+  window.addEventListener("ginhouse:stock", function () {
+    document.querySelectorAll("[data-occasion-index]").forEach(renderOccasionIndex);
   });
 
   function bindProductShop(scope, catalogue, noun, searchLabel) {
