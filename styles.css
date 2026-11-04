@@ -155,7 +155,6 @@ a.site-notice-text:hover {
   z-index: 50;
   background: var(--forest);
   border-bottom: 1px solid rgba(243, 234, 208, 0.16);
-  overflow-x: clip;
 }
 
 .header-inner {
